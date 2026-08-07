@@ -1,0 +1,7 @@
+.venv/
+__pycache__/
+*.session
+.env
+*.bak_*
+_*.txt
+.~lock*
