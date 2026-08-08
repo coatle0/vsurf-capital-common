@@ -12,8 +12,12 @@
   - 필요한 MCP만 명시 (예: `도구: investment-kg, neo4j`).
   - 목적: Order 실행 시 불필요한 MCP 콜드스타트 제거.
 - 본문 구성: **착수 전 pull(고정 행)** → 목적 → 범위 → 작업(번호별) → 금지 → DoD → 보고 → **종료 시 push(고정 행)**.
-  - 착수 전 고정 행: `git pull` 실행. 최신 정본 확보 후 시작.
+  - 착수 전 고정 행: `cd C:\lab\vsurf_capital\common` → `git pull`. 최신 정본 확보 후 시작.
   - 종료 시 고정 행: 산출물 반영 → commit → push → 해당 변경 TG 1줄 발행.
+- **경로는 전부 절대경로로 기재.** Bill 실행 루트는 `C:\lab` 이고 저장소 루트는 `C:\lab\vsurf_capital\common\` 로 서로 다름.
+  상대경로로 적으면 Bill 이 저장소를 인식하지 못함(실측: `.git` 미인식 오류 발생).
+  - 예: `orders\003.md` (X) → `C:\lab\vsurf_capital\common\orders\003.md` (O)
+  - Order 호출 지시도 절대경로로: `C:\lab\vsurf_capital\common\orders\003_xxx.md 읽고 실행`
 - 상태값: 미착수 → 진행 중 → 완료 (또는 부분완료 + 미완 항목 명시).
 - 수신자는 작업 항목 중 하나가 막히면 그 항목만 건너뛰고 나머지를 완료한 뒤 보고 (통째로 중단 금지).
 
