@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Read",
+      "Edit",
+      "Write",
+      "Bash(python *)",
+      "Bash(git status*)",
+      "Bash(git diff*)",
+      "Bash(git log*)"
+    ],
+    "deny": [
+      "Bash(git push*)",
+      "Bash(git commit*)",
+      "Bash(git reset*)",
+      "Bash(git checkout*)",
+      "Bash(git clean*)",
+      "Bash(rm *)",
+      "Bash(Remove-Item*)"
+    ]
+  }
+}
