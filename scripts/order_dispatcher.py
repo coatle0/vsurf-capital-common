@@ -15,7 +15,6 @@ import re
 import shutil
 import subprocess
 import sys
-import tempfile
 from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
 from pathlib import Path
@@ -111,8 +110,8 @@ def parse_request(message: str) -> DispatchRequest:
         raise DispatchError(f"Project is not a Git repository: {project}")
 
     if executor == "available":
-        executor = "codex" if shutil.which("codex") else "claude"
-    if shutil.which(executor) is None:
+        executor = "codex" if executor_prefix("codex") else "claude"
+    if executor_prefix(executor) is None:
         raise DispatchError(f"Executor CLI is not installed: {executor}")
 
     return DispatchRequest(order_id, executor, str(canonical_order), str(project))
@@ -167,16 +166,37 @@ Requirements:
 """
 
 
+def executor_prefix(executor: str) -> list[str] | None:
+    """Return a CreateProcess-safe CLI prefix on Windows.
+
+    npm's extensionless shims work in PowerShell but cannot be launched directly
+    by Python CreateProcess. Invoke the package entry point with Node instead.
+    """
+    if executor == "codex":
+        appdata = Path(os.environ.get("APPDATA", ""))
+        entry = appdata / "npm" / "node_modules" / "@openai" / "codex" / "bin" / "codex.js"
+        node = shutil.which("node")
+        if node and entry.is_file():
+            return [node, str(entry)]
+    executable = shutil.which(f"{executor}.exe") or shutil.which(executor)
+    if executable and Path(executable).suffix.lower() not in {".cmd", ".bat", ".ps1", ""}:
+        return [executable]
+    return None
+
+
 def executor_command(request: DispatchRequest, summary_file: Path) -> list[str]:
+    prefix = executor_prefix(request.executor)
+    if prefix is None:
+        raise DispatchError(f"Executor CLI is not installed: {request.executor}")
     if request.executor == "codex":
         return [
-            "codex", "exec", "-C", request.project_path,
+            *prefix, "exec", "-C", request.project_path,
             "--add-dir", str(COMMON_ROOT),
             "--sandbox", "workspace-write",
             "--output-last-message", str(summary_file),
             build_prompt(request),
         ]
-    return ["claude", "-p", build_prompt(request)]
+    return [*prefix, "-p", build_prompt(request)]
 
 
 class OrderLock:
@@ -249,7 +269,7 @@ def dispatch(request: DispatchRequest, execute: bool, pull: bool, push: bool) ->
             else:
                 result.commit = git(project, "rev-parse", "HEAD")
             result.status = "COMPLETED"
-        except (DispatchError, subprocess.TimeoutExpired) as exc:
+        except (DispatchError, subprocess.TimeoutExpired, OSError) as exc:
             result.status = "FAILED"
             result.error = str(exc)
         finally:

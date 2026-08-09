@@ -28,7 +28,7 @@ class ParseRequestTests(unittest.TestCase):
                 f"order: {order}\n"
                 f"project: {project}\n"
             )
-            with patch.object(dispatcher.shutil, "which", return_value=r"C:\bin\codex.exe"):
+            with patch.object(dispatcher, "executor_prefix", return_value=[r"C:\bin\codex.exe"]):
                 request = dispatcher.parse_request(message)
             self.assertEqual(request.order_id, "999")
             self.assertEqual(request.executor, "codex")
