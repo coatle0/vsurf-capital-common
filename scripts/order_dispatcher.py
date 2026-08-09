@@ -192,6 +192,7 @@ def executor_command(request: DispatchRequest, summary_file: Path) -> list[str]:
         return [
             *prefix, "exec", "-C", request.project_path,
             "--ignore-user-config",
+            "-c", 'approval_policy="never"',
             "--add-dir", str(COMMON_ROOT),
             "--sandbox", "workspace-write",
             "--output-last-message", str(summary_file),
@@ -268,7 +269,9 @@ def dispatch(request: DispatchRequest, execute: bool, pull: bool, push: bool) ->
                 if push:
                     git(project, "push", timeout=180)
             else:
-                result.commit = git(project, "rev-parse", "HEAD")
+                raise DispatchError(
+                    "Executor exited successfully but produced no Git change; completion not proven."
+                )
             result.status = "COMPLETED"
         except (DispatchError, subprocess.TimeoutExpired, OSError) as exc:
             result.status = "FAILED"

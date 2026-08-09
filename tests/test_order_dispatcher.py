@@ -61,6 +61,7 @@ class ParseRequestTests(unittest.TestCase):
         with patch.object(dispatcher, "executor_prefix", return_value=["node", "codex.js"]):
             command = dispatcher.executor_command(request, Path("summary.txt"))
         self.assertIn("--ignore-user-config", command)
+        self.assertIn('approval_policy="never"', command)
         self.assertIn("workspace-write", command)
         self.assertNotIn("--dangerously-bypass-approvals-and-sandbox", command)
 
