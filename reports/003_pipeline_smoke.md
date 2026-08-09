@@ -5,6 +5,27 @@
 - 정본 Order: `C:\lab\vsurf_capital\common\orders\003_slack_order_pipeline_smoke.md`
 - Dispatcher: `C:\lab\vsurf_capital\common\scripts\order_dispatcher.py`
 
+## 재검증 (Bill, 실행 PC ID: gosu / CODEX_PC_ID: codex-pc2)
+
+- 검증 시각: 2026-08-09T17:58:47+09:00
+- 정본 Order 절대경로: `C:\lab\vsurf_capital\common\orders\003_slack_order_pipeline_smoke.md`
+- Dispatcher 검증 결과 (dry-run, `order_dispatcher.py --message-file` with synthetic `[EXECUTE ORDER 003]`):
+
+```json
+{
+  "order_id": "003",
+  "executor": "claude",
+  "status": "VALIDATED",
+  "project_path": "C:\\lab\\vsurf_capital\\common",
+  "order_path": "C:\\lab\\vsurf_capital\\common\\orders\\003_slack_order_pipeline_smoke.md",
+  "exit_code": null,
+  "commit": null,
+  "error": null
+}
+```
+
+- `python -m unittest discover -s tests -p "test_*.py"`: 36건 통과 (0 실패, 0 오류).
+
 ## 검증 결과
 
 | 항목 | 결과 |
