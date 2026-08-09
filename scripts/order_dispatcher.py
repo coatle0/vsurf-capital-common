@@ -191,6 +191,7 @@ def executor_command(request: DispatchRequest, summary_file: Path) -> list[str]:
     if request.executor == "codex":
         return [
             *prefix, "exec", "-C", request.project_path,
+            "--ignore-user-config",
             "--add-dir", str(COMMON_ROOT),
             "--sandbox", "workspace-write",
             "--output-last-message", str(summary_file),

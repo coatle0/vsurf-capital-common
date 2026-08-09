@@ -51,6 +51,19 @@ class ParseRequestTests(unittest.TestCase):
                 with dispatcher.OrderLock("997"):
                     pass
 
+    def test_codex_command_uses_isolated_safe_config(self):
+        request = dispatcher.DispatchRequest(
+            order_id="003",
+            executor="codex",
+            order_path=str(dispatcher.ORDERS_DIR / "003_test.md"),
+            project_path=str(dispatcher.COMMON_ROOT),
+        )
+        with patch.object(dispatcher, "executor_prefix", return_value=["node", "codex.js"]):
+            command = dispatcher.executor_command(request, Path("summary.txt"))
+        self.assertIn("--ignore-user-config", command)
+        self.assertIn("workspace-write", command)
+        self.assertNotIn("--dangerously-bypass-approvals-and-sandbox", command)
+
 
 if __name__ == "__main__":
     unittest.main()
