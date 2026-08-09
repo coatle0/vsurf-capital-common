@@ -8,4 +8,5 @@ _*.txt
 .runtime/
 logs/dispatcher/
 logs/slack_ack_watcher.log
+logs/slack_bolt_listener.log
 logs/inbox_consumer/
