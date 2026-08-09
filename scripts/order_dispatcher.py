@@ -1,0 +1,289 @@
+"""VSURF Git-backed Order dispatcher.
+
+This is deliberately a thin, local execution layer. Slack/OpenACP supplies the
+message; this program validates it, resolves the canonical Git Order, prevents
+duplicate execution, invokes the requested agent, and records a machine-readable
+result. Tokens are never read or logged here.
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+import os
+import re
+import shutil
+import subprocess
+import sys
+import tempfile
+from dataclasses import asdict, dataclass
+from datetime import datetime, timezone
+from pathlib import Path
+from typing import Sequence
+
+
+COMMON_ROOT = Path(r"C:\lab\vsurf_capital\common")
+ORDERS_DIR = COMMON_ROOT / "orders"
+RUNTIME_DIR = COMMON_ROOT / ".runtime"
+LOG_DIR = COMMON_ROOT / "logs" / "dispatcher"
+ALLOWED_ROOT = Path(r"C:\lab")
+EXECUTE_RE = re.compile(r"(?im)^\[?EXECUTE\s+ORDER\s+(\d{3})\]?\s*$")
+FIELD_RE = re.compile(r"(?im)^(executor|order|project)\s*:\s*(.+?)\s*$")
+
+
+class DispatchError(RuntimeError):
+    """Expected, user-facing dispatch rejection."""
+
+
+@dataclass(frozen=True)
+class DispatchRequest:
+    order_id: str
+    executor: str
+    order_path: str
+    project_path: str
+
+
+@dataclass
+class DispatchResult:
+    order_id: str
+    executor: str
+    status: str
+    project_path: str
+    order_path: str
+    started_at: str
+    finished_at: str | None = None
+    exit_code: int | None = None
+    commit: str | None = None
+    summary_file: str | None = None
+    error: str | None = None
+
+
+def now_iso() -> str:
+    return datetime.now(timezone.utc).astimezone().isoformat(timespec="seconds")
+
+
+def canonical(path: Path) -> Path:
+    return path.expanduser().resolve(strict=False)
+
+
+def is_within(path: Path, root: Path) -> bool:
+    try:
+        canonical(path).relative_to(canonical(root))
+        return True
+    except ValueError:
+        return False
+
+
+def parse_request(message: str) -> DispatchRequest:
+    match = EXECUTE_RE.search(message)
+    if not match:
+        raise DispatchError("Expected '[EXECUTE ORDER NNN]' on its own line.")
+    order_id = match.group(1)
+    fields = {key.lower(): value.strip() for key, value in FIELD_RE.findall(message)}
+    executor = fields.get("executor", "").lower()
+    if executor not in {"codex", "claude", "available"}:
+        raise DispatchError("executor must be codex, claude, or available.")
+
+    candidates = sorted(ORDERS_DIR.glob(f"{order_id}_*.md"))
+    if len(candidates) != 1:
+        raise DispatchError(
+            f"Order {order_id} must resolve to exactly one file; found {len(candidates)}."
+        )
+    canonical_order = canonical(candidates[0])
+    supplied_order = fields.get("order")
+    if supplied_order:
+        supplied = Path(supplied_order)
+        if not supplied.is_absolute():
+            supplied = COMMON_ROOT / supplied
+        if canonical(supplied) != canonical_order:
+            raise DispatchError("Supplied order path does not match the canonical Order file.")
+
+    project_raw = fields.get("project")
+    if not project_raw:
+        raise DispatchError("project is required and must be an absolute path under C:\\lab.")
+    project = Path(project_raw)
+    if not project.is_absolute() or not is_within(project, ALLOWED_ROOT):
+        raise DispatchError("project must be an absolute path under C:\\lab.")
+    project = canonical(project)
+    if not project.is_dir():
+        raise DispatchError(f"Project directory does not exist: {project}")
+    if not (project / ".git").exists():
+        raise DispatchError(f"Project is not a Git repository: {project}")
+
+    if executor == "available":
+        executor = "codex" if shutil.which("codex") else "claude"
+    if shutil.which(executor) is None:
+        raise DispatchError(f"Executor CLI is not installed: {executor}")
+
+    return DispatchRequest(order_id, executor, str(canonical_order), str(project))
+
+
+def run(command: Sequence[str], cwd: Path, timeout: int = 120) -> subprocess.CompletedProcess[str]:
+    return subprocess.run(
+        list(command),
+        cwd=str(cwd),
+        text=True,
+        encoding="utf-8",
+        errors="replace",
+        capture_output=True,
+        timeout=timeout,
+        check=False,
+    )
+
+
+def git(project: Path, *args: str, timeout: int = 120) -> str:
+    result = run(["git", *args], project, timeout=timeout)
+    if result.returncode:
+        detail = (result.stderr or result.stdout).strip()
+        raise DispatchError(f"git {' '.join(args)} failed: {detail}")
+    return result.stdout.strip()
+
+
+def ensure_clean_and_current(project: Path, pull: bool) -> str:
+    if git(project, "status", "--porcelain=v1"):
+        raise DispatchError("Project working tree is not clean; refusing automated execution.")
+    before = git(project, "rev-parse", "HEAD")
+    if pull:
+        git(project, "pull", "--ff-only", timeout=180)
+    if git(project, "status", "--porcelain=v1"):
+        raise DispatchError("Project became dirty after pull; refusing automated execution.")
+    return before
+
+
+def build_prompt(request: DispatchRequest) -> str:
+    return f"""Execute VSURF Order {request.order_id}.
+
+Canonical Order: {request.order_path}
+Project root: {request.project_path}
+Shared rules: {COMMON_ROOT / 'AGENT_RULES.md'}
+
+Requirements:
+1. Read the canonical Order and shared rules completely before changing files.
+2. Work only inside the project root and explicitly allowed shared paths.
+3. Do not commit or push; the dispatcher owns Git finalization.
+4. Run at least one relevant validation. Do not report unverified work as complete.
+5. Do not expose credentials or token values in output, files, or logs.
+6. End with a concise summary containing changed files, validations, and remaining limits.
+"""
+
+
+def executor_command(request: DispatchRequest, summary_file: Path) -> list[str]:
+    if request.executor == "codex":
+        return [
+            "codex", "exec", "-C", request.project_path,
+            "--add-dir", str(COMMON_ROOT),
+            "--sandbox", "workspace-write",
+            "--output-last-message", str(summary_file),
+            build_prompt(request),
+        ]
+    return ["claude", "-p", build_prompt(request)]
+
+
+class OrderLock:
+    def __init__(self, order_id: str):
+        self.path = RUNTIME_DIR / f"order-{order_id}.lock"
+        self.fd: int | None = None
+
+    def __enter__(self) -> "OrderLock":
+        RUNTIME_DIR.mkdir(parents=True, exist_ok=True)
+        try:
+            self.fd = os.open(self.path, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+        except FileExistsError as exc:
+            raise DispatchError("Order is already claimed or needs manual lock recovery.") from exc
+        os.write(self.fd, f"pid={os.getpid()} started={now_iso()}".encode())
+        return self
+
+    def __exit__(self, exc_type, exc, tb) -> None:
+        if self.fd is not None:
+            os.close(self.fd)
+        self.path.unlink(missing_ok=True)
+
+
+def write_result(result: DispatchResult) -> Path:
+    RUNTIME_DIR.mkdir(parents=True, exist_ok=True)
+    path = RUNTIME_DIR / f"order-{result.order_id}-last.json"
+    temporary = path.with_suffix(".tmp")
+    temporary.write_text(json.dumps(asdict(result), ensure_ascii=False, indent=2), encoding="utf-8")
+    temporary.replace(path)
+    return path
+
+
+def dispatch(request: DispatchRequest, execute: bool, pull: bool, push: bool) -> DispatchResult:
+    result = DispatchResult(
+        order_id=request.order_id,
+        executor=request.executor,
+        status="VALIDATED" if not execute else "RUNNING",
+        project_path=request.project_path,
+        order_path=request.order_path,
+        started_at=now_iso(),
+    )
+    if not execute:
+        result.finished_at = now_iso()
+        write_result(result)
+        return result
+
+    project = Path(request.project_path)
+    LOG_DIR.mkdir(parents=True, exist_ok=True)
+    summary_file = LOG_DIR / f"order-{request.order_id}-summary.txt"
+    result.summary_file = str(summary_file)
+    with OrderLock(request.order_id):
+        try:
+            ensure_clean_and_current(project, pull=pull)
+            completed = run(executor_command(request, summary_file), project, timeout=3600)
+            result.exit_code = completed.returncode
+            (LOG_DIR / f"order-{request.order_id}-stdout.log").write_text(
+                completed.stdout, encoding="utf-8"
+            )
+            (LOG_DIR / f"order-{request.order_id}-stderr.log").write_text(
+                completed.stderr, encoding="utf-8"
+            )
+            if completed.returncode:
+                raise DispatchError(f"{request.executor} exited with code {completed.returncode}.")
+            changes = git(project, "status", "--porcelain=v1")
+            if changes:
+                git(project, "add", "-A")
+                git(project, "commit", "-m", f"Complete ORDER {request.order_id}")
+                result.commit = git(project, "rev-parse", "HEAD")
+                if push:
+                    git(project, "push", timeout=180)
+            else:
+                result.commit = git(project, "rev-parse", "HEAD")
+            result.status = "COMPLETED"
+        except (DispatchError, subprocess.TimeoutExpired) as exc:
+            result.status = "FAILED"
+            result.error = str(exc)
+        finally:
+            result.finished_at = now_iso()
+            write_result(result)
+    return result
+
+
+def load_message(args: argparse.Namespace) -> str:
+    if args.message:
+        return args.message
+    if args.message_file:
+        return Path(args.message_file).read_text(encoding="utf-8")
+    return sys.stdin.read()
+
+
+def main(argv: Sequence[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    source = parser.add_mutually_exclusive_group()
+    source.add_argument("--message")
+    source.add_argument("--message-file")
+    parser.add_argument("--execute", action="store_true")
+    parser.add_argument("--no-pull", action="store_true")
+    parser.add_argument("--no-push", action="store_true")
+    args = parser.parse_args(argv)
+    try:
+        request = parse_request(load_message(args))
+        result = dispatch(request, args.execute, not args.no_pull, not args.no_push)
+    except DispatchError as exc:
+        print(json.dumps({"status": "REJECTED", "error": str(exc)}, ensure_ascii=False))
+        return 2
+    print(json.dumps(asdict(result), ensure_ascii=False, indent=2))
+    return 0 if result.status in {"VALIDATED", "COMPLETED"} else 1
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

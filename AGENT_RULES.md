@@ -36,3 +36,13 @@
 - 저장소 루트 = `common\` 만 (상위 `vsurf_capital\` 제외).
 - PC 간 pull → 작업 → push 순환. 충돌 시 board.md `쥔 자` 규약으로 선점 확인.
 - 커밋 전 `.gitignore` 대상(`.venv/`, `__pycache__/`, `*.session`, `.env`, `*.bak_*`, `_*.txt`, `.~lock*`) 포함 여부 확인.
+
+## Slack 실행 Order
+
+- `[EXECUTE ORDER NNN]` 메시지는 일반 대화가 아니라 Git 정본 실행 신호다.
+- 필수 필드: `executor`, `order`, `project`. `project`는 `C:\lab` 아래 절대경로만 허용한다.
+- PC2 OpenACP의 Codex 세션은 먼저 다음 Dispatcher를 실행한다.
+  `python C:\lab\vsurf_capital\common\scripts\order_dispatcher.py --message-file <메시지파일> --execute`
+- Dispatcher가 `REJECTED` 또는 `FAILED`를 반환하면 임의로 우회 실행하지 않고 같은 Slack 대화에 원인만 보고한다.
+- Dispatcher 결과의 Order 번호, 상태, 실행자, commit, 검증 요약을 Slack에 회신한다. 토큰 값은 절대 표시하지 않는다.
+- `CONTINUE`, `APPROVE`, `HOLD`, `RETRY`, `CANCEL`은 상태 저장과 스레드 연결 구현이 완료되기 전까지 자동 실행하지 않는다.

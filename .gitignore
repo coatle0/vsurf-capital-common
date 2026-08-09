@@ -5,3 +5,5 @@ __pycache__/
 *.bak_*
 _*.txt
 .~lock*
+.runtime/
+logs/dispatcher/
