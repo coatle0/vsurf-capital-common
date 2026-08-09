@@ -8,6 +8,7 @@ $pcId = [Environment]::GetEnvironmentVariable('CODEX_PC_ID', 'User')
 if ($pcId -ne 'codex-pc2') {
     throw "OpenACP startup is restricted to codex-pc2; current CODEX_PC_ID='$pcId'."
 }
+[Environment]::SetEnvironmentVariable('CODEX_PC_ID', $pcId, 'Process')
 
 $openAcp = Join-Path $env:APPDATA 'npm\openacp.cmd'
 if (-not (Test-Path -LiteralPath $openAcp)) {
