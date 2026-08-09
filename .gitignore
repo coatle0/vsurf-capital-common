@@ -7,3 +7,5 @@ _*.txt
 .~lock*
 .runtime/
 logs/dispatcher/
+logs/slack_ack_watcher.log
+logs/inbox_consumer/
