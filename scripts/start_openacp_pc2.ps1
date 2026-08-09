@@ -14,6 +14,9 @@ if (-not (Test-Path -LiteralPath $openAcp)) {
     throw "OpenACP CLI not found at '$openAcp'."
 }
 
+$compatPatch = Join-Path $PSScriptRoot 'patch_openacp_windows_esm.ps1'
+& $compatPatch
+
 $configPath = Join-Path $Workspace '.openacp\config.json'
 $logDir = Join-Path $env:LOCALAPPDATA 'VSURF\OpenACP'
 New-Item -ItemType Directory -Force -Path $logDir | Out-Null
@@ -27,7 +30,22 @@ if (-not (Test-Path -LiteralPath $configPath)) {
 
 Push-Location -LiteralPath $Workspace
 try {
-    & $openAcp start --json 2>&1 |
+    foreach ($name in @(
+        'OPENACP_SLACK_BOT_TOKEN',
+        'OPENACP_SLACK_APP_TOKEN',
+        'OPENACP_SLACK_SIGNING_SECRET'
+    )) {
+        $value = [Environment]::GetEnvironmentVariable($name, 'User')
+        if ([string]::IsNullOrWhiteSpace($value)) {
+            throw "Required user environment variable '$name' is not configured."
+        }
+        [Environment]::SetEnvironmentVariable($name, $value, 'Process')
+    }
+
+    # Slack Socket Mode is outbound-only. Do not expose the local OpenACP API.
+    [Environment]::SetEnvironmentVariable('OPENACP_TUNNEL_ENABLED', 'false', 'Process')
+
+    & $openAcp --foreground 2>&1 |
         Add-Content -LiteralPath $startupLog -Encoding UTF8
     exit $LASTEXITCODE
 }
