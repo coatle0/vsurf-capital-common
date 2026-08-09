@@ -41,8 +41,10 @@
 
 - `[EXECUTE ORDER NNN]` 메시지는 일반 대화가 아니라 Git 정본 실행 신호다.
 - 필수 필드: `executor`, `order`, `project`. `project`는 `C:\lab` 아래 절대경로만 허용한다.
-- PC2 OpenACP의 Codex 세션은 먼저 다음 Dispatcher를 실행한다.
-  `python C:\lab\vsurf_capital\common\scripts\order_dispatcher.py --message-file <메시지파일> --execute`
+- PC2 OpenACP의 Codex 세션은 먼저 다음 Dispatcher dry-run으로 메시지·Order·경로·실행자를 검증한다.
+  `python C:\lab\vsurf_capital\common\scripts\order_dispatcher.py --message-file <메시지파일>`
+- `VALIDATED`이면 현재 OpenACP 주 세션이 Order를 직접 수행한다. 하위 `codex exec`를 중첩 호출하지 않는다.
+- 수행 순서: 프로젝트 `git pull --ff-only` → 깨끗한 작업트리 확인 → Order 실행·검증 → 변경 파일만 commit → push.
 - Dispatcher가 `REJECTED` 또는 `FAILED`를 반환하면 임의로 우회 실행하지 않고 같은 Slack 대화에 원인만 보고한다.
-- Dispatcher 결과의 Order 번호, 상태, 실행자, commit, 검증 요약을 Slack에 회신한다. 토큰 값은 절대 표시하지 않는다.
+- OpenACP 결과의 Order 번호, 상태, 실행자, commit, 검증 요약을 Slack에 회신한다. 토큰 값은 절대 표시하지 않는다.
 - `CONTINUE`, `APPROVE`, `HOLD`, `RETRY`, `CANCEL`은 상태 저장과 스레드 연결 구현이 완료되기 전까지 자동 실행하지 않는다.
