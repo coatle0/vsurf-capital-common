@@ -29,6 +29,7 @@ Exactly-once execution is the point of this module, not just delivery:
 from __future__ import annotations
 
 import dataclasses
+import json
 import logging
 import os
 import sys
@@ -44,6 +45,19 @@ from slack_api import api
 POLL_SECONDS = float(os.environ.get("VSURF_INBOX_POLL_SECONDS", "5"))
 LOG_PATH = Path(r"C:\lab\vsurf_capital\common\logs\inbox_consumer\inbox_consumer.log")
 CONSUMER_LOCK_PATH = order_inbox.INBOX_DIR / "consumer.lock"
+
+# Not a secret -- Slack user IDs only, safe to commit and sync PC1/PC2.
+# Adding an account is a CIO/COO decision, not something this module
+# decides on its own (per the 2026-08-12 work order, task 2).
+SENDERS_PATH = Path(r"C:\lab\vsurf_capital\common\order_senders.json")
+
+
+def load_allowed_senders() -> set[str]:
+    try:
+        data = json.loads(SENDERS_PATH.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return set()
+    return {entry["user_id"] for entry in data.get("allowed_senders", []) if entry.get("user_id")}
 
 logger = logging.getLogger("order_inbox_consumer")
 
@@ -162,6 +176,7 @@ def handle_claimed(claimed_path: Path, token: str) -> None:
 def process_pending(path: Path, token: str) -> None:
     record = order_inbox.load(path)
     tid, text, channel, ts = record["task_id"], record["text"], record["channel"], record["ts"]
+    sender = record.get("user")
 
     if not order_dispatcher.EXECUTE_RE.search(text):
         reply(
@@ -170,6 +185,17 @@ def process_pending(path: Path, token: str) -> None:
             "message (see AGENT_RULES.md) to trigger execution.",
         )
         order_inbox.mark_processed(path, {"status": "IGNORED", "reason": "not an EXECUTE ORDER message"})
+        return
+
+    allowed_senders = load_allowed_senders()
+    if sender not in allowed_senders:
+        # Fail closed: an empty/missing/corrupt allowlist rejects everyone
+        # rather than silently letting every sender through. This check
+        # runs before claim()/dispatch() -- an unauthorized attempt never
+        # reaches order_dispatcher.py at all.
+        reason = "sender not allowed" if allowed_senders else "sender allowlist is empty or unreadable"
+        reply(token, channel, ts, f"REJECTED [{tid}]: {reason}")
+        order_inbox.mark_processed(path, {"status": "REJECTED", "error": reason, "sender": sender})
         return
 
     existing = order_inbox.load_outbox(tid)

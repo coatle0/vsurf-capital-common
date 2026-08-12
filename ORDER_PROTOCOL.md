@@ -100,15 +100,18 @@ project: <C:\lab 아래 절대경로, git repo>
 - **`executor: bill` 미지원** — 조직 내 Claude Code 실명("Bill")이 별칭으로 안 먹힘, `claude`만 인식.
 - **`order: NNN`(번호만) 오작동** — 필드 생략 시엔 번호로 자동 탐색되지만, 번호만 채워 넣으면 "경로 불일치"로 REJECTED. 생략하거나 전체 경로를 써야 함.
 - **원문 Slack 메시지가 executor에게 안 넘어감** — `build_prompt()`가 정본 Order 파일 경로만 알려주고 Slack 메시지 원문은 전달하지 않음. 지시가 Slack 메시지 본문에만 있는 경우(사전에 커밋된 Order 파일이 없는 경우) executor가 `.runtime/inbox/`를 직접 뒤져 원문을 복구해야 했음(Order 100 실측, 처리 시간 6분+ 소요의 주원인).
-- **발신자 화이트리스트 없음** — 채널 멤버 누구나 명령 실행 가능.
 - **PC1 미설정** — 이 전체 구조는 PC2(`codex-pc2`)에만 구축됨.
 - **복수 프로젝트 동시 실행 불가** — consumer가 완전 순차 처리, `dispatch()`가 최대 3600초 블로킹.
 - **단일 프로젝트 분할처리 미지원** — Order 1건 = dispatch 1회 = commit 1회가 원자 단위, sub-task 분할·병렬화 개념 없음.
-- **예약작업 미등록** — 현재 리스너·consumer는 ad hoc 프로세스로 실행 중, 재부팅 시 소실됨.
 - **codex 경로 미작동** — 위 4절 참조.
+
+해결됨(2026-08-12, COO 작업지시 5건 중 1·2):
+- ~~발신자 화이트리스트 없음~~ → `order_senders.json`(git 등재, user ID만) + `order_inbox_consumer.py`의 `process_pending()`이 dispatch 이전에 검사. 목록이 비었거나 읽기 실패해도 fail-closed(전원 거부). 목록 밖 발신자는 `REJECTED [task_id]: sender not allowed`로 명시 회신, dispatcher는 아예 호출 안 됨.
+- ~~예약작업 미등록~~ → `VSURF-Slack-Bolt-PC2`/`VSURF-OrderConsumer-PC2` 등록(AtLogOn, coatle 계정). 스크립트 자체에 self-heal `while` 루프 내장(Task Scheduler의 restart-on-failure가 수동 시작 인스턴스엔 안 먹히는 걸 실측 확인했기 때문). consumer는 크래시 시 stale lock을 자동으로 안 지우고 사람이 치울 때까지 재시도만 반복(의도적).
 
 ## 7. 운영 이력
 
 - 2026-08-09: OpenACP를 핵심 경로에서 제거(Windows daemon 미지원, `/health`·`/adapters` 404, libuv assertion, 예약작업 삭제·프로세스 정지 확인).
 - 2026-08-09: durable inbox + exactly-once consumer + Slack Bolt 리스너 신규 구축, claude 헤드리스 실행 최초 성공(Order 003, commit `c687c0d`).
 - 2026-08-12: Order 100(loop_proof) 실제 COO 발행 → 완주 확인(commit `aacd2fc5`). Order 004는 형식 오류 2건으로 미실행.
+- 2026-08-12: COO 작업지시(파이프라인 보강 5건) 착수. 작업 1(재부팅·크래시 생존) 완료, 작업 2(발신자 화이트리스트) 완료.

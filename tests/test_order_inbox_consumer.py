@@ -24,6 +24,13 @@ class _WithDirs(unittest.TestCase):
     def setUp(self):
         self._tmp = tempfile.TemporaryDirectory()
         root = Path(self._tmp.name)
+        senders_path = root / "order_senders.json"
+        # Default fixture authorizes write_pending()'s default user "U1" so
+        # existing dispatch-path tests don't need to know about the
+        # allowlist. Sender-whitelist tests below override this directly.
+        senders_path.write_text(
+            json.dumps({"allowed_senders": [{"user_id": "U1", "label": "test"}]}), encoding="utf-8"
+        )
         patches = {
             (order_inbox, "PENDING_DIR"): root / "pending",
             (order_inbox, "CLAIMED_DIR"): root / "claimed",
@@ -31,6 +38,7 @@ class _WithDirs(unittest.TestCase):
             (order_inbox, "PROCESSED_DIR"): root / "processed",
             (order_dispatcher, "RUNTIME_DIR"): root / "dispatcher-runtime",
             (MODULE, "CONSUMER_LOCK_PATH"): root / "consumer.lock",
+            (MODULE, "SENDERS_PATH"): senders_path,
         }
         self._patches = []
         for (target, attr), value in patches.items():
@@ -89,6 +97,51 @@ class NonOrderAndInvalidOrderTests(_WithDirs):
         self.assertIn("REJECTED", mock_reply.call_args.args[3])
         self.assertIn("bad order", mock_reply.call_args.args[3])
         self.assertEqual(order_inbox.load_outbox("C1-1.0")["status"], "REJECTED")
+
+
+class SenderAllowlistTests(_WithDirs):
+    def test_load_allowed_senders_reads_configured_ids(self):
+        self.assertEqual(MODULE.load_allowed_senders(), {"U1"})
+
+    def test_missing_allowlist_file_yields_empty_set(self):
+        with patch.object(MODULE, "SENDERS_PATH", Path(self._tmp.name) / "does-not-exist.json"):
+            self.assertEqual(MODULE.load_allowed_senders(), set())
+
+    def test_unauthorized_sender_rejected_before_dispatch(self):
+        path = self.write_pending(user="U_EVIL", text="[EXECUTE ORDER 003]\nexecutor: claude\n")
+        with patch.object(order_dispatcher, "parse_request") as mock_parse, \
+             patch.object(order_dispatcher, "dispatch") as mock_dispatch, \
+             patch.object(MODULE, "reply") as mock_reply:
+            MODULE.process_pending(path, "tok")
+        mock_parse.assert_not_called()
+        mock_dispatch.assert_not_called()
+        reply_text = mock_reply.call_args.args[3]
+        self.assertIn("REJECTED", reply_text)
+        self.assertIn("sender not allowed", reply_text)
+        processed = order_inbox.PROCESSED_DIR / path.name
+        self.assertTrue(processed.is_file())
+        self.assertEqual(order_inbox.load(processed)["result"]["status"], "REJECTED")
+        self.assertEqual(order_inbox.load(processed)["result"]["sender"], "U_EVIL")
+
+    def test_authorized_sender_reaches_dispatch(self):
+        path = self.write_pending(user="U1", text="[EXECUTE ORDER 003]\nexecutor: claude\n")
+        fake_request = order_dispatcher.DispatchRequest(
+            order_id="003", executor="claude", order_path="x", project_path="y"
+        )
+        with patch.object(order_dispatcher, "parse_request", return_value=fake_request) as mock_parse, \
+             patch.object(order_dispatcher, "dispatch", return_value=self.completed_result()), \
+             patch.object(MODULE, "reply"):
+            MODULE.process_pending(path, "tok")
+        mock_parse.assert_called_once()
+
+    def test_empty_allowlist_fails_closed_even_for_normally_authorized_sender(self):
+        senders_path = Path(self._tmp.name) / "order_senders.json"
+        senders_path.write_text(json.dumps({"allowed_senders": []}), encoding="utf-8")
+        path = self.write_pending(user="U1", text="[EXECUTE ORDER 003]\nexecutor: claude\n")
+        with patch.object(order_dispatcher, "dispatch") as mock_dispatch, patch.object(MODULE, "reply") as mock_reply:
+            MODULE.process_pending(path, "tok")
+        mock_dispatch.assert_not_called()
+        self.assertIn("allowlist is empty or unreadable", mock_reply.call_args.args[3])
 
 
 class HappyPathTests(_WithDirs):
