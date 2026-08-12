@@ -16,5 +16,25 @@ if ([string]::IsNullOrWhiteSpace($appToken)) {
 [Environment]::SetEnvironmentVariable('OPENACP_SLACK_BOT_TOKEN', $token, 'Process')
 [Environment]::SetEnvironmentVariable('OPENACP_SLACK_APP_TOKEN', $appToken, 'Process')
 
-python 'C:\lab\vsurf_capital\common\scripts\slack_bolt_listener.py'
-exit $LASTEXITCODE
+# slack_bolt_listener.py logs its own INFO/exception events to
+# logs\slack_bolt_listener.log. This capture is only for anything outside
+# that (import errors, uncaught tracebacks before logging is configured,
+# a crash at process start).
+$logDir = 'C:\lab\vsurf_capital\common\logs'
+New-Item -ItemType Directory -Force -Path $logDir | Out-Null
+$startupLog = Join-Path $logDir 'slack_bolt_listener_startup.log'
+
+# Self-healing loop: Task Scheduler's restart-on-failure only reliably
+# applies to instances started by its own trigger, not ones started
+# on-demand (Start-ScheduledTask / "Run"), so retry logic lives here
+# instead of relying on that. Task Scheduler's job is just "start this
+# once at logon"; any exit of the python process (crash or kill) is
+# retried after a short delay, indefinitely.
+while ($true) {
+    "$(Get-Date -Format o) START pid=$PID" | Add-Content -LiteralPath $startupLog -Encoding UTF8
+    python 'C:\lab\vsurf_capital\common\scripts\slack_bolt_listener.py' 2>&1 |
+        Add-Content -LiteralPath $startupLog -Encoding UTF8
+    $code = $LASTEXITCODE
+    "$(Get-Date -Format o) EXIT code=$code -- restarting in 5s" | Add-Content -LiteralPath $startupLog -Encoding UTF8
+    Start-Sleep -Seconds 5
+}
