@@ -1,4 +1,5 @@
 import importlib.util
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -146,6 +147,74 @@ class BuildPromptTests(unittest.TestCase):
         self.assertIn("Execute VSURF Order 003.", prompt)
         self.assertIn(r"Canonical Order: C:\lab\vsurf_capital\common\orders\003_x.md", prompt)
         self.assertIn("Do not commit or push", prompt)
+
+
+class CommitPendingRegistrationTests(unittest.TestCase):
+    """dispatcher.dispatch() calls this immediately before
+    ensure_clean_and_current(). ORDER 100 intake registration
+    (order_inbox_consumer.py) writes orders/NNN_*.md without any Git
+    operation, which otherwise trips ensure_clean_and_current()'s
+    unconditional clean-tree check on the very first dispatch -- orders 103
+    and 104 both failed exactly this way and had to be recovered by hand
+    (commits 2fa4549, de8e2d8). This closes the gap narrowly: only the exact
+    order_path file is ever staged/committed.
+    """
+
+    def _init_repo(self, path: Path) -> None:
+        subprocess.run(["git", "init", "-q"], cwd=path, check=True)
+        subprocess.run(["git", "config", "user.email", "test@test.local"], cwd=path, check=True)
+        subprocess.run(["git", "config", "user.name", "test"], cwd=path, check=True)
+        (path / "seed.txt").write_text("seed", encoding="utf-8")
+        subprocess.run(["git", "add", "-A"], cwd=path, check=True)
+        subprocess.run(["git", "commit", "-q", "-m", "seed"], cwd=path, check=True)
+
+    def test_commits_only_the_untracked_order_file(self):
+        with tempfile.TemporaryDirectory(dir=r"C:\lab") as raw:
+            project = Path(raw)
+            self._init_repo(project)
+            order = project / "orders" / "200_test.md"
+            order.parent.mkdir(parents=True, exist_ok=True)
+            order.write_text("# body", encoding="utf-8")
+
+            dispatcher.commit_pending_registration(project, "200", str(order))
+
+            self.assertEqual(dispatcher.git(project, "status", "--porcelain=v1"), "")
+            self.assertEqual(
+                dispatcher.git(project, "log", "-1", "--format=%s"),
+                "Register ORDER 200 (auto, intake)",
+            )
+
+    def test_leaves_unrelated_dirty_files_for_clean_check_to_reject(self):
+        with tempfile.TemporaryDirectory(dir=r"C:\lab") as raw:
+            project = Path(raw)
+            self._init_repo(project)
+            order = project / "orders" / "201_test.md"
+            order.parent.mkdir(parents=True, exist_ok=True)
+            order.write_text("# body", encoding="utf-8")
+            (project / "seed.txt").write_text("modified, unrelated to registration", encoding="utf-8")
+
+            dispatcher.commit_pending_registration(project, "201", str(order))
+
+            status = dispatcher.git(project, "status", "--porcelain=v1")
+            self.assertNotIn("orders/201_test.md", status)  # committed
+            self.assertIn("M seed.txt", status)  # left dirty, on purpose
+            with self.assertRaises(dispatcher.DispatchError):
+                dispatcher.ensure_clean_and_current(project, pull=False)
+
+    def test_noop_when_order_file_already_tracked_and_clean(self):
+        with tempfile.TemporaryDirectory(dir=r"C:\lab") as raw:
+            project = Path(raw)
+            self._init_repo(project)
+            order = project / "orders" / "202_test.md"
+            order.parent.mkdir(parents=True, exist_ok=True)
+            order.write_text("# body", encoding="utf-8")
+            subprocess.run(["git", "add", "-A"], cwd=project, check=True)
+            subprocess.run(["git", "commit", "-q", "-m", "pre-existing"], cwd=project, check=True)
+            before = dispatcher.git(project, "rev-parse", "HEAD")
+
+            dispatcher.commit_pending_registration(project, "202", str(order))
+
+            self.assertEqual(dispatcher.git(project, "rev-parse", "HEAD"), before)
 
 
 if __name__ == "__main__":

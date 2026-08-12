@@ -146,6 +146,33 @@ def git(project: Path, *args: str, timeout: int = 120) -> str:
     return result.stdout.strip()
 
 
+def commit_pending_registration(project: Path, order_id: str, order_path: str) -> None:
+    """Stage+commit a single freshly-registered order file, if that is the
+    only reason the tree is dirty.
+
+    ORDER 100 intake (order_inbox_consumer.py) writes orders/NNN_*.md
+    directly to disk without any Git operations -- git add/commit stays the
+    dispatcher's exclusive job (2026-08-12 redesign). But that leaves the
+    file untracked, and ensure_clean_and_current()'s unconditional
+    clean-tree check then rejects the very dispatch the registration exists
+    to feed (orders 103/104 both failed this way; recovered manually in
+    2fa4549/de8e2d8). This closes that gap without loosening the clean-tree
+    check itself: it only ever stages/commits the exact order_path file, and
+    only when that file is the sole untracked entry for that path -- any
+    other dirty state in the tree is left for ensure_clean_and_current() to
+    reject as before.
+    """
+    try:
+        rel = str(Path(order_path).relative_to(project))
+    except ValueError:
+        return
+    rel = rel.replace("\\", "/")
+    status = git(project, "status", "--porcelain=v1", "--", rel)
+    if status == f"?? {rel}":
+        git(project, "add", "--", rel)
+        git(project, "commit", "-m", f"Register ORDER {order_id} (auto, intake)")
+
+
 def ensure_clean_and_current(project: Path, pull: bool) -> str:
     if git(project, "status", "--porcelain=v1"):
         raise DispatchError("Project working tree is not clean; refusing automated execution.")
@@ -277,6 +304,7 @@ def dispatch(request: DispatchRequest, execute: bool, pull: bool, push: bool) ->
     result.summary_file = str(summary_file)
     with OrderLock(request.order_id):
         try:
+            commit_pending_registration(project, request.order_id, request.order_path)
             ensure_clean_and_current(project, pull=pull)
             completed = run(executor_command(request, summary_file), project, timeout=3600)
             result.exit_code = completed.returncode
