@@ -133,7 +133,7 @@ def resolve_outcome(record: dict[str, Any], existing: dict[str, Any] | None) -> 
     text = record["text"]
 
     try:
-        request = order_dispatcher.parse_request(text)
+        request = order_dispatcher.parse_request(text, task_id=tid)
     except order_dispatcher.DispatchError as exc:
         return {"status": "REJECTED", "error": str(exc), "replied": False}
 

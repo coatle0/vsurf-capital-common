@@ -40,6 +40,11 @@ class DispatchRequest:
     executor: str
     order_path: str
     project_path: str
+    # Both optional and additive -- callers that only have a message
+    # string (no inbox context, e.g. manual --message-file runs) get the
+    # exact prior behavior with these left at their default of None.
+    task_id: str | None = None
+    raw_message: str | None = None
 
 
 @dataclass
@@ -73,7 +78,7 @@ def is_within(path: Path, root: Path) -> bool:
         return False
 
 
-def parse_request(message: str) -> DispatchRequest:
+def parse_request(message: str, task_id: str | None = None) -> DispatchRequest:
     match = EXECUTE_RE.search(message)
     if not match:
         raise DispatchError("Expected '[EXECUTE ORDER NNN]' on its own line.")
@@ -114,7 +119,10 @@ def parse_request(message: str) -> DispatchRequest:
     if executor_prefix(executor) is None:
         raise DispatchError(f"Executor CLI is not installed: {executor}")
 
-    return DispatchRequest(order_id, executor, str(canonical_order), str(project))
+    return DispatchRequest(
+        order_id, executor, str(canonical_order), str(project),
+        task_id=task_id, raw_message=message,
+    )
 
 
 def run(command: Sequence[str], cwd: Path, timeout: int = 120) -> subprocess.CompletedProcess[str]:
@@ -150,12 +158,32 @@ def ensure_clean_and_current(project: Path, pull: bool) -> str:
 
 
 def build_prompt(request: DispatchRequest) -> str:
+    raw_section = ""
+    if request.raw_message is not None:
+        # Verbatim -- no summarizing/normalizing/trimming (work order
+        # 2026-08-12 task 3). Orders whose real instructions live only in
+        # the Slack message body (no pre-committed canonical text) used to
+        # force the executor to go dig through .runtime/inbox/ itself to
+        # recover this; that search was the main cost of ORDER 100's 6m29s
+        # turnaround. Slack sometimes appends a trailing signature line
+        # (e.g. "*다음을 사용하여 보냄* Claude") directly onto the same line
+        # as the message's own last line -- called out explicitly since a
+        # naive "last line is END" parse would misfire on it.
+        raw_section = f"""
+Slack task_id: {request.task_id}
+Raw Slack message, verbatim and unmodified (Slack may append a trailing
+signature directly onto the final line with no line break -- parse
+defensively, don't assume the literal last line is clean):
+--- SLACK MESSAGE BEGIN ---
+{request.raw_message}
+--- SLACK MESSAGE END ---
+"""
     return f"""Execute VSURF Order {request.order_id}.
 
 Canonical Order: {request.order_path}
 Project root: {request.project_path}
 Shared rules: {COMMON_ROOT / 'AGENT_RULES.md'}
-
+{raw_section}
 Requirements:
 1. Read the canonical Order and shared rules completely before changing files.
 2. Work only inside the project root and explicitly allowed shared paths.
@@ -192,7 +220,6 @@ def executor_command(request: DispatchRequest, summary_file: Path) -> list[str]:
         return [
             *prefix, "exec", "-C", request.project_path,
             "--ignore-user-config",
-            "-c", 'approval_policy="never"',
             "--add-dir", str(COMMON_ROOT),
             "--sandbox", "workspace-write",
             "--output-last-message", str(summary_file),
