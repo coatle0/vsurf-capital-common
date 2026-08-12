@@ -7,7 +7,8 @@
       "Bash(python *)",
       "Bash(git status*)",
       "Bash(git diff*)",
-      "Bash(git log*)"
+      "Bash(git log*)",
+      "Bash(git pull*)"
     ],
     "deny": [
       "Bash(git push*)",
