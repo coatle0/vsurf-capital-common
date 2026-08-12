@@ -32,6 +32,7 @@ import dataclasses
 import json
 import logging
 import os
+import re
 import sys
 import time
 from pathlib import Path
@@ -50,6 +51,66 @@ CONSUMER_LOCK_PATH = order_inbox.INBOX_DIR / "consumer.lock"
 # Adding an account is a CIO/COO decision, not something this module
 # decides on its own (per the 2026-08-12 work order, task 2).
 SENDERS_PATH = Path(r"C:\lab\vsurf_capital\common\order_senders.json")
+
+# ORDER 100 (orders/100_order_intake.md) lets COO register a brand new
+# Order over Slack by embedding its body in the message. That
+# registration -- extract 번호/제목, reject duplicates, write the file --
+# used to be delegated to the LLM executor on every single dispatch,
+# which meant re-reading AGENT_RULES.md + the intake Order in full each
+# time just to do a mechanical parse/write. Doing it here instead (2026-08-12
+# work order "ORDER 100 재설계") makes it deterministic and removes that
+# round-trip from the executor's prompt entirely -- the executor receives
+# an already-registered orders/NNN_*.md and only performs its "작업" steps.
+INTAKE_ORDER_ID = "100"
+INTAKE_BODY_RE = re.compile(r"---\s*ORDER BODY\s*---\r?\n(.*?)\r?\n---\s*END\s*---", re.DOTALL)
+INTAKE_NUMBER_RE = re.compile(r"^번호:\s*(\d{3})\s*$", re.MULTILINE)
+INTAKE_TITLE_RE = re.compile(r"^제목:\s*(.+?)\s*$", re.MULTILINE)
+_UNSAFE_FILENAME_CHARS = re.compile(r'[<>:"/\\|?*\s]+')
+
+
+def parse_intake_body(text: str) -> dict[str, str]:
+    """Extract 번호/제목/body from an ORDER 100 intake message. Raises
+    order_dispatcher.DispatchError on any validation failure -- these are
+    the same rules orders/100_order_intake.md documents, now enforced by
+    code instead of by an LLM reading that document each time."""
+    match = INTAKE_BODY_RE.search(text)
+    if not match:
+        raise order_dispatcher.DispatchError(
+            "intake message missing --- ORDER BODY --- / --- END --- markers"
+        )
+    body = match.group(1)
+    number_match = INTAKE_NUMBER_RE.search(body)
+    if not number_match:
+        raise order_dispatcher.DispatchError("intake body missing '번호: NNN' field")
+    number = number_match.group(1)
+    if number == INTAKE_ORDER_ID:
+        raise order_dispatcher.DispatchError("order number 100 is reserved for the intake Order itself")
+    title_match = INTAKE_TITLE_RE.search(body)
+    if not title_match:
+        raise order_dispatcher.DispatchError("intake body missing '제목: ...' field")
+    title = _UNSAFE_FILENAME_CHARS.sub("_", title_match.group(1)).strip("_")
+    if not title:
+        raise order_dispatcher.DispatchError("intake body '제목' produced an empty filename slug")
+    return {"number": number, "title": title, "body": body}
+
+
+def register_new_order_file(number: str, title: str, body: str, executor: str) -> Path:
+    """Write orders/NNN_title.md verbatim (per 100_order_intake.md rule:
+    "본문은 임의 요약·재작성하지 않는다"). No git operations here --
+    order_dispatcher.dispatch() alone owns commit/push."""
+    if sorted(order_dispatcher.ORDERS_DIR.glob(f"{number}_*.md")):
+        raise order_dispatcher.DispatchError(f"orders/{number}_*.md already exists; refusing to overwrite")
+    header = (
+        f"발행일: {order_dispatcher.now_iso()[:10]}\n"
+        "발신: COO (via ORDER 100 intake)\n"
+        f"수신: {executor}\n"
+        "상태: 진행 중\n"
+        "도구: 없음\n"
+        "\n---\n\n"
+    )
+    path = order_dispatcher.ORDERS_DIR / f"{number}_{title}.md"
+    path.write_text(header + body + "\n", encoding="utf-8")
+    return path
 
 
 def load_allowed_senders() -> set[str]:
@@ -178,7 +239,8 @@ def process_pending(path: Path, token: str) -> None:
     tid, text, channel, ts = record["task_id"], record["text"], record["channel"], record["ts"]
     sender = record.get("user")
 
-    if not order_dispatcher.EXECUTE_RE.search(text):
+    match = order_dispatcher.EXECUTE_RE.search(text)
+    if not match:
         reply(
             token, channel, ts,
             f"NOTE [{tid}]: no [EXECUTE ORDER NNN] found — send an Order-formatted "
@@ -197,6 +259,30 @@ def process_pending(path: Path, token: str) -> None:
         reply(token, channel, ts, f"REJECTED [{tid}]: {reason}")
         order_inbox.mark_processed(path, {"status": "REJECTED", "error": reason, "sender": sender})
         return
+
+    if match.group(1) == INTAKE_ORDER_ID:
+        fields = {k.lower(): v.strip() for k, v in order_dispatcher.FIELD_RE.findall(text)}
+        try:
+            parsed = parse_intake_body(text)
+            new_path = register_new_order_file(
+                parsed["number"], parsed["title"], parsed["body"], fields.get("executor", "")
+            )
+        except order_dispatcher.DispatchError as exc:
+            reply(token, channel, ts, f"REJECTED [{tid}]: {exc}")
+            order_inbox.mark_processed(path, {"status": "REJECTED", "error": str(exc)})
+            return
+        # Hand off to the normal Order path as if this had arrived as a
+        # direct [EXECUTE ORDER NNN] for the file just registered. The
+        # executor's prompt (order_dispatcher.build_prompt) now points at
+        # a real, already-written canonical file -- no registration
+        # instructions, no need to re-derive anything from Slack text.
+        text = (
+            f"[EXECUTE ORDER {parsed['number']}]\n"
+            f"executor: {fields.get('executor', '')}\n"
+            f"order: {new_path}\n"
+            f"project: {fields.get('project', '')}\n"
+        )
+        record["text"] = text
 
     existing = order_inbox.load_outbox(tid)
     if existing is not None and existing.get("status") not in (None, "DISPATCHING"):

@@ -144,6 +144,92 @@ class SenderAllowlistTests(_WithDirs):
         self.assertIn("allowlist is empty or unreadable", mock_reply.call_args.args[3])
 
 
+class IntakeRegistrationTests(_WithDirs):
+    """orders/100_order_intake.md's registration step, now done by
+    process_pending() itself instead of by the LLM executor."""
+
+    def setUp(self):
+        super().setUp()
+        self._orders_tmp = tempfile.TemporaryDirectory()
+        self._orders_patch = patch.object(order_dispatcher, "ORDERS_DIR", Path(self._orders_tmp.name))
+        self._orders_patch.start()
+        self.addCleanup(self._orders_patch.stop)
+        self.addCleanup(self._orders_tmp.cleanup)
+
+    INTAKE_TEXT = (
+        "[EXECUTE ORDER 100]\nexecutor: claude\nproject: C:\\lab\\vsurf_capital\\common\n\n"
+        "--- ORDER BODY ---\n번호: 103\n제목: speed_check_v2\n목적: 테스트\n"
+        "작업:\n1. 아무것도 안 함\nDoD: N/A\n"
+        "--- END --- *다음을 사용하여 보냄* Claude"
+    )
+
+    def test_parse_intake_body_extracts_number_title_body_verbatim(self):
+        parsed = MODULE.parse_intake_body(self.INTAKE_TEXT)
+        self.assertEqual(parsed["number"], "103")
+        self.assertEqual(parsed["title"], "speed_check_v2")
+        self.assertIn("목적: 테스트", parsed["body"])
+        # Trailing Slack signature (after --- END ---) must not leak into body.
+        self.assertNotIn("다음을 사용하여 보냄", parsed["body"])
+
+    def test_parse_intake_body_rejects_missing_markers(self):
+        with self.assertRaises(DispatchError):
+            MODULE.parse_intake_body("[EXECUTE ORDER 100]\nexecutor: claude\nno markers here\n")
+
+    def test_parse_intake_body_rejects_order_number_100(self):
+        text = self.INTAKE_TEXT.replace("번호: 103", "번호: 100")
+        with self.assertRaises(DispatchError):
+            MODULE.parse_intake_body(text)
+
+    def test_register_new_order_file_writes_verbatim_body_with_header(self):
+        path = MODULE.register_new_order_file("103", "speed_check_v2", "번호: 103\n제목: speed_check_v2\n목적: 테스트", "claude")
+        content = path.read_text(encoding="utf-8")
+        self.assertIn("발신: COO (via ORDER 100 intake)", content)
+        self.assertIn("수신: claude", content)
+        self.assertIn("목적: 테스트", content)
+        self.assertEqual(path.name, "103_speed_check_v2.md")
+
+    def test_register_new_order_file_rejects_existing_number(self):
+        (Path(self._orders_tmp.name) / "103_already_here.md").write_text("x", encoding="utf-8")
+        with self.assertRaises(DispatchError):
+            MODULE.register_new_order_file("103", "speed_check_v2", "body", "claude")
+
+    def test_process_pending_registers_then_dispatches_reconstructed_order(self):
+        path = self.write_pending(text=self.INTAKE_TEXT)
+        fake_request = order_dispatcher.DispatchRequest(
+            order_id="103", executor="claude", order_path="x", project_path="y"
+        )
+        with patch.object(order_dispatcher, "parse_request", return_value=fake_request) as mock_parse, \
+             patch.object(order_dispatcher, "dispatch", return_value=self.completed_result(order_id="103")), \
+             patch.object(MODULE, "reply"):
+            MODULE.process_pending(path, "tok")
+        # parse_request must see the reconstructed short message, not the
+        # original intake message with the embedded body.
+        called_text = mock_parse.call_args.args[0]
+        self.assertIn("[EXECUTE ORDER 103]", called_text)
+        self.assertNotIn("ORDER BODY", called_text)
+        registered = list(Path(self._orders_tmp.name).glob("103_*.md"))
+        self.assertEqual(len(registered), 1)
+
+    def test_process_pending_rejects_duplicate_order_number_without_dispatch(self):
+        (Path(self._orders_tmp.name) / "103_taken.md").write_text("x", encoding="utf-8")
+        path = self.write_pending(text=self.INTAKE_TEXT)
+        with patch.object(order_dispatcher, "dispatch") as mock_dispatch, patch.object(MODULE, "reply") as mock_reply:
+            MODULE.process_pending(path, "tok")
+        mock_dispatch.assert_not_called()
+        self.assertIn("REJECTED", mock_reply.call_args.args[3])
+        self.assertIn("already exists", mock_reply.call_args.args[3])
+
+    def test_process_pending_non_intake_order_number_unaffected(self):
+        # order_id != 100 must skip registration entirely and behave exactly
+        # as before (regression check).
+        path = self.write_pending(text="[EXECUTE ORDER 003]\nexecutor: claude\n")
+        with patch.object(order_dispatcher, "parse_request", side_effect=DispatchError("bad")), \
+             patch.object(MODULE, "register_new_order_file") as mock_register, \
+             patch.object(MODULE, "reply"):
+            MODULE.process_pending(path, "tok")
+        mock_register.assert_not_called()
+
+
 class HappyPathTests(_WithDirs):
     def test_fresh_valid_order_dispatches_once_and_replies_with_commit(self):
         path = self.write_pending(text="[EXECUTE ORDER 003]\nexecutor: claude\n")
