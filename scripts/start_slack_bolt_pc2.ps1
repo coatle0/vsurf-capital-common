@@ -30,11 +30,27 @@ $startupLog = Join-Path $logDir 'slack_bolt_listener_startup.log'
 # instead of relying on that. Task Scheduler's job is just "start this
 # once at logon"; any exit of the python process (crash or kill) is
 # retried after a short delay, indefinitely.
+#
+# $ErrorActionPreference = 'Stop' above is global to this scope, so a
+# non-terminating error anywhere inside the loop body (e.g. a transient
+# Add-Content sharing violation) would otherwise propagate as terminating
+# and kill the *outer* while loop too -- silently ending "self-healing"
+# altogether (verified: this happened to the consumer's copy of this
+# script, 2026-08-12). Wrap the whole loop body so nothing but an
+# explicit exit of this script can stop it.
 while ($true) {
-    "$(Get-Date -Format o) START pid=$PID" | Add-Content -LiteralPath $startupLog -Encoding UTF8
-    python 'C:\lab\vsurf_capital\common\scripts\slack_bolt_listener.py' 2>&1 |
-        Add-Content -LiteralPath $startupLog -Encoding UTF8
-    $code = $LASTEXITCODE
-    "$(Get-Date -Format o) EXIT code=$code -- restarting in 5s" | Add-Content -LiteralPath $startupLog -Encoding UTF8
+    try {
+        "$(Get-Date -Format o) START pid=$PID" | Add-Content -LiteralPath $startupLog -Encoding UTF8
+        python 'C:\lab\vsurf_capital\common\scripts\slack_bolt_listener.py' 2>&1 |
+            Add-Content -LiteralPath $startupLog -Encoding UTF8
+        $code = $LASTEXITCODE
+        "$(Get-Date -Format o) EXIT code=$code -- restarting in 5s" | Add-Content -LiteralPath $startupLog -Encoding UTF8
+    }
+    catch {
+        try {
+            "$(Get-Date -Format o) WRAPPER ERROR: $($_.Exception.Message) -- restarting in 5s" |
+                Add-Content -LiteralPath $startupLog -Encoding UTF8
+        } catch {}
+    }
     Start-Sleep -Seconds 5
 }
