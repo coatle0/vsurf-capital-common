@@ -66,6 +66,37 @@ class ParseRequestTests(unittest.TestCase):
             self.assertIsNone(request.task_id)
             self.assertEqual(request.raw_message, message)
 
+    def test_parse_request_trims_glued_slack_signature_from_project_only(self):
+        with tempfile.TemporaryDirectory(dir=r"C:\lab") as raw:
+            project = Path(raw)
+            (project / ".git").mkdir()
+            order = dispatcher.ORDERS_DIR / "994_test.md"
+            order.write_text("# test", encoding="utf-8")
+            self.addCleanup(order.unlink, missing_ok=True)
+            message = (
+                "[EXECUTE ORDER 994]\nexecutor: codex\n"
+                f"order: {order}\n"
+                f"project: {project} *다음을 사용하여 보냄* Claude"
+            )
+            with patch.object(dispatcher, "executor_prefix", return_value=[r"C:\bin\codex.exe"]):
+                request = dispatcher.parse_request(message)
+            self.assertEqual(request.project_path, str(project.resolve()))
+            self.assertEqual(request.raw_message, message)
+
+    def test_clean_field_value_is_narrow(self):
+        self.assertEqual(
+            dispatcher.clean_field_value("codex *다음을 사용하여 보냄* Claude"),
+            "codex",
+        )
+        self.assertEqual(
+            dispatcher.clean_field_value(r"C:\lab\Claude\project"),
+            r"C:\lab\Claude\project",
+        )
+        self.assertEqual(
+            dispatcher.clean_field_value("project sent using Claude"),
+            "project sent using Claude",
+        )
+
     def test_rejects_project_outside_lab(self):
         order = dispatcher.ORDERS_DIR / "998_test.md"
         order.write_text("# test", encoding="utf-8")

@@ -210,6 +210,23 @@ class IntakeRegistrationTests(_WithDirs):
         registered = list(Path(self._orders_tmp.name).glob("103_*.md"))
         self.assertEqual(len(registered), 1)
 
+    def test_process_pending_trims_glued_signature_from_intake_project(self):
+        text = self.INTAKE_TEXT.replace(
+            "project: C:\\lab\\vsurf_capital\\common\n",
+            "project: C:\\lab\\vsurf_capital\\common *다음을 사용하여 보냄* Claude\n",
+        )
+        path = self.write_pending(text=text)
+        fake_request = order_dispatcher.DispatchRequest(
+            order_id="103", executor="claude", order_path="x", project_path="y"
+        )
+        with patch.object(order_dispatcher, "parse_request", return_value=fake_request) as mock_parse, \
+             patch.object(order_dispatcher, "dispatch", return_value=self.completed_result(order_id="103")), \
+             patch.object(MODULE, "reply"):
+            MODULE.process_pending(path, "tok")
+        called_text = mock_parse.call_args.args[0]
+        self.assertIn("project: C:\\lab\\vsurf_capital\\common\n", called_text)
+        self.assertNotIn("다음을 사용하여 보냄", called_text)
+
     def test_process_pending_rejects_duplicate_order_number_without_dispatch(self):
         (Path(self._orders_tmp.name) / "103_taken.md").write_text("x", encoding="utf-8")
         path = self.write_pending(text=self.INTAKE_TEXT)

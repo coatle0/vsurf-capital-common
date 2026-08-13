@@ -261,7 +261,10 @@ def process_pending(path: Path, token: str) -> None:
         return
 
     if match.group(1) == INTAKE_ORDER_ID:
-        fields = {k.lower(): v.strip() for k, v in order_dispatcher.FIELD_RE.findall(text)}
+        fields = {
+            k.lower(): order_dispatcher.clean_field_value(v)
+            for k, v in order_dispatcher.FIELD_RE.findall(text)
+        }
         try:
             parsed = parse_intake_body(text)
             new_path = register_new_order_file(

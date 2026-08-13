@@ -28,6 +28,10 @@ LOG_DIR = COMMON_ROOT / "logs" / "dispatcher"
 ALLOWED_ROOT = Path(r"C:\lab")
 EXECUTE_RE = re.compile(r"(?im)^\[?EXECUTE\s+ORDER\s+(\d{3})\]?\s*$")
 FIELD_RE = re.compile(r"(?im)^(executor|order|project)\s*:\s*(.+?)\s*$")
+SLACK_SIGNATURE_RE = re.compile(
+    r"\s*\*다음을 사용하여 보냄\*\s*(?:Claude|ChatGPT|Codex)?\s*$",
+    re.IGNORECASE,
+)
 
 
 class DispatchError(RuntimeError):
@@ -78,12 +82,25 @@ def is_within(path: Path, root: Path) -> bool:
         return False
 
 
+def clean_field_value(value: str) -> str:
+    """Remove a known Slack client attribution glued to a field value.
+
+    Slack can append the attribution to the final line without inserting a
+    newline. Keep the raw message untouched and normalize only parsed control
+    fields so paths and executor names remain valid.
+    """
+    return SLACK_SIGNATURE_RE.sub("", value).strip()
+
+
 def parse_request(message: str, task_id: str | None = None) -> DispatchRequest:
     match = EXECUTE_RE.search(message)
     if not match:
         raise DispatchError("Expected '[EXECUTE ORDER NNN]' on its own line.")
     order_id = match.group(1)
-    fields = {key.lower(): value.strip() for key, value in FIELD_RE.findall(message)}
+    fields = {
+        key.lower(): clean_field_value(value)
+        for key, value in FIELD_RE.findall(message)
+    }
     executor = fields.get("executor", "").lower()
     if executor not in {"codex", "claude", "available"}:
         raise DispatchError("executor must be codex, claude, or available.")
