@@ -154,6 +154,12 @@ class ParseRequestTests(unittest.TestCase):
         command_str = " ".join(command)
         self.assertIn('approval_policy="never"', command_str)
         self.assertIn('windows.sandbox="elevated"', command_str)
+        self.assertIn('mcp_servers.tikr.command="C:\\Python314\\python.exe"', command_str)
+        self.assertIn(
+            'mcp_servers.tikr.args=["C:\\autoai\\tikr-toolkit\\tikr_mcp_server.py"]',
+            command_str,
+        )
+        self.assertIn('mcp_servers.tikr.default_tools_approval_mode="approve"', command_str)
         self.assertNotIn("danger-full-access", command_str)
 
 
