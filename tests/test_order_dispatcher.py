@@ -96,15 +96,28 @@ class ParseRequestTests(unittest.TestCase):
         self.assertIn("--ignore-user-config", command)
         self.assertIn("workspace-write", command)
         self.assertNotIn("--dangerously-bypass-approvals-and-sandbox", command)
-        # approval_policy="never" would silently re-enable the exact
-        # unattended-approval behavior --ignore-user-config exists to
-        # strip from ~/.codex/config.toml's own dangerous global setting
-        # (sandbox_mode = "danger-full-access", approval_policy = "never").
-        # A prior commit (aac815c) added this flag AND a test asserting
-        # its presence; both are wrong per this Order's own "no dangerous
-        # bypass" rule -- fixed 2026-08-12 (work order task 3 audit).
+        # 2026-08-12 (task 3 audit) removed approval_policy="never" here on
+        # the reasoning that it silently re-enables the exact unattended
+        # approval behavior --ignore-user-config exists to strip from
+        # ~/.codex/config.toml's own dangerous global setting. That
+        # reasoning missed that --ignore-user-config strips the *entire*
+        # user config file, including this machine's own
+        # [windows] sandbox = "elevated" -- so removing the flag didn't
+        # make things safer, it just made --sandbox workspace-write
+        # silently fall back to Windows read-only (order 107 FAILED: "no
+        # Git change; completion not proven", 2026-08-13).
+        # -c is config precedence layer 1 (above the stripped user file),
+        # so restoring approval_policy="never" and windows.sandbox="elevated"
+        # via -c fixes the Windows backend without reintroducing
+        # danger-full-access. Verified empirically before this test changed
+        # (STEP 0-2, 2026-08-13, isolated temp repo, dispatcher not
+        # involved): sandbox: workspace-write in the session header, writes
+        # inside workdir/--add-dir succeed, writes outside them are still
+        # rejected ("patch rejected: writing outside of the project").
         command_str = " ".join(command)
-        self.assertNotIn("approval_policy", command_str)
+        self.assertIn('approval_policy="never"', command_str)
+        self.assertIn('windows.sandbox="elevated"', command_str)
+        self.assertNotIn("danger-full-access", command_str)
 
 
 class BuildPromptTests(unittest.TestCase):

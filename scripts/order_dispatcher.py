@@ -247,6 +247,23 @@ def executor_command(request: DispatchRequest, summary_file: Path) -> list[str]:
         return [
             *prefix, "exec", "-C", request.project_path,
             "--ignore-user-config",
+            # --ignore-user-config strips ~/.codex/config.toml entirely, which
+            # is where this machine's [windows] sandbox = "elevated" lived --
+            # without it, --sandbox workspace-write only sets sandbox_mode and
+            # silently leaves Windows running read-only (order 107, FAILED:
+            # "no Git change; completion not proven"). -c is the highest config
+            # precedence layer (above the now-stripped user file), so restore
+            # just the two keys needed instead of dropping --ignore-user-config
+            # itself. Verified empirically 2026-08-13 (STEP 0-2, in this order,
+            # against an isolated temp repo, before touching this file):
+            # session header shows sandbox: workspace-write; writes inside
+            # workdir/--add-dir succeed; writes outside them are still
+            # rejected ("patch rejected: writing outside of the project") --
+            # i.e. restoring these two keys does not reintroduce
+            # danger-full-access, it only fixes the Windows backend + approval
+            # gate that --ignore-user-config over-stripped.
+            "-c", 'approval_policy="never"',
+            "-c", 'windows.sandbox="elevated"',
             "--add-dir", str(COMMON_ROOT),
             "--sandbox", "workspace-write",
             "--output-last-message", str(summary_file),
