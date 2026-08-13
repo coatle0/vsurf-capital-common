@@ -282,8 +282,8 @@ def executor_command(request: DispatchRequest, summary_file: Path) -> list[str]:
             # gate that --ignore-user-config over-stripped.
             "-c", 'approval_policy="never"',
             "-c", 'windows.sandbox="elevated"',
-            "-c", 'mcp_servers.tikr.command="C:\\Python314\\python.exe"',
-            "-c", 'mcp_servers.tikr.args=["C:\\autoai\\tikr-toolkit\\tikr_mcp_server.py"]',
+            "-c", "mcp_servers.tikr.command='C:\\Python314\\python.exe'",
+            "-c", "mcp_servers.tikr.args=['C:\\autoai\\tikr-toolkit\\tikr_mcp_server.py']",
             "-c", 'mcp_servers.tikr.default_tools_approval_mode="approve"',
             "--add-dir", str(COMMON_ROOT),
             "--sandbox", "workspace-write",
