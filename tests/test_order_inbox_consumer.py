@@ -213,7 +213,7 @@ class IntakeRegistrationTests(_WithDirs):
     def test_process_pending_trims_glued_signature_from_intake_project(self):
         text = self.INTAKE_TEXT.replace(
             "project: C:\\lab\\vsurf_capital\\common\n",
-            "project: C:\\lab\\vsurf_capital\\common *다음을 사용하여 보냄* Claude\n",
+            "project: C:\\lab\\vsurf_capital\\common *다음을 사용하여 보냄* <@U0BP56ZV2NT>\n",
         )
         path = self.write_pending(text=text)
         fake_request = order_dispatcher.DispatchRequest(

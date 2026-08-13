@@ -29,7 +29,8 @@ ALLOWED_ROOT = Path(r"C:\lab")
 EXECUTE_RE = re.compile(r"(?im)^\[?EXECUTE\s+ORDER\s+(\d{3})\]?\s*$")
 FIELD_RE = re.compile(r"(?im)^(executor|order|project)\s*:\s*(.+?)\s*$")
 SLACK_SIGNATURE_RE = re.compile(
-    r"\s*\*다음을 사용하여 보냄\*\s*(?:Claude|ChatGPT|Codex)?\s*$",
+    r"\s*\*다음을 사용하여 보냄\*\s*"
+    r"(?:Claude|ChatGPT|Codex|<@[A-Z0-9]+>)?\s*$",
     re.IGNORECASE,
 )
 

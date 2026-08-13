@@ -96,6 +96,12 @@ class ParseRequestTests(unittest.TestCase):
             dispatcher.clean_field_value("project sent using Claude"),
             "project sent using Claude",
         )
+        self.assertEqual(
+            dispatcher.clean_field_value(
+                r"C:\lab\vsurf_capital\common *다음을 사용하여 보냄* <@U0BP56ZV2NT>"
+            ),
+            r"C:\lab\vsurf_capital\common",
+        )
 
     def test_rejects_project_outside_lab(self):
         order = dispatcher.ORDERS_DIR / "998_test.md"
