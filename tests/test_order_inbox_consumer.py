@@ -319,7 +319,12 @@ class CrashRecoveryTests(_WithDirs):
             json.dumps(dataclasses_asdict(prior)), encoding="utf-8"
         )
 
-        with patch.object(order_dispatcher, "dispatch") as mock_dispatch, patch.object(MODULE, "reply") as mock_reply:
+        request = order_dispatcher.DispatchRequest(
+            order_id="003", executor="claude", order_path="x", project_path="y"
+        )
+        with patch.object(order_dispatcher, "parse_request", return_value=request), \
+             patch.object(order_dispatcher, "dispatch") as mock_dispatch, \
+             patch.object(MODULE, "reply") as mock_reply:
             MODULE.handle_claimed(claimed_path, "tok")
 
         mock_dispatch.assert_not_called()
