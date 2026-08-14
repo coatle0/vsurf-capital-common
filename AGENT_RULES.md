@@ -5,19 +5,10 @@
 
 ## Orders (`orders/`)
 
-- 파일명: `NNN_주제.md` (3자리 순번).
-- 필수 필드: 발행일 / 발신 / 수신 / 상태 / **도구**.
-- **도구 칸**: Order 본문에 `도구:` 행 필수.
-  - 비었으면("도구: 없음") MCP 없이 실행 (`--strict-mcp-config`).
-  - 필요한 MCP만 명시 (예: `도구: investment-kg, neo4j`).
-  - 목적: Order 실행 시 불필요한 MCP 콜드스타트 제거.
-- 본문 구성: **착수 전 pull(고정 행)** → 목적 → 범위 → 작업(번호별) → 금지 → DoD → 보고 → **종료 시 push(고정 행)**.
-  - 착수 전 고정 행: `cd C:\lab\vsurf_capital\common` → `git pull`. 최신 정본 확보 후 시작.
-  - 종료 시 고정 행: 산출물 반영 → commit → push → 해당 변경 TG 1줄 발행.
-- **경로는 전부 절대경로로 기재.** Bill 실행 루트는 `C:\lab` 이고 저장소 루트는 `C:\lab\vsurf_capital\common\` 로 서로 다름.
-  상대경로로 적으면 Bill 이 저장소를 인식하지 못함(실측: `.git` 미인식 오류 발생).
-  - 예: `orders\003.md` (X) → `C:\lab\vsurf_capital\common\orders\003.md` (O)
-  - Order 호출 지시도 절대경로로: `C:\lab\vsurf_capital\common\orders\003_xxx.md 읽고 실행`
+- 상세 포맷·intake·dispatcher·executor·복구 규칙의 단일 정본은 `C:\lab\vsurf_capital\common\ORDER_PROTOCOL.md`다.
+- 파일명은 `NNN_주제.md`(3자리 순번), 필수 머리말은 발행일 / 발신 / 수신 / 상태 / 도구다.
+- 본문은 목적 → 대상/범위 → 작업(번호별) → 금지 → DoD 순으로 작성하고 경로는 절대경로를 사용한다.
+- `도구:`는 필요한 도구를 기록하는 선언이다. 현재 dispatcher의 범용 MCP 자동 주입을 뜻하지 않으며 실제 지원 범위는 `ORDER_PROTOCOL.md` §4·§6을 따른다.
 - 상태값: 미착수 → 진행 중 → 완료 (또는 부분완료 + 미완 항목 명시).
 - 수신자는 작업 항목 중 하나가 막히면 그 항목만 건너뛰고 나머지를 완료한 뒤 보고 (통째로 중단 금지).
 
@@ -40,11 +31,7 @@
 ## Slack 실행 Order
 
 - `[EXECUTE ORDER NNN]` 메시지는 일반 대화가 아니라 Git 정본 실행 신호다.
-- 필수 필드: `executor`, `order`, `project`. `project`는 `C:\lab` 아래 절대경로만 허용한다.
-- PC2 OpenACP의 Codex 세션은 먼저 다음 Dispatcher dry-run으로 메시지·Order·경로·실행자를 검증한다.
-  `python C:\lab\vsurf_capital\common\scripts\order_dispatcher.py --message-file <메시지파일>`
-- `VALIDATED`이면 현재 OpenACP 주 세션이 Order를 직접 수행한다. 하위 `codex exec`를 중첩 호출하지 않는다.
-- 수행 순서: 프로젝트 `git pull --ff-only` → 깨끗한 작업트리 확인 → Order 실행·검증 → 변경 파일만 commit → push.
-- Dispatcher가 `REJECTED` 또는 `FAILED`를 반환하면 임의로 우회 실행하지 않고 같은 Slack 대화에 원인만 보고한다.
-- OpenACP 결과의 Order 번호, 상태, 실행자, commit, 검증 요약을 Slack에 회신한다. 토큰 값은 절대 표시하지 않는다.
+- 신규 발주는 `ORDER_PROTOCOL.md` §5의 `[EXECUTE ORDER 100]` + `ORDER BODY` 형식만 사용한다. 필수 Slack 필드는 `executor`(`codex`/`claude`/`available`)와 `project`이며 외부 메시지에 `order:` 필드를 넣지 않는다.
+- durable inbox consumer와 dispatcher가 정본 등록·검증·executor 실행·검증·Git 최종화·Slack thread 회신을 담당한다. executor는 prompt 지시대로 commit/push하지 않는다.
+- REJECTED/FAILED를 임의 우회하지 않는다. credential/token 값을 출력하거나 저장하지 않는다.
 - `CONTINUE`, `APPROVE`, `HOLD`, `RETRY`, `CANCEL`은 상태 저장과 스레드 연결 구현이 완료되기 전까지 자동 실행하지 않는다.

@@ -1,7 +1,7 @@
 # ORDER_PROTOCOL — Slack → Order 실행 설계
 
 > 정본: `C:\lab\vsurf_capital\common\ORDER_PROTOCOL.md` (PC1/PC2 공유, git 동기화 대상)
-> `AGENT_RULES.md`의 "Orders"/"Slack 실행 Order" 절을 대체·구체화한다. OpenACP는 이 경로에서 제외됨(2026-08-09).
+> Order 작성·실행의 단일 상세 정본이다. `AGENT_RULES.md`는 이 문서를 참조하는 요약 규약만 둔다.
 
 ## 1. 전체 흐름
 
@@ -32,7 +32,7 @@ Slack ACK 회신 ── "ACK [pc_id] RECEIVED task=<task_id>"
      있음 → 재실행 없이 그 결과로 회신
      없음 ↓
 ③ scripts/order_dispatcher.py             실제 작업 수행
-   parse_request()        executor/order/project 필드 검증
+   parse_request()        executor/project 필드와 정본 Order 자동 탐색 검증
    OrderLock(order_id)    같은 order 동시 실행 차단
    ensure_clean_and_current()   git pull --ff-only, 트리 clean 확인
    executor 실행 (claude -p | codex exec)
@@ -66,7 +66,7 @@ claimed → processed/ 로 아카이브 (종결)
 
 ## 4. Executor 분기 (`order_dispatcher.py`)
 
-`parse_request()`가 Slack 메시지의 `executor:` 필드(`codex`/`claude`/`available`만 허용, 소문자 비교)를 읽고, 실제 분기는 두 함수에서 일어난다.
+`parse_request()`가 Slack 메시지의 `executor:` 필드(`codex`/`claude`/`available`만 허용, 소문자 비교)를 읽는다. `available`은 Codex CLI가 있으면 codex, 없으면 claude를 선택한다. 실제 분기는 두 함수에서 일어난다.
 
 ```python
 # executor_prefix(): 실행 파일 경로 해석
@@ -76,38 +76,50 @@ claude → shutil.which("claude.exe")
 # executor_command(): 명령줄 조립 — 진짜 분기점
 if executor == "codex":
     [*prefix, "exec", "-C", project, "--ignore-user-config",
+     "-c", 'approval_policy="never"', "-c", 'windows.sandbox="elevated"',
+     "-c", <허용된 TIKR MCP 설정 3개>,
      "--add-dir", COMMON_ROOT, "--sandbox", "workspace-write",
      "--output-last-message", summary_file, prompt]
 else:  # claude
     [*prefix, "-p", prompt]
 ```
 
-**claude**: 프로젝트를 `hasTrustDialogAccepted`로 신뢰 등록 + `.claude/settings.json` 허용목록만 있으면 헤드리스로 정상 작동 확인됨(2026-08-09, 2026-08-12 실측).
+**claude**: `claude.exe -p <prompt>`로 실행한다. `.claude/settings.json`의 범위 제한 허용목록을 사용하며, TIKR 도구 로드와 실호출 완주를 확인했다(Orders 113, 115, 117).
 
-**codex**: 현재 미작동. `~/.codex/config.toml`의 `[windows] sandbox = "elevated"`가 Windows에서 write 가능한 샌드박스를 구성하는 데 필요한데, `--ignore-user-config`(전역의 위험한 `sandbox_mode = "danger-full-access"` / `approval_policy = "never"`를 걸러내기 위해 의도적으로 넣은 플래그)가 이것까지 함께 날려버려 모든 실행이 `blocked by policy`로 거부됨. codex 전용 범위 제한 config가 별도로 필요(미해결).
+**codex**: Node로 `codex.js`를 직접 실행한다. `--ignore-user-config`로 사용자 설정을 격리한 뒤 `approval_policy="never"`와 `windows.sandbox="elevated"`를 CLI `-c`로 복원하고, `workspace-write`와 `--add-dir COMMON_ROOT`로 쓰기 범위를 제한한다. Orders 107·110에서 쓰기 재현, Orders 114·116에서 주입된 TIKR MCP 실호출을 확인했다. 현재 주입되는 MCP는 TIKR뿐이며 Order의 `도구:` 값을 일반적으로 해석해 임의 MCP를 주입하는 기능은 없다.
 
 ## 5. 메시지 포맷
 
 ```
-[EXECUTE ORDER NNN]
+[EXECUTE ORDER 100]
 executor: claude | codex | available
-order: <orders/NNN_*.md 절대경로>   (생략 가능 — 생략 시 NNN으로 자동 탐색)
 project: <C:\lab 아래 절대경로, git repo>
+
+--- ORDER BODY ---
+번호: NNN
+제목: 파일명에 사용할 제목
+...
+--- END ---
 ```
 
-## 6. 알려진 제약·미해결 항목 (2026-08-12 기준)
+- 신규 발주는 위 **Order 100 intake + ORDER BODY** 형식만 사용한다. 외부 Slack 메시지에 `order:` 필드를 넣지 않는다.
+- `executor`와 `project`는 필수다. `project`는 존재하는 Git 저장소이자 `C:\lab` 아래 절대경로여야 한다.
+- consumer가 BODY의 번호·제목을 검증해 `orders/NNN_제목.md`를 등록하고, 내부적으로 정본 경로를 붙인 직접 실행 메시지로 변환한다. 번호 중복, marker/필수 본문 필드 누락은 REJECTED다.
+- Slack이 마지막 줄에 signature를 붙여도 parser가 executor/project 값과 BODY 경계를 방어적으로 정리한다(Orders 108·109).
+
+## 6. 현재 구현과 제한 (2026-08-14 기준)
 
 - **`executor: bill` 미지원** — 조직 내 Claude Code 실명("Bill")이 별칭으로 안 먹힘, `claude`만 인식.
-- **`order: NNN`(번호만) 오작동** — 필드 생략 시엔 번호로 자동 탐색되지만, 번호만 채워 넣으면 "경로 불일치"로 REJECTED. 생략하거나 전체 경로를 써야 함.
-- **원문 Slack 메시지가 executor에게 안 넘어감** — `build_prompt()`가 정본 Order 파일 경로만 알려주고 Slack 메시지 원문은 전달하지 않음. 지시가 Slack 메시지 본문에만 있는 경우(사전에 커밋된 Order 파일이 없는 경우) executor가 `.runtime/inbox/`를 직접 뒤져 원문을 복구해야 했음(Order 100 실측, 처리 시간 6분+ 소요의 주원인).
 - **PC1 미설정** — 이 전체 구조는 PC2(`codex-pc2`)에만 구축됨.
 - **복수 프로젝트 동시 실행 불가** — consumer가 완전 순차 처리, `dispatch()`가 최대 3600초 블로킹.
 - **단일 프로젝트 분할처리 미지원** — Order 1건 = dispatch 1회 = commit 1회가 원자 단위, sub-task 분할·병렬화 개념 없음.
-- **codex 경로 미작동** — 위 4절 참조.
+- **MCP 주입은 실행자별 비대칭** — Codex는 격리 뒤 TIKR만 명시 주입한다. Claude는 로컬 설정을 이어받되 `.claude/settings.json` 허용목록의 적용을 받는다. `도구:` 행을 범용 MCP 구성으로 변환하지 않는다.
+- **강제 종료 자동 복구 없음** — claim과 lock은 fail-closed로 남는다. TTL/lease/PID 생존 판정이 없으므로 outbox·last-result·외부 부작용을 사람이 확인한 뒤 stale lock을 수동 제거해야 한다. 비멱등 외부 작업은 안전 재실행을 보장하지 않는다(Orders 119·120).
 
 해결됨(2026-08-12, COO 작업지시 5건 중 1·2):
 - ~~발신자 화이트리스트 없음~~ → `order_senders.json`(git 등재, user ID만) + `order_inbox_consumer.py`의 `process_pending()`이 dispatch 이전에 검사. 목록이 비었거나 읽기 실패해도 fail-closed(전원 거부). 목록 밖 발신자는 `REJECTED [task_id]: sender not allowed`로 명시 회신, dispatcher는 아예 호출 안 됨.
 - ~~예약작업 미등록~~ → `VSURF-Slack-Bolt-PC2`/`VSURF-OrderConsumer-PC2` 등록(AtLogOn, coatle 계정). 스크립트 자체에 self-heal `while` 루프 내장(Task Scheduler의 restart-on-failure가 수동 시작 인스턴스엔 안 먹히는 걸 실측 확인했기 때문). consumer는 크래시 시 stale lock을 자동으로 안 지우고 사람이 치울 때까지 재시도만 반복(의도적).
+- ~~Slack 원문 미전달~~ → `build_prompt()`가 task_id와 원문을 verbatim으로 전달한다. Order 100 intake는 consumer가 BODY를 정본 파일로 먼저 등록한다.
 
 ## 7. 운영 이력
 
@@ -115,3 +127,5 @@ project: <C:\lab 아래 절대경로, git repo>
 - 2026-08-09: durable inbox + exactly-once consumer + Slack Bolt 리스너 신규 구축, claude 헤드리스 실행 최초 성공(Order 003, commit `c687c0d`).
 - 2026-08-12: Order 100(loop_proof) 실제 COO 발행 → 완주 확인(commit `aacd2fc5`). Order 004는 형식 오류 2건으로 미실행.
 - 2026-08-12: COO 작업지시(파이프라인 보강 5건) 착수. 작업 1(재부팅·크래시 생존) 완료, 작업 2(발신자 화이트리스트) 완료.
+- 2026-08-13: Codex Windows 설정을 CLI에서 제한적으로 복원해 쓰기 경로를 해결(Orders 107·110). signature parser 실경로 완주(Orders 108·109).
+- 2026-08-14: Codex/Claude TIKR end-to-end 완주(Orders 114~117), 동시 중복 차단과 강제 종료 후 수동 stale-lock 복구를 격리 실측(Orders 118~120).

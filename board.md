@@ -2,7 +2,7 @@
 
 > 정본: `C:\lab\vsurf_capital\common\board.md`
 > 상태판. 로그 아님. 3줄 상한.
-> 갱신: 2026-08-08
+> 갱신: 2026-08-14
 
 ## 현재
 
@@ -10,7 +10,7 @@
 |---|---|---|---|---|---|
 | STI-G1 | 매핑표 33행 검토 대기 (13일) | BU-030 매핑표 | jw | 쟁점 4건 판정 → 승인 행만 적재 | 08-08 |
 | SA-0 | Anchor 청산룰 미정의 | — | jw | 최소 청산룰 1판 확정 → G-A 해제 | 08-08 |
-| 파이프 | ORDER 001·002 종결. 왕복·모바일 원격 실증 완료 | repo coatle0/vsurf-capital-common / remote-control 상시 ON | (비어있음) | PC2 단독파일 14개 저장소 편입 (003) | 08-08 |
+| 파이프 | Phase 2 완료 (Orders 100~120). Phase 3 정본 갱신 완료 | ORDER_PROTOCOL.md / AGENT_RULES.md / reports/121_report.md | (비어있음) | governance DRAFT 3건 제출 | 08-14 |
 
 ## 규약
 
