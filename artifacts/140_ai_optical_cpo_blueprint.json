@@ -1,0 +1,178 @@
+{
+  "contract_version": "ivk-blueprint-1.0",
+  "raw_input": {
+    "name": "AI Optical / CPO",
+    "seed": [
+      "nvda",
+      "COHR",
+      "lite",
+      "CRDO"
+    ],
+    "frame": "Sponsor→Value Chain→Bottleneck",
+    "thesis": "AI cluster scale-up expands optical interconnect and CPO demand, shifting constraints and beneficiary opportunities across the value chain.",
+    "questions": [
+      "Where are the near-term optical and CPO bottlenecks?",
+      "Which suppliers could benefit if those bottlenecks tighten?",
+      "Which adjacent links should be expanded after evidence collection?"
+    ],
+    "known_links": [],
+    "limitations": [
+      "Intake is a starting hypothesis; no candidate is confirmed without evidence."
+    ],
+    "references": []
+  },
+  "normalized": {
+    "identity": {
+      "name": "AI Optical / CPO",
+      "slug": "ai-optical-cpo"
+    },
+    "validated_seeds": [
+      {
+        "input": "nvda",
+        "canonical_id": "NVDA",
+        "kind": "ticker_or_company_id",
+        "role": "starting_point"
+      },
+      {
+        "input": "COHR",
+        "canonical_id": "COHR",
+        "kind": "ticker_or_company_id",
+        "role": "starting_point"
+      },
+      {
+        "input": "lite",
+        "canonical_id": "LITE",
+        "kind": "ticker_or_company_id",
+        "role": "starting_point"
+      },
+      {
+        "input": "CRDO",
+        "canonical_id": "CRDO",
+        "kind": "ticker_or_company_id",
+        "role": "starting_point"
+      }
+    ],
+    "primary_frame": "Sponsor→Value Chain→Bottleneck",
+    "secondary_frame_candidates": [
+      "Value Chain",
+      "Bottleneck"
+    ],
+    "thesis": "AI cluster scale-up expands optical interconnect and CPO demand, shifting constraints and beneficiary opportunities across the value chain.",
+    "questions": [
+      "Where are the near-term optical and CPO bottlenecks?",
+      "Which suppliers could benefit if those bottlenecks tighten?",
+      "Which adjacent links should be expanded after evidence collection?"
+    ],
+    "known_links": [],
+    "limitations": [
+      "Intake is a starting hypothesis; no candidate is confirmed without evidence."
+    ],
+    "references": []
+  },
+  "unresolved_seeds": [
+    {
+      "seed": "NVDA",
+      "reason": "no matching Company in live canonical read",
+      "disposition": "retain_as_starting_point"
+    },
+    {
+      "seed": "COHR",
+      "reason": "no matching Company in live canonical read",
+      "disposition": "retain_as_starting_point"
+    },
+    {
+      "seed": "LITE",
+      "reason": "no matching Company in live canonical read",
+      "disposition": "retain_as_starting_point"
+    },
+    {
+      "seed": "CRDO",
+      "reason": "no matching Company in live canonical read",
+      "disposition": "retain_as_starting_point"
+    }
+  ],
+  "excluded_seeds": [],
+  "existing_graph": {
+    "read_path": "neo4j-official.read_cypher",
+    "observed_at": "2026-08-15T21:55:47.546675+00:00",
+    "findings": [
+      {
+        "seed": "NVDA",
+        "company": null,
+        "value_chain": [],
+        "assertions": [],
+        "epistemic_status": "graph_observation",
+        "review_status": "pending"
+      },
+      {
+        "seed": "COHR",
+        "company": null,
+        "value_chain": [],
+        "assertions": [],
+        "epistemic_status": "graph_observation",
+        "review_status": "pending"
+      },
+      {
+        "seed": "LITE",
+        "company": null,
+        "value_chain": [],
+        "assertions": [],
+        "epistemic_status": "graph_observation",
+        "review_status": "pending"
+      },
+      {
+        "seed": "CRDO",
+        "company": null,
+        "value_chain": [],
+        "assertions": [],
+        "epistemic_status": "graph_observation",
+        "review_status": "pending"
+      }
+    ]
+  },
+  "initial_value_chain": {
+    "nodes": [],
+    "links": [],
+    "status": "hypothesis",
+    "review_status": "pending"
+  },
+  "candidate_slots": {
+    "drivers": [],
+    "bottlenecks": [],
+    "beneficiaries": []
+  },
+  "link_expansion_frontier": [],
+  "source_requirements": [
+    {
+      "question": "Where are the near-term optical and CPO bottlenecks?",
+      "status": "required",
+      "evidence": []
+    },
+    {
+      "question": "Which suppliers could benefit if those bottlenecks tighten?",
+      "status": "required",
+      "evidence": []
+    },
+    {
+      "question": "Which adjacent links should be expanded after evidence collection?",
+      "status": "required",
+      "evidence": []
+    }
+  ],
+  "epistemic_policy": {
+    "allowed_status": [
+      "fact",
+      "graph_observation",
+      "hypothesis",
+      "inference"
+    ],
+    "allowed_review_status": [
+      "accepted",
+      "deferred",
+      "pending",
+      "rejected"
+    ],
+    "auto_confirm": false
+  },
+  "review_status": "pending"
+}

@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "ivk-blueprint-1.0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["contract_version", "raw_input", "normalized", "unresolved_seeds", "excluded_seeds", "existing_graph", "initial_value_chain", "candidate_slots", "link_expansion_frontier", "source_requirements", "epistemic_policy", "review_status"],
+  "properties": {
+    "contract_version": {"const": "ivk-blueprint-1.0"},
+    "raw_input": {"type": "object"},
+    "normalized": {"type": "object"},
+    "unresolved_seeds": {"type": "array"},
+    "excluded_seeds": {"type": "array"},
+    "existing_graph": {"type": "object", "required": ["read_path", "observed_at", "findings"]},
+    "initial_value_chain": {"type": "object"},
+    "candidate_slots": {"type": "object", "required": ["drivers", "bottlenecks", "beneficiaries"]},
+    "link_expansion_frontier": {"type": "array"},
+    "source_requirements": {"type": "array"},
+    "epistemic_policy": {"type": "object", "required": ["allowed_status", "allowed_review_status", "auto_confirm"]},
+    "review_status": {"enum": ["pending", "accepted", "rejected", "deferred"]}
+  }
+}

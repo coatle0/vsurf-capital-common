@@ -1,0 +1,14 @@
+{
+  "name": "AI Optical / CPO",
+  "seed": ["nvda", "COHR", "lite", "CRDO"],
+  "frame": "Sponsor→Value Chain→Bottleneck",
+  "thesis": "AI cluster scale-up expands optical interconnect and CPO demand, shifting constraints and beneficiary opportunities across the value chain.",
+  "questions": [
+    "Where are the near-term optical and CPO bottlenecks?",
+    "Which suppliers could benefit if those bottlenecks tighten?",
+    "Which adjacent links should be expanded after evidence collection?"
+  ],
+  "known_links": [],
+  "limitations": ["Intake is a starting hypothesis; no candidate is confirmed without evidence."],
+  "references": []
+}
