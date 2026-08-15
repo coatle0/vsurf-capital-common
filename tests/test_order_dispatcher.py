@@ -1,4 +1,5 @@
 import importlib.util
+import os
 import subprocess
 import sys
 import tempfile
@@ -160,7 +161,50 @@ class ParseRequestTests(unittest.TestCase):
             command_str,
         )
         self.assertIn('mcp_servers.tikr.default_tools_approval_mode="approve"', command_str)
+        self.assertIn('mcp_servers.gs.command=', command_str)
+        self.assertIn('mcp_servers.gs.args=', command_str)
+        self.assertIn('mcp_servers.gs.default_tools_approval_mode="approve"', command_str)
+        for name in ("APPDATA", "LOCALAPPDATA", "USERPROFILE", "R_USER", "GS_RSCRIPT"):
+            self.assertIn(f"mcp_servers.gs.env.{name}=", command_str)
         self.assertNotIn("danger-full-access", command_str)
+
+    def test_gs_config_uses_environment_overrides_and_checks_server(self):
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw)
+            python = root / "python.exe"
+            server = root / "gs_mcp_server.py"
+            rscript = root / "Rscript.exe"
+            for path in (python, server, rscript):
+                path.touch()
+            env = {
+                "GS_PYTHON": str(python),
+                "GS_MCP_SERVER": str(server),
+                "GS_RSCRIPT": str(rscript),
+                "APPDATA": str(root / "roaming"),
+                "LOCALAPPDATA": str(root / "local"),
+                "USERPROFILE": str(root / "user"),
+            }
+            with patch.dict(os.environ, env, clear=True):
+                actual_python, actual_server, actual_env = dispatcher.resolve_gs_mcp_config()
+            self.assertEqual(actual_python, python.resolve())
+            self.assertEqual(actual_server, server.resolve())
+            self.assertEqual(actual_env["R_USER"], env["USERPROFILE"])
+
+    def test_gs_config_rejects_missing_server_script(self):
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw)
+            python = root / "python.exe"
+            rscript = root / "Rscript.exe"
+            python.touch()
+            rscript.touch()
+            env = {
+                "GS_PYTHON": str(python),
+                "GS_MCP_SERVER": str(root / "missing.py"),
+                "GS_RSCRIPT": str(rscript),
+            }
+            with patch.dict(os.environ, env, clear=True):
+                with self.assertRaises(dispatcher.DispatchError):
+                    dispatcher.resolve_gs_mcp_config()
 
 
 class BuildPromptTests(unittest.TestCase):

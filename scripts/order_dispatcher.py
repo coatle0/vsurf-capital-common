@@ -257,11 +257,63 @@ def executor_prefix(executor: str) -> list[str] | None:
     return None
 
 
+def toml_value(value: str) -> str:
+    """Return a TOML-compatible quoted string for a Codex -c override."""
+    return json.dumps(value, ensure_ascii=False)
+
+
+def resolve_gs_mcp_config() -> tuple[Path, Path, dict[str, str]]:
+    """Resolve the local GS bridge without copying another PC's paths.
+
+    Explicit environment overrides win. The fallbacks use executables visible
+    to this dispatcher process and the current system drive's autoai checkout.
+    """
+    python = Path(os.environ.get("GS_PYTHON", "") or sys.executable)
+    if not python.is_file():
+        discovered_python = shutil.which("python") or shutil.which("python3")
+        if not discovered_python:
+            raise DispatchError("Python executable for GS MCP was not found.")
+        python = Path(discovered_python)
+
+    server_override = os.environ.get("GS_MCP_SERVER")
+    autoai_root = Path(
+        os.environ.get("AUTOAI_ROOT", "") or (Path(python.anchor) / "autoai")
+    )
+    server = Path(server_override) if server_override else autoai_root / "gs-toolkit" / "gs_mcp_server.py"
+    if not server.is_file():
+        raise DispatchError(f"GS MCP server script does not exist: {server}")
+
+    rscript_raw = os.environ.get("GS_RSCRIPT") or shutil.which("Rscript")
+    if not rscript_raw or not Path(rscript_raw).is_file():
+        raise DispatchError("Rscript executable for GS MCP was not found.")
+
+    user_profile = os.environ.get("USERPROFILE") or str(Path.home())
+    required_env = {
+        "APPDATA": os.environ.get("APPDATA", ""),
+        "LOCALAPPDATA": os.environ.get("LOCALAPPDATA", ""),
+        "USERPROFILE": user_profile,
+        "R_USER": os.environ.get("R_USER") or user_profile,
+        "GS_RSCRIPT": str(Path(rscript_raw)),
+    }
+    missing = [name for name, value in required_env.items() if not value]
+    if missing:
+        raise DispatchError(f"GS MCP environment is missing: {', '.join(missing)}")
+    return python.resolve(), server.resolve(), required_env
+
+
 def executor_command(request: DispatchRequest, summary_file: Path) -> list[str]:
     prefix = executor_prefix(request.executor)
     if prefix is None:
         raise DispatchError(f"Executor CLI is not installed: {request.executor}")
     if request.executor == "codex":
+        gs_python, gs_server, gs_env = resolve_gs_mcp_config()
+        gs_config = [
+            "-c", f"mcp_servers.gs.command={toml_value(str(gs_python))}",
+            "-c", f"mcp_servers.gs.args=[{toml_value(str(gs_server))}]",
+            "-c", 'mcp_servers.gs.default_tools_approval_mode="approve"',
+        ]
+        for name, value in gs_env.items():
+            gs_config.extend(["-c", f"mcp_servers.gs.env.{name}={toml_value(value)}"])
         return [
             *prefix, "exec", "-C", request.project_path,
             "--ignore-user-config",
@@ -285,6 +337,7 @@ def executor_command(request: DispatchRequest, summary_file: Path) -> list[str]:
             "-c", "mcp_servers.tikr.command='C:\\Python314\\python.exe'",
             "-c", "mcp_servers.tikr.args=['C:\\autoai\\tikr-toolkit\\tikr_mcp_server.py']",
             "-c", 'mcp_servers.tikr.default_tools_approval_mode="approve"',
+            *gs_config,
             "--add-dir", str(COMMON_ROOT),
             "--sandbox", "workspace-write",
             "--output-last-message", str(summary_file),
