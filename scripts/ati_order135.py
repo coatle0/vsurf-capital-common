@@ -1,7 +1,8 @@
-"""Build Order 135 manifest, GS-raw charts, and ATI Morning Report v0.2."""
+"""Build ATI manifest, GS-raw charts, and Morning Report v0.2 artifacts."""
 from __future__ import annotations
 
 import csv
+import argparse
 import hashlib
 import json
 from datetime import datetime
@@ -13,8 +14,9 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 
 ROOT = Path(__file__).resolve().parents[1]
+ORDER = 135
 RAW = ROOT / "data" / "ati" / "2026-08-14"
-OUT = ROOT / "reports" / "assets" / "135"
+OUT = ROOT / "reports" / "assets" / str(ORDER)
 SHEETS = ("bgd_year", "bgd_th", "bgd_thih", "kidx-Q", "kidx-W", "kr_idx")
 FOCUS_DATES = ("2026-07-24", "2026-07-31", "2026-08-14")
 
@@ -64,7 +66,7 @@ def make_manifest():
             "payload_parity": "PASS",
         })
     manifest = {
-        "order": 135,
+        "order": ORDER,
         "extracted_at": datetime.now().astimezone().isoformat(timespec="seconds"),
         "as_of": "2026-08-14",
         "common_latest_date_dated_sheets": min(latest),
@@ -98,15 +100,17 @@ def make_charts():
     axes[1].axhline(0, color="#667085", lw=.8); axes[1].legend(ncol=3, fontsize=8)
     axes[1].set_title("Priority-sector EMA5 difference (raw GS values)")
     fig.suptitle("ATI GS raw evidence | source bgd_thih | as-of 2026-08-14", weight="bold")
-    fig.savefig(OUT / "135_market_sector_raw.png", dpi=180); plt.close(fig)
+    fig.savefig(OUT / f"{ORDER}_market_sector_raw.png", dpi=180); plt.close(fig)
 
     fig, axes = plt.subplots(2, 1, figsize=(11, 8), constrained_layout=True)
+    x = range(len(FOCUS_DATES))
     for ax, rows, title, source in [(axes[0], pick(q), "Quarter-window sector levels", "kidx-Q"), (axes[1], pick(w), "Week-window sector levels", "kidx-W")]:
         for col, label in zip(["로봇_idx","로봇2_idx","optic_idx","전공정_idx","전자부품_idx"], labels):
-            if col in rows[0]: ax.plot([r["date"] for r in rows], [f(r[col]) for r in rows], marker="o", label=label)
-        ax.set_title(f"{title} | source {source}"); ax.legend(ncol=3, fontsize=8)
+            if col in rows[0]: ax.plot(x, [f(r[col]) for r in rows], marker="o", label=label)
+        ax.set_xticks(list(x), FOCUS_DATES)
+        ax.set_title(f"{title} | source {source} | columns: *_idx"); ax.legend(ncol=3, fontsize=8)
     fig.suptitle("ATI sector leadership/rotation raw evidence | as-of 2026-08-14", weight="bold")
-    fig.savefig(OUT / "135_leadership_raw.png", dpi=180); plt.close(fig)
+    fig.savefig(OUT / f"{ORDER}_leadership_raw.png", dpi=180); plt.close(fig)
 
 
 def page(pdf, title, verdict, evidence, interpretation, action, image=None):
@@ -125,7 +129,7 @@ def page(pdf, title, verdict, evidence, interpretation, action, image=None):
 
 def make_pdf(manifest):
     path=OUT / "ATI_Morning_Report_v0.2_2026-08-14.pdf"
-    p1=OUT / "135_market_sector_raw.png"; p2=OUT / "135_leadership_raw.png"
+    p1=OUT / f"{ORDER}_market_sector_raw.png"; p2=OUT / f"{ORDER}_leadership_raw.png"
     with PdfPages(path) as pdf:
         page(pdf,"Executive Decision / Market Regime","CONDITIONAL — descriptive state only",
              "FACT: bgd_th and bgd_thih are dated through 2026-08-14. The raw sheets retain 94 rows; bgd_year retains a 220-row rolling window.\nOBSERVATION: breadth recovery into 2026-07-31 remains broad on 2026-08-14.",
@@ -155,6 +159,15 @@ def make_pdf(manifest):
 
 
 def main():
+    global ORDER, RAW, OUT
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--order", type=int, default=135, choices=(135, 137))
+    args = parser.parse_args()
+    ORDER = args.order
+    RAW = ROOT / "data" / "ati" / "2026-08-14"
+    if ORDER == 137:
+        RAW = RAW / "order137"
+    OUT = ROOT / "reports" / "assets" / str(ORDER)
     manifest=make_manifest(); make_charts(); pdf=make_pdf(manifest)
     print(json.dumps({"manifest":str(RAW/"manifest.json"),"pdf":str(pdf),"records":len(manifest["records"])},ensure_ascii=False))
 
