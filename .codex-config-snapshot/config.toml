@@ -110,7 +110,7 @@ args = ['C:\lab\knowgraph\investment_workbench\kg_mcp_server.py']
 
 [mcp_servers.neo4j-official]
 command = 'C:\lab\knowgraph\vendor\neo4j-mcp\.venv\Scripts\python.exe'
-args = ['C:\lab\knowgraph\investment_workbench\neo4j_mcp_wrapper.py']
+args = ['C:\lab\vsurf_capital\common\scripts\neo4j_mcp_wrapper.py']
 
 [mcp_servers.telegram-research]
 command = 'C:\lab\knowgraph\vendor\telegram-research\.venv\Scripts\python.exe'

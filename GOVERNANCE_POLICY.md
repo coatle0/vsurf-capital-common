@@ -69,3 +69,11 @@ REJECT_DUPLICATE_ORDER_ID
 2026-08-15 12:32~12:48 COO가 `#vsurf-code-reports`에서 codex MCP 변경 작업에 ORDER 125를 사용했고, 이후 ATI/IVK 트랙도 같은 번호를 사용하려 했다. Git 선점 확인으로 후속 실행은 차단되어 실물 피해는 없었다.
 
 본 정책부터 rpt 작업에는 Order 번호를 부여하지 않으며, 정식 Order 번호는 `#vsurf-agent-control`에서만 전역 Preflight를 거쳐 사용한다.
+
+## 7. Neo4j read/write 기본 경로 승인
+
+- 승인일: 2026-08-15
+- 승인자: CIO
+- `neo4j-official`은 공식 서버 기본 동작대로 `read-cypher`와 `write-cypher`를 모두 노출한다.
+- 로컬 wrapper는 `NEO4J_READ_ONLY=false`를 명시하여 read-only 강제를 해제한다.
+- write 작업은 사전·사후 count, idempotent Cypher, source/evidence 검증을 포함해야 한다.
