@@ -133,3 +133,36 @@ python -m unittest discover -s tests -v: 64/64 PASS
 - [x] GS 4개 실제 재현
 - [x] compile + 전체 64 tests
 - [x] 기존 sandbox/approval 설정 보존
+
+## Live Slack pipeline 최종 확인
+
+배포 후 `ORDER 124 — Registry live pipeline smoke`를 실제
+`Slack → durable inbox → consumer → dispatcher → Codex MCP → Git → Slack`
+경로로 실행했다.
+
+최종 성공 실행:
+
+```text
+task=C0BNWS9QKDK-1786763816.378289
+ACK [codex-pc2] RECEIVED
+TIKR ok=true, ticker=FORM
+GS ok=true, rows=98, cols=3
+COMPLETED commit=ebf8316bd4e2f8e8af4d3fd0d5efcd876a05cad4
+```
+
+배포 과정에서 발견·처리한 사항:
+
+1. 예약작업을 단순 재시작해도 2026-08-14부터 실행 중이던 기존 consumer
+   PID 20004가 lock을 보유해 구 코드를 계속 사용했다. 구버전 실행을 종료하고
+   PID 생존 여부를 확인한 뒤 stale `consumer.lock`만 수동 제거하여 새 consumer
+   PID 17856으로 재기동했다.
+2. 구버전 실패 실행이 남긴 untracked `reports/124_report.md` 때문에 새 consumer의
+   clean-tree gate가 두 번째 시도를 올바르게 차단했다. 실패 내용을 확인한 뒤 그
+   untracked 파일만 제거하고 재실행했다.
+3. 첫 시도에서 동일 task ACK가 두 번 게시됐다. live event/catch-up 경합 가능성이
+   있으나 dispatch는 claim/outbox로 한 번만 수행됐다. 세 번째 최종 성공 task에서는
+   ACK 1회, COMPLETED 1회였다. ACK 중복 원인 수정은 본 registry 작업 범위 밖이다.
+
+따라서 registry 코드의 실제 배포·실사용 검증은 완료됐다. 다만 향후 dispatcher
+코드 배포 절차에는 “예약작업 State 확인”만이 아니라 기존 consumer PID 종료,
+lock 소유 PID 생존 확인, 새 PID/creation time 확인을 포함해야 한다.
