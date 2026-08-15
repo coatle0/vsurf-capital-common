@@ -1,0 +1,47 @@
+[
+  {
+    "id": "133-winway-earnings-driver",
+    "kind": "EarningsDriverLink",
+    "company_id": "company:winway",
+    "period": "2026Q1-2026Q2",
+    "affected_metric": "Semiconductor Test Interface revenue and operating income",
+    "direction": "up",
+    "lag": "current to 1 quarter",
+    "source": "https://www.winwayglobal.com/zh-TW/news-detail/KBKS8WFigLqhZKba",
+    "evidence": "Issuer commentary links record results to high-frequency and high-speed AI products and reports fully loaded capacity; the HBM-specific earnings allocation remains an inference.",
+    "confidence": 0.85,
+    "counter_evidence": "The source does not quantify HBM-specific revenue and operating margin was below its 2025Q2 level.",
+    "status": "inference",
+    "review_status": "pending"
+  },
+  {
+    "id": "133-winway-capacity-bottleneck",
+    "kind": "Bottleneck",
+    "company_id": "company:winway",
+    "period": "2026Q1-2026Q2",
+    "affected_metric": "capacity utilization and shipment conversion",
+    "direction": "constrained",
+    "lag": "current to 1 quarter",
+    "source": "https://www.winwayglobal.com/zh-TW/news-detail/KBKS8WFigLqhZKba",
+    "evidence": "Issuer reported fully loaded test-interface capacity and a Renwu ramp intended to add usable output.",
+    "confidence": 0.9,
+    "counter_evidence": "Inventory growth and margin pressure could indicate mix or ramp inefficiency rather than capacity scarcity alone.",
+    "status": "inference",
+    "review_status": "pending"
+  },
+  {
+    "id": "133-winway-beneficiary",
+    "kind": "BeneficiaryAssessment",
+    "company_id": "company:winway",
+    "period": "2026Q2 onward",
+    "affected_metric": "revenue and operating income",
+    "direction": "up if ramp qualifies",
+    "lag": "1 to 2 quarters",
+    "source": "https://www.winwayglobal.com/zh-TW/news-detail/KBKS8WFigLqhZKba",
+    "evidence": "The issuer connects accelerated Renwu capacity ramp with serving AI and HPC customers; benefit magnitude is not disclosed.",
+    "confidence": 0.82,
+    "counter_evidence": "Failure to reach the capacity target, weak customer qualification, or margin dilution would refute the benefit.",
+    "status": "inference",
+    "review_status": "pending"
+  }
+]
