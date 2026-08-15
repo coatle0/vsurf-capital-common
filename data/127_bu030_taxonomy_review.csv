@@ -1,0 +1,34 @@
+row_id,company,current_label,proposed_taxonomy,source_evidence,recommended_decision,reason,rollup,special_case
+1,FormFactor,Probe Cards,Semiconductor Test Interface,SEC 2026Q1 filing https://www.sec.gov/Archives/edgar/data/1039399/000103939926000023/form-20260328.htm,accepted,Direct reported segment mapped to test interface,yes,
+2,FormFactor,Systems,Semiconductor Test Systems,SEC 2026Q1 filing https://www.sec.gov/Archives/edgar/data/1039399/000103939926000023/form-20260328.htm,accepted,Direct reported systems segment,yes,
+3,Japan Electronic Materials,Electron Tube Parts,Electron Tube Components,JEM FY2025 4Q supplement https://www.jem-net.co.jp/images/top/pdf/2026/FY2025_4qhosoku.pdf,deferred,Outside STI core and needs taxonomy-owner decision,no,jem_electron_tube
+4,Japan Electronic Materials,Semiconductor Inspection Parts,Semiconductor Test Interface,JEM FY2025 4Q supplement https://www.jem-net.co.jp/images/top/pdf/2026/FY2025_4qhosoku.pdf,accepted,Reported semiconductor inspection segment,yes,
+5,Micronics Japan,Probe Card Business,Semiconductor Test Interface,JPX filing https://www2.jpx.co.jp/disc/68710/140120260513528710.pdf,accepted,Direct probe-card segment,yes,
+6,Micronics Japan,TE Business,Semiconductor Test Equipment,JPX filing https://www2.jpx.co.jp/disc/68710/140120260513528710.pdf,accepted,Direct test-equipment segment,yes,
+7,WinWay Technology,Optoelectronic Products Test Fixtures,Semiconductor Test Interface,WinWay report https://www.winwayglobal.com/dl/file/FxUxdkt8j6ucpzFl,deferred,Single reportable segment but label mixes optoelectronic and fixture scope,yes,winway_opto_fixture
+8,Yamaichi Electronics,Connector Solution Business,Electronic Connectors,Yamaichi FY2025 materials https://www.yamaichi.co.jp/en/ir/library/materials/pdf/20260518.pdf,accepted,Direct reported connector segment,no,
+9,Yamaichi Electronics,Optical-Related Business,Optical Components,Yamaichi FY2025 materials https://www.yamaichi.co.jp/en/ir/library/materials/pdf/20260518.pdf,deferred,Outside STI core; preserve separately pending owner decision,no,yamaichi_optical
+10,Yamaichi Electronics,Test Solution Business,Semiconductor Test Interface,Yamaichi FY2025 materials https://www.yamaichi.co.jp/en/ir/library/materials/pdf/20260518.pdf,deferred,Test solution can include sockets and interfaces; scope review required,yes,yamaichi_test_solution
+11,리노공업,ICTESTSOCKET류,Semiconductor Test Socket,DART 2025Q1 rcpNo 20250514000137,accepted,Direct product category,yes,
+12,리노공업,LEENOPIN류,Semiconductor Test Pin,DART 2025Q1 rcpNo 20250514000137,accepted,Direct product category,yes,
+13,리노공업,상품,Other,DART 2025Q1 rcpNo 20250514000137,deferred,Generic merchandise lacks product attribution,no,other_review
+14,리노공업,의료기기부품류,Medical Device Components,DART 2025Q1 rcpNo 20250514000137,accepted,Direct non-STI category,no,
+15,마이크로투나노,상품 등의 기타매출,Other,DART 2025Q1 rcpNo 20250514000606,deferred,Generic other-sales category,no,other_review
+16,마이크로투나노,파운드리,Semiconductor Foundry,DART 2025Q1 rcpNo 20250514000606,accepted,Direct category; retain period-specific row,yes,
+17,마이크로투나노,파운드리 주2),Semiconductor Foundry,DART 2026Q1 rcpNo 20260515000162,deferred,Same concept as row 16 with footnote and different filing period,yes,micro2nano_note2
+18,마이크로투나노,프로브카드,Semiconductor Test Interface,DART 2025Q1 rcpNo 20250514000606,accepted,Direct probe-card category; retain period-specific row,yes,
+19,마이크로투나노,프로브카드 주1),Semiconductor Test Interface,DART 2026Q1 rcpNo 20260515000162,deferred,Same concept as row 18 with footnote and different filing period,yes,micro2nano_note1
+20,메가터치,기타 개발비,Other,DART 2025H1 rcpNo 20250814002021,deferred,Cost-like label requires row-semantics review,no,other_review
+21,메가터치,기타 기타,Other,DART 2026Q1 rcpNo 20260515001893,deferred,Generic other category,no,other_review
+22,메가터치,기타 임가공,Other Processing,DART 2025Q1 rcpNo 20250515002496,accepted,Direct processing category,no,
+23,메가터치,반도체 PIN,Semiconductor Test Pin,DART 2025Q1 rcpNo 20250515002496,accepted,Direct product category,yes,
+24,메가터치,배터리 PIN,Battery Test Pin,DART 2025Q1 rcpNo 20250515002496,accepted,Direct product category,no,
+25,메가터치,합계 합계,Total,DART 2025Q1 rcpNo 20250515002496,rejected,Aggregate row must not become a taxonomy leaf,no,megatouch_total
+26,샘씨엔에스,DRAM프로브카드용세라믹STF,Ceramic STF,DART 2025Q1 rcpNo 20250512000351,accepted,Direct component for DRAM probe card,yes,
+27,샘씨엔에스,NAND프로브카드용세라믹STF,Ceramic STF,DART 2025Q1 rcpNo 20250512000351,accepted,Direct component for NAND probe card,yes,
+28,샘씨엔에스,기타,Other,DART 2025Q1 rcpNo 20250512000351,deferred,Generic other category,no,other_review
+29,샘씨엔에스,비메모리프로브카드용세라믹STF,Ceramic STF,DART 2025Q1 rcpNo 20250512000351,accepted,Direct component for non-memory probe card,yes,
+30,티에스이,Interface Board,Semiconductor Test Interface,DART 2025Q1 rcpNo 20250515001537,accepted,Direct product category,yes,
+31,티에스이,OLED 검사장비,Display Test Equipment,DART 2025Q1 rcpNo 20250515001537,accepted,Direct non-HBM equipment category,no,
+32,티에스이,Probe Card,Semiconductor Test Interface,DART 2025Q1 rcpNo 20250515001537,accepted,Direct product category,yes,
+33,티에스이,Test Socket,Semiconductor Test Socket,DART 2025Q1 rcpNo 20250515001537,accepted,Direct product category,yes,
