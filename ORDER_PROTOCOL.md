@@ -61,6 +61,7 @@ claimed → processed/ 로 아카이브 (종결)
 | 영속 큐 | `scripts/order_inbox.py` | pending→claimed→outbox→processed 상태기계 (atomic rename/write) |
 | 실행 조율 | `scripts/order_inbox_consumer.py` | inbox 소비, dispatcher 호출, Slack 회신, `ConsumerLock`(프로세스 중복 방지) |
 | 실제 실행 | `scripts/order_dispatcher.py` | Order 검증·잠금·git·executor 호출의 단일 진실 공급원 |
+| MCP 정본 | `mcp_registry.json` | Codex 격리 실행에 복원할 MCP와 PC별 환경변수 우선순위 선언 |
 | Slack API | `scripts/slack_api.py` | `chat.postMessage` 등 공용 HTTP 호출 |
 | 헤드리스 권한 | `.claude/settings.json` | claude 실행자용 범위 제한 허용목록(git push/commit/reset/rm 제외) |
 
@@ -77,7 +78,7 @@ claude → shutil.which("claude.exe")
 if executor == "codex":
     [*prefix, "exec", "-C", project, "--ignore-user-config",
      "-c", 'approval_policy="never"', "-c", 'windows.sandbox="elevated"',
-     "-c", <허용된 TIKR MCP 설정 3개>,
+     "-c", <mcp_registry.json의 enabled MCP 설정>,
      "--add-dir", COMMON_ROOT, "--sandbox", "workspace-write",
      "--output-last-message", summary_file, prompt]
 else:  # claude
@@ -86,7 +87,7 @@ else:  # claude
 
 **claude**: `claude.exe -p <prompt>`로 실행한다. `.claude/settings.json`의 범위 제한 허용목록을 사용하며, TIKR 도구 로드와 실호출 완주를 확인했다(Orders 113, 115, 117).
 
-**codex**: Node로 `codex.js`를 직접 실행한다. `--ignore-user-config`로 사용자 설정을 격리한 뒤 `approval_policy="never"`와 `windows.sandbox="elevated"`를 CLI `-c`로 복원하고, `workspace-write`와 `--add-dir COMMON_ROOT`로 쓰기 범위를 제한한다. Orders 107·110에서 쓰기 재현, Orders 114·116에서 주입된 TIKR MCP 실호출을 확인했다. 현재 주입되는 MCP는 TIKR뿐이며 Order의 `도구:` 값을 일반적으로 해석해 임의 MCP를 주입하는 기능은 없다.
+**codex**: Node로 `codex.js`를 직접 실행한다. `--ignore-user-config`로 사용자 설정을 격리한 뒤 `approval_policy="never"`와 `windows.sandbox="elevated"`를 CLI `-c`로 복원하고, `workspace-write`와 `--add-dir COMMON_ROOT`로 쓰기 범위를 제한한다. `mcp_registry.json`의 enabled 항목은 `resolve_mcp_config(name)`이 PC별 환경변수 우선으로 해석하고 공통 로직이 `mcp_servers.<name>.*` 인자를 생성한다. 새 MCP는 dispatcher 분기 대신 registry와 회귀시험을 추가한다. Order의 `도구:` 행은 아직 선택적 로딩 필터가 아니며 enabled MCP 전체가 격리 실행에 주입된다.
 
 ## 5. 메시지 포맷
 
@@ -113,7 +114,7 @@ project: <C:\lab 아래 절대경로, git repo>
 - **PC1 미설정** — 이 전체 구조는 PC2(`codex-pc2`)에만 구축됨.
 - **복수 프로젝트 동시 실행 불가** — consumer가 완전 순차 처리, `dispatch()`가 최대 3600초 블로킹.
 - **단일 프로젝트 분할처리 미지원** — Order 1건 = dispatch 1회 = commit 1회가 원자 단위, sub-task 분할·병렬화 개념 없음.
-- **MCP 주입은 실행자별 비대칭** — Codex는 격리 뒤 TIKR만 명시 주입한다. Claude는 로컬 설정을 이어받되 `.claude/settings.json` 허용목록의 적용을 받는다. `도구:` 행을 범용 MCP 구성으로 변환하지 않는다.
+- **MCP 주입은 실행자별 비대칭** — Codex는 격리 뒤 Git 정본 `mcp_registry.json`의 enabled MCP를 공통 로직으로 주입한다. Claude는 로컬 설정을 이어받되 `.claude/settings.json` 허용목록의 적용을 받는다. `도구:` 행을 선택적 MCP 로딩으로 변환하는 기능은 아직 없다.
 - **강제 종료 자동 복구 없음** — claim과 lock은 fail-closed로 남는다. TTL/lease/PID 생존 판정이 없으므로 outbox·last-result·외부 부작용을 사람이 확인한 뒤 stale lock을 수동 제거해야 한다. 비멱등 외부 작업은 안전 재실행을 보장하지 않는다(Orders 119·120).
 
 해결됨(2026-08-12, COO 작업지시 5건 중 1·2):

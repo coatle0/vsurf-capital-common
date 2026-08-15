@@ -1,0 +1,45 @@
+{
+  "version": 1,
+  "mcp_servers": {
+    "tikr": {
+      "enabled": true,
+      "command": {
+        "env": "TIKR_PYTHON",
+        "default": "{PYTHON_EXECUTABLE}",
+        "must_exist": true
+      },
+      "args": [
+        {
+          "env": "TIKR_MCP_SERVER",
+          "default": "{AUTOAI_ROOT}\\tikr-toolkit\\tikr_mcp_server.py",
+          "must_exist": true
+        }
+      ],
+      "default_tools_approval_mode": "approve",
+      "env": {}
+    },
+    "gs": {
+      "enabled": true,
+      "command": {
+        "env": "GS_PYTHON",
+        "default": "{PYTHON_EXECUTABLE}",
+        "must_exist": true
+      },
+      "args": [
+        {
+          "env": "GS_MCP_SERVER",
+          "default": "{AUTOAI_ROOT}\\gs-toolkit\\gs_mcp_server.py",
+          "must_exist": true
+        }
+      ],
+      "default_tools_approval_mode": "approve",
+      "env": {
+        "APPDATA": {"source": "APPDATA", "required": true},
+        "LOCALAPPDATA": {"source": "LOCALAPPDATA", "required": true},
+        "USERPROFILE": {"source": "USERPROFILE", "default": "{USER_HOME}", "required": true},
+        "R_USER": {"source": "R_USER", "fallback_source": "USERPROFILE", "default": "{USER_HOME}", "required": true},
+        "GS_RSCRIPT": {"source": "GS_RSCRIPT", "discover": "Rscript", "must_exist": true}
+      }
+    }
+  }
+}

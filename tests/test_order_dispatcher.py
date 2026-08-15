@@ -155,9 +155,9 @@ class ParseRequestTests(unittest.TestCase):
         command_str = " ".join(command)
         self.assertIn('approval_policy="never"', command_str)
         self.assertIn('windows.sandbox="elevated"', command_str)
-        self.assertIn("mcp_servers.tikr.command='C:\\Python314\\python.exe'", command_str)
+        self.assertIn('mcp_servers.tikr.command="', command_str)
         self.assertIn(
-            "mcp_servers.tikr.args=['C:\\autoai\\tikr-toolkit\\tikr_mcp_server.py']",
+            'mcp_servers.tikr.args=["C:\\\\autoai\\\\tikr-toolkit\\\\tikr_mcp_server.py"]',
             command_str,
         )
         self.assertIn('mcp_servers.tikr.default_tools_approval_mode="approve"', command_str)
@@ -168,7 +168,7 @@ class ParseRequestTests(unittest.TestCase):
             self.assertIn(f"mcp_servers.gs.env.{name}=", command_str)
         self.assertNotIn("danger-full-access", command_str)
 
-    def test_gs_config_uses_environment_overrides_and_checks_server(self):
+    def test_registry_resolver_uses_environment_overrides_and_checks_files(self):
         with tempfile.TemporaryDirectory() as raw:
             root = Path(raw)
             python = root / "python.exe"
@@ -185,12 +185,12 @@ class ParseRequestTests(unittest.TestCase):
                 "USERPROFILE": str(root / "user"),
             }
             with patch.dict(os.environ, env, clear=True):
-                actual_python, actual_server, actual_env = dispatcher.resolve_gs_mcp_config()
-            self.assertEqual(actual_python, python.resolve())
-            self.assertEqual(actual_server, server.resolve())
-            self.assertEqual(actual_env["R_USER"], env["USERPROFILE"])
+                actual = dispatcher.resolve_mcp_config("gs")
+            self.assertEqual(actual["command"], str(python.resolve()))
+            self.assertEqual(actual["args"], [str(server.resolve())])
+            self.assertEqual(actual["env"]["R_USER"], env["USERPROFILE"])
 
-    def test_gs_config_rejects_missing_server_script(self):
+    def test_registry_resolver_rejects_missing_server_script(self):
         with tempfile.TemporaryDirectory() as raw:
             root = Path(raw)
             python = root / "python.exe"
@@ -201,10 +201,46 @@ class ParseRequestTests(unittest.TestCase):
                 "GS_PYTHON": str(python),
                 "GS_MCP_SERVER": str(root / "missing.py"),
                 "GS_RSCRIPT": str(rscript),
+                "APPDATA": str(root / "roaming"),
+                "LOCALAPPDATA": str(root / "local"),
+                "USERPROFILE": str(root / "user"),
             }
             with patch.dict(os.environ, env, clear=True):
                 with self.assertRaises(dispatcher.DispatchError):
-                    dispatcher.resolve_gs_mcp_config()
+                    dispatcher.resolve_mcp_config("gs")
+
+    def test_registry_generates_enabled_servers_without_server_branches(self):
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw)
+            executable = root / "python.exe"
+            server = root / "demo.py"
+            executable.touch()
+            server.touch()
+            registry = {
+                "version": 1,
+                "mcp_servers": {
+                    "demo": {
+                        "enabled": True,
+                        "command": {"default": str(executable), "must_exist": True},
+                        "args": [{"default": str(server), "must_exist": True}],
+                        "default_tools_approval_mode": "approve",
+                        "env": {"DEMO_HOME": {"default": str(root), "required": True}},
+                    },
+                    "off": {"enabled": False},
+                },
+            }
+            overrides = " ".join(dispatcher.mcp_config_overrides(registry))
+            self.assertIn("mcp_servers.demo.command=", overrides)
+            self.assertIn("mcp_servers.demo.args=", overrides)
+            self.assertIn("mcp_servers.demo.env.DEMO_HOME=", overrides)
+            self.assertNotIn("mcp_servers.off", overrides)
+
+    def test_registry_load_rejects_invalid_shape(self):
+        with tempfile.TemporaryDirectory() as raw:
+            path = Path(raw) / "registry.json"
+            path.write_text('{"version": 2}', encoding="utf-8")
+            with self.assertRaises(dispatcher.DispatchError):
+                dispatcher.load_mcp_registry(path)
 
 
 class BuildPromptTests(unittest.TestCase):

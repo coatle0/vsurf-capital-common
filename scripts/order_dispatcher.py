@@ -22,6 +22,7 @@ from typing import Sequence
 
 
 COMMON_ROOT = Path(r"C:\lab\vsurf_capital\common")
+MCP_REGISTRY_PATH = COMMON_ROOT / "mcp_registry.json"
 ORDERS_DIR = COMMON_ROOT / "orders"
 RUNTIME_DIR = COMMON_ROOT / ".runtime"
 LOG_DIR = COMMON_ROOT / "logs" / "dispatcher"
@@ -262,43 +263,103 @@ def toml_value(value: str) -> str:
     return json.dumps(value, ensure_ascii=False)
 
 
-def resolve_gs_mcp_config() -> tuple[Path, Path, dict[str, str]]:
-    """Resolve the local GS bridge without copying another PC's paths.
+def load_mcp_registry(path: Path = MCP_REGISTRY_PATH) -> dict:
+    """Load the Git-tracked MCP registry and fail closed on invalid input."""
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        raise DispatchError(f"MCP registry could not be loaded: {path}: {exc}") from exc
+    servers = payload.get("mcp_servers")
+    if payload.get("version") != 1 or not isinstance(servers, dict):
+        raise DispatchError("MCP registry must have version=1 and an mcp_servers object.")
+    return payload
 
-    Explicit environment overrides win. The fallbacks use executables visible
-    to this dispatcher process and the current system drive's autoai checkout.
-    """
-    python = Path(os.environ.get("GS_PYTHON", "") or sys.executable)
-    if not python.is_file():
-        discovered_python = shutil.which("python") or shutil.which("python3")
-        if not discovered_python:
-            raise DispatchError("Python executable for GS MCP was not found.")
-        python = Path(discovered_python)
 
-    server_override = os.environ.get("GS_MCP_SERVER")
-    autoai_root = Path(
-        os.environ.get("AUTOAI_ROOT", "") or (Path(python.anchor) / "autoai")
-    )
-    server = Path(server_override) if server_override else autoai_root / "gs-toolkit" / "gs_mcp_server.py"
-    if not server.is_file():
-        raise DispatchError(f"GS MCP server script does not exist: {server}")
-
-    rscript_raw = os.environ.get("GS_RSCRIPT") or shutil.which("Rscript")
-    if not rscript_raw or not Path(rscript_raw).is_file():
-        raise DispatchError("Rscript executable for GS MCP was not found.")
-
-    user_profile = os.environ.get("USERPROFILE") or str(Path.home())
-    required_env = {
-        "APPDATA": os.environ.get("APPDATA", ""),
-        "LOCALAPPDATA": os.environ.get("LOCALAPPDATA", ""),
-        "USERPROFILE": user_profile,
-        "R_USER": os.environ.get("R_USER") or user_profile,
-        "GS_RSCRIPT": str(Path(rscript_raw)),
+def _mcp_context() -> dict[str, str]:
+    python = Path(sys.executable).resolve()
+    autoai_root = os.environ.get("AUTOAI_ROOT") or str(Path(python.anchor) / "autoai")
+    return {
+        "PYTHON_EXECUTABLE": str(python),
+        "AUTOAI_ROOT": autoai_root,
+        "USER_HOME": str(Path.home()),
     }
-    missing = [name for name, value in required_env.items() if not value]
-    if missing:
-        raise DispatchError(f"GS MCP environment is missing: {', '.join(missing)}")
-    return python.resolve(), server.resolve(), required_env
+
+
+def _resolve_registry_value(spec: object, context: dict[str, str], label: str) -> str:
+    if isinstance(spec, str):
+        return spec.format_map(context)
+    if not isinstance(spec, dict):
+        raise DispatchError(f"MCP registry {label} must be a string or object.")
+    value = ""
+    source = spec.get("env") or spec.get("source")
+    if source:
+        value = os.environ.get(str(source), "")
+    if not value and spec.get("fallback_source"):
+        value = os.environ.get(str(spec["fallback_source"]), "")
+    if not value and spec.get("default") is not None:
+        value = str(spec["default"]).format_map(context)
+    if not value and spec.get("discover"):
+        value = shutil.which(str(spec["discover"])) or ""
+    if not value and spec.get("required"):
+        raise DispatchError(f"MCP registry value is missing: {label}")
+    if value and spec.get("must_exist"):
+        path = Path(value)
+        if not path.is_file():
+            raise DispatchError(f"MCP registry file does not exist for {label}: {path}")
+        value = str(path.resolve())
+    return value
+
+
+def resolve_mcp_config(name: str, registry: dict | None = None) -> dict[str, object]:
+    """Resolve one declarative MCP entry using environment-first PC overrides."""
+    registry = registry or load_mcp_registry()
+    entry = registry["mcp_servers"].get(name)
+    if not isinstance(entry, dict):
+        raise DispatchError(f"MCP is not registered: {name}")
+    if not entry.get("enabled", False):
+        raise DispatchError(f"MCP is disabled: {name}")
+    context = _mcp_context()
+    command = _resolve_registry_value(entry.get("command"), context, f"{name}.command")
+    args_raw = entry.get("args", [])
+    if not isinstance(args_raw, list):
+        raise DispatchError(f"MCP registry {name}.args must be an array.")
+    args = [
+        _resolve_registry_value(spec, context, f"{name}.args[{index}]")
+        for index, spec in enumerate(args_raw)
+    ]
+    env_raw = entry.get("env", {})
+    if not isinstance(env_raw, dict):
+        raise DispatchError(f"MCP registry {name}.env must be an object.")
+    resolved_env = {
+        key: _resolve_registry_value(spec, context, f"{name}.env.{key}")
+        for key, spec in env_raw.items()
+    }
+    return {
+        "command": command,
+        "args": args,
+        "default_tools_approval_mode": entry.get(
+            "default_tools_approval_mode", "approve"
+        ),
+        "env": resolved_env,
+    }
+
+
+def mcp_config_overrides(registry: dict | None = None) -> list[str]:
+    """Generate Codex -c arguments for every enabled registry entry."""
+    registry = registry or load_mcp_registry()
+    output: list[str] = []
+    for name, entry in registry["mcp_servers"].items():
+        if not isinstance(entry, dict) or not entry.get("enabled", False):
+            continue
+        config = resolve_mcp_config(name, registry)
+        output.extend(["-c", f"mcp_servers.{name}.command={toml_value(str(config['command']))}"])
+        args = ",".join(toml_value(str(value)) for value in config["args"])
+        output.extend(["-c", f"mcp_servers.{name}.args=[{args}]"])
+        approval = toml_value(str(config["default_tools_approval_mode"]))
+        output.extend(["-c", f"mcp_servers.{name}.default_tools_approval_mode={approval}"])
+        for key, value in config["env"].items():
+            output.extend(["-c", f"mcp_servers.{name}.env.{key}={toml_value(str(value))}"])
+    return output
 
 
 def executor_command(request: DispatchRequest, summary_file: Path) -> list[str]:
@@ -306,14 +367,7 @@ def executor_command(request: DispatchRequest, summary_file: Path) -> list[str]:
     if prefix is None:
         raise DispatchError(f"Executor CLI is not installed: {request.executor}")
     if request.executor == "codex":
-        gs_python, gs_server, gs_env = resolve_gs_mcp_config()
-        gs_config = [
-            "-c", f"mcp_servers.gs.command={toml_value(str(gs_python))}",
-            "-c", f"mcp_servers.gs.args=[{toml_value(str(gs_server))}]",
-            "-c", 'mcp_servers.gs.default_tools_approval_mode="approve"',
-        ]
-        for name, value in gs_env.items():
-            gs_config.extend(["-c", f"mcp_servers.gs.env.{name}={toml_value(value)}"])
+        mcp_config = mcp_config_overrides()
         return [
             *prefix, "exec", "-C", request.project_path,
             "--ignore-user-config",
@@ -334,10 +388,7 @@ def executor_command(request: DispatchRequest, summary_file: Path) -> list[str]:
             # gate that --ignore-user-config over-stripped.
             "-c", 'approval_policy="never"',
             "-c", 'windows.sandbox="elevated"',
-            "-c", "mcp_servers.tikr.command='C:\\Python314\\python.exe'",
-            "-c", "mcp_servers.tikr.args=['C:\\autoai\\tikr-toolkit\\tikr_mcp_server.py']",
-            "-c", 'mcp_servers.tikr.default_tools_approval_mode="approve"',
-            *gs_config,
+            *mcp_config,
             "--add-dir", str(COMMON_ROOT),
             "--sandbox", "workspace-write",
             "--output-last-message", str(summary_file),
