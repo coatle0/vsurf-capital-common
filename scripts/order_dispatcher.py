@@ -418,12 +418,15 @@ def executor_command(request: DispatchRequest, summary_file: Path) -> list[str]:
         return [
             *prefix, "exec", "-C", request.project_path,
             # User config is intentionally inherited so all locally registered
-            # MCPs load. The highest-precedence CLI overrides below retain the
-            # unattended approval policy and constrained Windows sandbox.
-            "-c", 'approval_policy="never"',
+            # MCPs load. --approve-for-me keeps unattended execution while
+            # routing destructive/write MCP PermissionRequest events through
+            # Codex automatic review. approval_policy="never" is not an
+            # auto-approval setting: in headless exec it caused write tools to
+            # return "user cancelled MCP tool call" because no approval UI was
+            # available (Order 139). The Windows backend override remains.
+            "--approve-for-me",
             "-c", 'windows.sandbox="elevated"',
             "--add-dir", str(COMMON_ROOT),
-            "--sandbox", "workspace-write",
             "--output-last-message", str(summary_file),
             build_prompt(request),
         ]

@@ -132,28 +132,16 @@ class ParseRequestTests(unittest.TestCase):
         with patch.object(dispatcher, "executor_prefix", return_value=["node", "codex.js"]):
             command = dispatcher.executor_command(request, Path("summary.txt"))
         self.assertNotIn("--ignore-user-config", command)
-        self.assertIn("workspace-write", command)
+        self.assertIn("--approve-for-me", command)
         self.assertNotIn("--dangerously-bypass-approvals-and-sandbox", command)
-        # 2026-08-12 (task 3 audit) removed approval_policy="never" here on
-        # the reasoning that it silently re-enables the exact unattended
-        # approval behavior --ignore-user-config exists to strip from
-        # ~/.codex/config.toml's own dangerous global setting. That
-        # reasoning missed that --ignore-user-config strips the *entire*
-        # user config file, including this machine's own
-        # [windows] sandbox = "elevated" -- so removing the flag didn't
-        # make things safer, it just made --sandbox workspace-write
-        # silently fall back to Windows read-only (order 107 FAILED: "no
-        # Git change; completion not proven", 2026-08-13).
-        # -c is config precedence layer 1 (above the stripped user file),
-        # so restoring approval_policy="never" and windows.sandbox="elevated"
-        # via -c fixes the Windows backend without reintroducing
-        # danger-full-access. Verified empirically before this test changed
-        # (STEP 0-2, 2026-08-13, isolated temp repo, dispatcher not
-        # involved): sandbox: workspace-write in the session header, writes
-        # inside workdir/--add-dir succeed, writes outside them are still
-        # rejected ("patch rejected: writing outside of the project").
+        # User config is inherited so MCP definitions remain available.
+        # --approve-for-me supplies automatic review for PermissionRequest
+        # events in headless execution; approval_policy="never" instead
+        # cancelled Neo4j write tools because no interactive UI existed
+        # (Order 139). windows.sandbox remains a highest-precedence override,
+        # while --approve-for-me itself selects workspace-write.
         command_str = " ".join(command)
-        self.assertIn('approval_policy="never"', command_str)
+        self.assertNotIn('approval_policy="never"', command_str)
         self.assertIn('windows.sandbox="elevated"', command_str)
         self.assertNotIn("mcp_servers.tikr.command=", command_str)
         self.assertNotIn("mcp_servers.gs.command=", command_str)
