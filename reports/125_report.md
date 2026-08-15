@@ -29,6 +29,7 @@ PASS. Codex dispatcher가 사용자 `~/.codex/config.toml`을 상속하도록 �
 - TIKR `tikr_company_overview(FORM)`: PASS
 - GS `gs_read_idx(kr_idx)`: PASS, 98 rows × 3 cols
 - write 가능 MCP는 실제 smoke에서 호출하지 않았다.
+- 배포 후 consumer를 정상 중지하고 stale lock을 보존 이동한 뒤 재기동했다. 새 PID는 21760이며 예약작업 상태는 Running이다.
 
 ## config 스냅샷
 
