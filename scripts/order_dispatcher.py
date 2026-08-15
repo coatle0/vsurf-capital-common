@@ -10,11 +10,13 @@ from __future__ import annotations
 
 import argparse
 import json
+import logging
 import os
 import re
 import shutil
 import subprocess
 import sys
+import tomllib
 from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
 from pathlib import Path
@@ -26,7 +28,11 @@ MCP_REGISTRY_PATH = COMMON_ROOT / "mcp_registry.json"
 ORDERS_DIR = COMMON_ROOT / "orders"
 RUNTIME_DIR = COMMON_ROOT / ".runtime"
 LOG_DIR = COMMON_ROOT / "logs" / "dispatcher"
+MCP_AUDIT_LOG = LOG_DIR / "mcp-audit.log"
 ALLOWED_ROOT = Path(r"C:\lab")
+KNOWN_WRITE_CAPABLE_MCP = frozenset(
+    {"github", "investment-kg", "neo4j-official", "telegram-mcp", "telegram-research"}
+)
 EXECUTE_RE = re.compile(r"(?im)^\[?EXECUTE\s+ORDER\s+(\d{3})\]?\s*$")
 FIELD_RE = re.compile(r"(?im)^(executor|order|project)\s*:\s*(.+?)\s*$")
 SLACK_SIGNATURE_RE = re.compile(
@@ -362,33 +368,60 @@ def mcp_config_overrides(registry: dict | None = None) -> list[str]:
     return output
 
 
+def user_config_mcp_servers(config_path: Path | None = None) -> list[str]:
+    """Return enabled MCP names from the user config without exposing values."""
+    path = config_path or (Path.home() / ".codex" / "config.toml")
+    try:
+        payload = tomllib.loads(path.read_text(encoding="utf-8"))
+    except (OSError, tomllib.TOMLDecodeError) as exc:
+        raise DispatchError(f"Codex user config could not be loaded: {path}: {exc}") from exc
+    servers = payload.get("mcp_servers", {})
+    if not isinstance(servers, dict):
+        raise DispatchError("Codex user config mcp_servers must be a table.")
+    return sorted(
+        name for name, entry in servers.items()
+        if isinstance(entry, dict) and entry.get("enabled", True) is not False
+    )
+
+
+def audit_user_config_mcps(config_path: Path | None = None) -> tuple[list[str], list[str]]:
+    """Record the MCP inventory inherited by Codex and conservative write warnings."""
+    loaded = user_config_mcp_servers(config_path)
+    write_capable = sorted(set(loaded) & KNOWN_WRITE_CAPABLE_MCP)
+    LOG_DIR.mkdir(parents=True, exist_ok=True)
+    logger = logging.getLogger("vsurf.dispatcher.mcp")
+    logger.setLevel(logging.INFO)
+    handler = logging.FileHandler(MCP_AUDIT_LOG, encoding="utf-8")
+    handler.setFormatter(logging.Formatter("%(asctime)s %(levelname)s %(message)s"))
+    logger.addHandler(handler)
+    try:
+        logger.info("codex inherited MCP servers: %s", ", ".join(loaded) or "(none)")
+        if write_capable:
+            logger.warning(
+                "potentially write-capable MCP servers loaded (not blocked): %s",
+                ", ".join(write_capable),
+            )
+    finally:
+        logger.removeHandler(handler)
+        handler.close()
+    print(f"[MCP] loaded from user config: {', '.join(loaded) or '(none)'}")
+    if write_capable:
+        print(f"[MCP WARNING] potentially write-capable, not blocked: {', '.join(write_capable)}")
+    return loaded, write_capable
+
+
 def executor_command(request: DispatchRequest, summary_file: Path) -> list[str]:
     prefix = executor_prefix(request.executor)
     if prefix is None:
         raise DispatchError(f"Executor CLI is not installed: {request.executor}")
     if request.executor == "codex":
-        mcp_config = mcp_config_overrides()
         return [
             *prefix, "exec", "-C", request.project_path,
-            "--ignore-user-config",
-            # --ignore-user-config strips ~/.codex/config.toml entirely, which
-            # is where this machine's [windows] sandbox = "elevated" lived --
-            # without it, --sandbox workspace-write only sets sandbox_mode and
-            # silently leaves Windows running read-only (order 107, FAILED:
-            # "no Git change; completion not proven"). -c is the highest config
-            # precedence layer (above the now-stripped user file), so restore
-            # just the two keys needed instead of dropping --ignore-user-config
-            # itself. Verified empirically 2026-08-13 (STEP 0-2, in this order,
-            # against an isolated temp repo, before touching this file):
-            # session header shows sandbox: workspace-write; writes inside
-            # workdir/--add-dir succeed; writes outside them are still
-            # rejected ("patch rejected: writing outside of the project") --
-            # i.e. restoring these two keys does not reintroduce
-            # danger-full-access, it only fixes the Windows backend + approval
-            # gate that --ignore-user-config over-stripped.
+            # User config is intentionally inherited so all locally registered
+            # MCPs load. The highest-precedence CLI overrides below retain the
+            # unattended approval policy and constrained Windows sandbox.
             "-c", 'approval_policy="never"',
             "-c", 'windows.sandbox="elevated"',
-            *mcp_config,
             "--add-dir", str(COMMON_ROOT),
             "--sandbox", "workspace-write",
             "--output-last-message", str(summary_file),
@@ -448,6 +481,8 @@ def dispatch(request: DispatchRequest, execute: bool, pull: bool, push: bool) ->
         try:
             commit_pending_registration(project, request.order_id, request.order_path)
             ensure_clean_and_current(project, pull=pull)
+            if request.executor == "codex":
+                audit_user_config_mcps()
             completed = run(executor_command(request, summary_file), project, timeout=3600)
             result.exit_code = completed.returncode
             (LOG_DIR / f"order-{request.order_id}-stdout.log").write_text(

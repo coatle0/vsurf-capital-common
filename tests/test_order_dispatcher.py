@@ -122,7 +122,7 @@ class ParseRequestTests(unittest.TestCase):
                 with dispatcher.OrderLock("997"):
                     pass
 
-    def test_codex_command_uses_isolated_safe_config(self):
+    def test_codex_command_inherits_user_config_but_forces_safe_settings(self):
         request = dispatcher.DispatchRequest(
             order_id="003",
             executor="codex",
@@ -131,7 +131,7 @@ class ParseRequestTests(unittest.TestCase):
         )
         with patch.object(dispatcher, "executor_prefix", return_value=["node", "codex.js"]):
             command = dispatcher.executor_command(request, Path("summary.txt"))
-        self.assertIn("--ignore-user-config", command)
+        self.assertNotIn("--ignore-user-config", command)
         self.assertIn("workspace-write", command)
         self.assertNotIn("--dangerously-bypass-approvals-and-sandbox", command)
         # 2026-08-12 (task 3 audit) removed approval_policy="never" here on
@@ -155,18 +155,28 @@ class ParseRequestTests(unittest.TestCase):
         command_str = " ".join(command)
         self.assertIn('approval_policy="never"', command_str)
         self.assertIn('windows.sandbox="elevated"', command_str)
-        self.assertIn('mcp_servers.tikr.command="', command_str)
-        self.assertIn(
-            'mcp_servers.tikr.args=["C:\\\\autoai\\\\tikr-toolkit\\\\tikr_mcp_server.py"]',
-            command_str,
-        )
-        self.assertIn('mcp_servers.tikr.default_tools_approval_mode="approve"', command_str)
-        self.assertIn('mcp_servers.gs.command=', command_str)
-        self.assertIn('mcp_servers.gs.args=', command_str)
-        self.assertIn('mcp_servers.gs.default_tools_approval_mode="approve"', command_str)
-        for name in ("APPDATA", "LOCALAPPDATA", "USERPROFILE", "R_USER", "GS_RSCRIPT"):
-            self.assertIn(f"mcp_servers.gs.env.{name}=", command_str)
+        self.assertNotIn("mcp_servers.tikr.command=", command_str)
+        self.assertNotIn("mcp_servers.gs.command=", command_str)
         self.assertNotIn("danger-full-access", command_str)
+
+    def test_user_config_inventory_and_write_warning_are_value_free(self):
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw)
+            config = root / "config.toml"
+            config.write_text(
+                '[mcp_servers.tikr]\ncommand="secret-command"\n'
+                '[mcp_servers.github]\nurl="https://example.invalid"\n'
+                '[mcp_servers.disabled]\nenabled=false\ncommand="x"\n',
+                encoding="utf-8",
+            )
+            audit_log = root / "audit.log"
+            with patch.object(dispatcher, "MCP_AUDIT_LOG", audit_log):
+                loaded, write_capable = dispatcher.audit_user_config_mcps(config)
+            self.assertEqual(loaded, ["github", "tikr"])
+            self.assertEqual(write_capable, ["github"])
+            text = audit_log.read_text(encoding="utf-8")
+            self.assertIn("github, tikr", text)
+            self.assertNotIn("secret-command", text)
 
     def test_registry_resolver_uses_environment_overrides_and_checks_files(self):
         with tempfile.TemporaryDirectory() as raw:
