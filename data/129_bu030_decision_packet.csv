@@ -1,0 +1,13 @@
+row_id,company,current_label,추천안,대안,채택_시_영향,defer_시_영향,근거,confidence,deterministic_rule,deterministic_eligible
+3,Japan Electronic Materials,Electron Tube Parts,Keep as Electron Tube Components,Exclude from STI rollup,Preserves reported non-STI business,No effect on STI core; taxonomy remains unresolved,JEM FY2025 4Q supplement,0.80,,false
+7,WinWay Technology,Optoelectronic Products Test Fixtures,Keep source label as deferred,Map to Semiconductor Test Interface,Prevents over-broad STI attribution,WinWay STI rollup stays incomplete,WinWay report mixes optoelectronic and fixture scope,0.55,,false
+9,Yamaichi Electronics,Optical-Related Business,Keep as Optical Components outside STI,Exclude row from taxonomy,Preserves non-STI category,No STI coverage impact,Yamaichi FY2025 materials,0.80,,false
+10,Yamaichi Electronics,Test Solution Business,Map to Semiconductor Test Interface,Split sockets/interfaces if source detail becomes available,Adds reported test-solution rollup,STI rollup remains conservative,Yamaichi FY2025 materials do not provide product split,0.65,,false
+13,리노공업,상품,Keep Other outside STI,Exclude row,Preserves source without unsupported attribution,No STI coverage impact,DART label is generic merchandise,0.75,,false
+15,마이크로투나노,상품 등의 기타매출,Keep Other outside STI,Exclude row,Preserves generic sales bucket,No STI coverage impact,DART label has no product attribution,0.75,,false
+17,마이크로투나노,파운드리 주2),Accept Semiconductor Foundry with period-specific identity,Reject as duplicate,Normalizes footnote while retaining 2026Q1 row,2026Q1 taxonomy remains pending,DART 2026Q1; same concept as row 16 but different period,0.95,strip trailing footnote marker; retain filing period,false
+19,마이크로투나노,프로브카드 주1),Accept Semiconductor Test Interface with period-specific identity,Reject as duplicate,Normalizes footnote while retaining 2026Q1 row,2026Q1 taxonomy remains pending,DART 2026Q1; same concept as row 18 but different period,0.95,strip trailing footnote marker; retain filing period,false
+20,메가터치,기타 개발비,Reject as non-business taxonomy leaf,Keep as Other cost metadata,Prevents cost row entering business taxonomy,No STI coverage impact,DART label denotes development cost semantics,0.90,reject cost-like rows from taxonomy leaves,true
+21,메가터치,기타 기타,Keep Other outside STI,Exclude row,Preserves generic bucket,No STI coverage impact,DART label has no product attribution,0.70,,false
+25,메가터치,합계 합계,Reject aggregate row,Keep only as source reconciliation total,Prevents double counting,No taxonomy loss,DART row is explicitly an aggregate total,1.00,reject aggregate/total rows,true
+28,샘씨엔에스,기타,Keep Other outside STI,Exclude row,Preserves generic bucket,No STI coverage impact,DART label has no product attribution,0.70,,false

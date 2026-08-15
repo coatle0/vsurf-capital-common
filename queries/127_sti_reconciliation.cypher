@@ -22,3 +22,9 @@ RETURN count(r) AS assertions,
 // Duplicate endpoint/type tuples (expected: no rows).
 MATCH (a)-[r]->(b) WITH a,b,type(r) AS rel_type,count(*) AS n
 WHERE n > 1 RETURN a.id,b.id,rel_type,n;
+
+// Active REQUIRES assertions: source-less legacy edges are explicitly disabled.
+MATCH (a)-[r:REQUIRES]->(b)
+WHERE coalesce(r.disabled,false)=false
+  AND coalesce(r.source_url,'')<>'' AND coalesce(r.evidence,'')<>''
+RETURN a.id AS from_id,b.id AS to_id,r.source_url AS source,r.evidence AS evidence;

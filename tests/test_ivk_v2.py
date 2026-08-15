@@ -6,7 +6,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from scripts.ivk_v2 import CausalRecord, load_records, query
+from scripts.ivk_v2 import CausalRecord, load_records, migration_dry_run, query
 
 
 class IVKV2Tests(unittest.TestCase):
@@ -34,6 +34,24 @@ class IVKV2Tests(unittest.TestCase):
                               "s", "e", .5, "none", "inference", "accepted")
         with self.assertRaises(ValueError):
             record.validate()
+
+    def test_order_129_decision_packet_has_twelve_ready_rows(self):
+        with (ROOT / "data/129_bu030_decision_packet.csv").open(encoding="utf-8-sig", newline="") as fh:
+            rows = list(csv.DictReader(fh))
+        self.assertEqual(12, len(rows))
+        required = {"추천안", "대안", "채택_시_영향", "defer_시_영향", "근거", "confidence"}
+        self.assertTrue(required.issubset(rows[0]))
+        self.assertTrue(all(all(r[k] for k in required) for r in rows))
+        self.assertEqual(2, sum(r["deterministic_eligible"] == "true" for r in rows))
+
+    def test_migration_dry_run_and_rollback_guards(self):
+        records = load_records(ROOT / "data/127_causal_prototypes.json")
+        plan = migration_dry_run(records)
+        self.assertEqual("dry-run", plan["mode"])
+        self.assertEqual(9, plan["write_count"])
+        self.assertEqual(9, len(plan["rollback"]))
+        self.assertEqual(0, plan["duplicate_count"])
+        self.assertEqual(0, plan["auto_confirm_count"])
 
 
 if __name__ == "__main__":

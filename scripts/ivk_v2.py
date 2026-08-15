@@ -56,3 +56,23 @@ def query(records: Iterable[CausalRecord], *, company_id: str | None = None,
     return [asdict(r) for r in records
             if (company_id is None or r.company_id == company_id)
             and (kind is None or r.kind == kind)]
+
+
+def migration_dry_run(records: Iterable[CausalRecord]) -> dict:
+    """Validate a batch and return a write/rollback plan without touching Neo4j."""
+    rows = list(records)
+    for record in rows:
+        record.validate()
+    ids = [record.id for record in rows]
+    if len(ids) != len(set(ids)):
+        raise ValueError("duplicate causal record id")
+    if any(r.review_status == "accepted" and r.status != "fact" for r in rows):
+        raise ValueError("non-fact records cannot be auto-confirmed")
+    return {
+        "mode": "dry-run",
+        "write_count": len(rows),
+        "ids": ids,
+        "rollback": [f"MATCH (n:CausalAssertion {{id: '{item}'}}) DETACH DELETE n" for item in ids],
+        "duplicate_count": len(ids) - len(set(ids)),
+        "auto_confirm_count": sum(r.review_status == "accepted" and r.status != "fact" for r in rows),
+    }

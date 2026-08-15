@@ -1,0 +1,2 @@
+from_id,relationship,to_id,active_assertion,disposition,reason,evidence
+stage:wafer_test,REQUIRES,product:probe_card,false,disabled_deferred,"Live relationship has no source/evidence; excluded from active assertion queries until sourced or removed",""
