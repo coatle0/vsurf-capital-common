@@ -1,0 +1,67 @@
+{
+  "contract_version": "ivk-ke-packet-0.1",
+  "run_id": "ORDER-141-PHASE1-01",
+  "value_chain": {
+    "id": "vc:ai-data-center-power-power-semiconductor",
+    "name": "AI Data Center Power / Power Semiconductor",
+    "status": "bootstrap"
+  },
+  "companies": [
+    {
+      "id": "company:VRT",
+      "ticker": "VRT",
+      "name": "Vertiv Holdings Co",
+      "exchange": "NYSE",
+      "tikr_cid": "579312452",
+      "evidence_id": "tikr-overview-VRT-20260816",
+      "status": "candidate",
+      "review_status": "pending"
+    },
+    {
+      "id": "company:ETN",
+      "ticker": "ETN",
+      "name": "Eaton Corporation plc",
+      "exchange": "NYSE",
+      "tikr_cid": "175265",
+      "evidence_id": "tikr-overview-ETN-20260816",
+      "status": "candidate",
+      "review_status": "pending"
+    },
+    {
+      "id": "company:VST",
+      "ticker": "VST",
+      "name": "Vistra Corp.",
+      "exchange": "NYSE",
+      "tikr_cid": "7959935",
+      "evidence_id": "tikr-overview-VST-20260816",
+      "status": "candidate",
+      "review_status": "pending"
+    },
+    {
+      "id": "company:ON",
+      "ticker": "ON",
+      "name": "ON Semiconductor Corporation",
+      "exchange": "NasdaqGS",
+      "tikr_cid": "411950",
+      "evidence_id": "tikr-overview-ON-20260816",
+      "status": "candidate",
+      "review_status": "pending"
+    },
+    {
+      "id": "company:WOLF",
+      "ticker": "WOLF",
+      "name": "Wolfspeed, Inc.",
+      "exchange": "NYSE",
+      "tikr_cid": "197012",
+      "evidence_id": "tikr-overview-WOLF-20260816",
+      "status": "candidate",
+      "review_status": "pending"
+    }
+  ],
+  "assertions": [],
+  "governance": {
+    "auto_confirm": false,
+    "requires_provenance": true,
+    "write_scope": "candidate_identity_only"
+  }
+}

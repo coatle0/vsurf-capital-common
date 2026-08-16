@@ -1,0 +1,19 @@
+{
+  "contract_version": "ivk-review-0.1",
+  "run_id": "ORDER-141-PHASE1-01",
+  "path_status": "completed_pending_human_review",
+  "source_documents": 5,
+  "companies": 5,
+  "confirmed_assertions": 0,
+  "pending_questions": 4,
+  "quality_gates": {
+    "all_nodes_have_provenance": true,
+    "auto_confirm": false,
+    "unsupported_assertions": 0,
+    "write_scope_limited": true
+  },
+  "limitations": [
+    "TIKR company overviews establish identity and business scope only.",
+    "Bottleneck, beneficiary, and causal claims remain pending deeper filings and earnings-call evidence."
+  ]
+}
