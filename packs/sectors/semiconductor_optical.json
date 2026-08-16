@@ -1,0 +1,10 @@
+{
+  "kind": "sector",
+  "id": "semiconductor_optical",
+  "version": "1.0.0",
+  "aliases": ["semiconductor optical", "optical networking", "CPO"],
+  "required_topics": ["company_profile", "products", "processes", "technologies", "end_markets", "customers", "capacity", "quarterly_financials", "inventory"],
+  "metrics": ["revenue", "operating_margin", "inventory", "capex", "lead_time", "capacity"],
+  "allowed_extensions": ["Product", "Component", "Process", "Technology", "EndMarket", "DemandDriver"],
+  "token_budget_overrides": {"evidence_extraction": 50000}
+}

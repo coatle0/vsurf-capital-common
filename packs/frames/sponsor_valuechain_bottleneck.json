@@ -1,0 +1,9 @@
+{
+  "kind": "frame",
+  "id": "sponsor_valuechain_bottleneck",
+  "version": "1.0.0",
+  "aliases": ["Sponsor→Value Chain→Bottleneck", "Sponsor Value Chain Bottleneck"],
+  "required_slots": ["demand_driver", "sponsor", "system", "process", "component", "bottleneck", "beneficiary"],
+  "expansion_order": ["sponsor_to_system", "system_to_process", "process_to_component", "component_to_supplier"],
+  "stop_conditions": ["unsupported_bottleneck", "no_primary_source"]
+}

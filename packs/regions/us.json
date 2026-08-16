@@ -1,0 +1,9 @@
+{
+  "kind": "region",
+  "id": "us",
+  "version": "1.0.0",
+  "aliases": ["USA", "United States"],
+  "source_adapters": ["tikr", "sec", "company_ir", "earnings_call"],
+  "period_policy": "fiscal_to_calendar_preserve_both",
+  "currency": "USD"
+}

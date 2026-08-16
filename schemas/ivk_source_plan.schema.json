@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "ivk-source-plan-1.0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["contract_version", "created_at", "value_chain", "blueprint_contract", "pack_manifest", "pack_policy", "evidence_policy", "tasks", "token_budgets", "stop_conditions", "status"],
+  "properties": {
+    "contract_version": {"const": "ivk-source-plan-1.0"},
+    "created_at": {"type": "string"},
+    "value_chain": {"type": "object"},
+    "blueprint_contract": {"const": "ivk-blueprint-1.0"},
+    "pack_manifest": {"type": "object"},
+    "pack_policy": {"type": "object"},
+    "evidence_policy": {"type": "object", "required": ["primary_source_first", "reuse_by_content_hash", "auto_confirm", "canonical_graph_read"]},
+    "tasks": {"type": "array", "minItems": 1},
+    "token_budgets": {"type": "object"},
+    "stop_conditions": {"type": "array"},
+    "status": {"const": "planned"}
+  }
+}
