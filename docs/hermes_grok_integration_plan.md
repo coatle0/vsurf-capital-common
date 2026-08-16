@@ -49,6 +49,38 @@
     연결하면 끝 — **로컬 GPU도 별도 호스팅 계정도 불필요.** Grok 구독 하나로 (a) 네이티브
     Grok CLI 실행기, (b) codex 하니스 기반 "hermes" 실행기(Order 123 MCP registry 상속)
     두 경로가 동시에 풀린다. 기존 병목 #2(호스팅 방식 결정)는 이걸로 해소됨 — §4 갱신.
+11. **Grok 로그인 완료** — `grok login --device-auth`로 코드 발급, 사람이 브라우저에서
+    승인 → `Signed in as coatle0@gmail.com` 확인 (2026-08-16). 시행착오: device code가
+    짧은 TTL을 가져 미리 발급해두면 만료됨(`Error: Device code expired`) — 승인 직전에
+    발급해야 함.
+12. **[CIO 지시] 모든 실행의 home/cwd = `C:\lab`으로 통일** (Grok·Hermes 공통). 이 지시를
+    따르는 과정에서 핵심 원인 하나를 잡음: 헤드리스 실행을 `C:\lab` 밖(예: OS 임시 폴더)의
+    낯선 경로에서 파일쓰기 프롬프트와 함께 돌리면 **무한 대기**했다(60초+, stdout/stderr/
+    debug 로그 전부 무출력, `tasklist`로는 프로세스 생존 확인 — codex UAC 이슈와 같은
+    "파이프 뒤에 숨은 프롬프트" 패턴으로 추정). `--cwd C:\lab`(또는 그 하위)로 바꾸자
+    같은 파일쓰기 프롬프트가 41초 만에 정상 완료됨. 근본 원인은 미확정(추정)이지만,
+    **"C:\lab 기준"이 실측으로 통과 조건이라는 것은 확정**.
+13. **Project trust는 문서상 별개 축임을 확인** — `--allow`/`--deny` CLI 플래그는 trust
+    상태와 무관하게 항상 강제 적용된다고 공식 번들 문서(`22-permissions-and-safety.md`)에
+    명시. 실측(§ 아래)도 이를 뒷받침 — trust를 별도로 해결하지 않고 명시적 플래그만으로
+    파일쓰기가 정상 동작했다. `.claude/settings.json` 자동상속 여부는 미확정으로 남겨두고,
+    codex/claude와 동일하게 **매 호출마다 명시적 `--allow`/`--deny`를 넘기는 방식**으로
+    설계 방향을 확정(감사 가능성도 더 높음).
+14. **실측: C:\lab 기준 헤드리스 파일쓰기 성공**
+    ```
+    grok -p "Write the exact text 'grok-write-ok' to a new file named write_test.txt ..." \
+      --cwd "C:\lab\_grok_scratch_test" --permission-mode dontAsk \
+      --allow 'Write' --allow 'Edit' --allow 'Read' \
+      --deny 'Bash(git push*)' --deny 'Bash(rm *)' --output-format json
+    → {"text": "...Created write_test.txt with the text grok-write-ok.", "stopReason":"end_turn", ...}
+    파일 실제 내용: grok-write-ok (정확히 일치). cost: $0.056/call. 테스트 후 정리(삭제) 완료.
+    ```
+15. **부가 발견 (차단 아님, 참고)**: 매 세션 시작마다 `global/orca-status` 훅(사용자
+    레벨 `~/.claude/settings.json`의 기존 Orca 훅 인프라, Claude 호환 스캔으로 Grok에도
+    상속됨)이 실패한다(exit code 1, CLIXML 에러) — fail-open이라 차단은 안 하지만 세션당
+    ~9초 지연을 유발. Bill이 만든 것 아님, 별도 손 안 댐.
+16. **부가 발견**: `C:\lab\.git`이 완전히 빈 디렉토리(HEAD 없음, 깨진 repo) — `grok`이
+    `isGitRepo:false, gitRoot:null`로 정확히 인식함. 손 안 댐, 기록만.
 
 ---
 
@@ -69,22 +101,25 @@
 
 ## 3. 사용자(COO/CIO)가 해야 하는 것
 
-1. **xAI Grok 구독/인증** — console.x.ai에서 API key 발급, 또는 `grok login` 브라우저 인증
-   (사람이 직접 있어야 하는 1회성 작업).
-2. **Grok CLI 프로젝트 신뢰(trust) 승인** — headless 사용 전 최초 1회 결정 필요
-   (`grok inspect` 결과 현재 "Project trusted: no").
-3. **Grok용 scoped 권한 정책 검토·승인** — Bill이 설계안을 올리면 그 allow/deny·
-   permission-mode를 최종 승인.
+1. ~~xAI Grok 구독/인증~~ — **완료.** `coatle0@gmail.com`으로 device-auth 로그인 성공
+   (2026-08-16).
+2. ~~Grok CLI 프로젝트 신뢰(trust) 승인~~ — **불필요로 판명.** `--allow`/`--deny` 명시적
+   플래그는 trust 상태와 무관하게 항상 적용됨(문서+실측 확인). trust 자체를 해결하지 않고
+   진행.
+3. ~~Grok용 scoped 권한 정책 검토·승인~~ — 1차 설계는 Bill이 codex/claude와 동일한 방식
+   (매 호출 명시적 `--allow`/`--deny`)으로 확정, 실 Order 종단검증 시 최종본 리뷰 요청
+   예정.
 4. ~~Hermes 호스팅 방식 결정~~ — **해소됨.** Hermes endpoint를 Grok(api.x.ai)로 재사용하기로
    확정(CIO 지시, 2026-08-16). 로컬 GPU/외부 호스팅 계정 불필요, 1번의 Grok API key만
    있으면 됨.
+5. ~~모든 실행 home/cwd 통일~~ — **완료.** CIO 지시로 `C:\lab`으로 확정, 실측으로 이게
+   진짜 통과 조건이었음도 확인됨(§1-12,14).
 
 ---
 
-## 4. 병목 (진행 막는 지점, 2026-08-16 갱신)
+## 4. 병목 (진행 막는 지점, 2026-08-16 갱신 — 전부 해소)
 
-1. **Grok 인증만 남음** — Grok API key/로그인 없이는 Grok CLI `-p`도, Hermes(codex
-   model_providers) 경로의 `env_key`도 둘 다 막힌다. 이 하나가 두 실행기 전부의 유일한
-   남은 병목. 설치까지가 Bill 권한 범위의 끝 — 인증은 사람이 직접(브라우저 OAuth 또는
-   `grok login --device-auth`로 코드 발급 후 사람이 승인) 해야 함.
-2. ~~Hermes 호스팅 방식 미정~~, ~~로컬 추론 런타임 부재~~ — Grok endpoint 재사용으로 해소.
+~~Grok 인증~~, ~~Project trust~~, ~~Hermes 호스팅~~, ~~home/cwd 확정~~ 전부 해소됨.
+남은 건 실제 코드 통합(§2) — `order_dispatcher.py`에 `executor="grok"`/`"hermes"` 분기
+추가 + 실 Order 종단검증. 이건 별도 지시 대기 없이 다음 세션에서 바로 착수 가능한
+상태.
