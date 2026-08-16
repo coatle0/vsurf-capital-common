@@ -1,0 +1,12 @@
+{
+  "name": "AI Data Center Power / Power Semiconductor",
+  "seed": ["VRT", "ETN", "VST", "ON", "WOLF"],
+  "frame": "Sponsor→Value Chain→Bottleneck",
+  "thesis": "AI 데이터센터 전력 수요 증가가 UPS·배전·전력반도체·전력관리 설비의 수요와 병목을 확대할 수 있다.",
+  "questions": [
+    "핵심 수요 드라이버는 무엇인가?",
+    "전력 공급망의 병목은 어디에서 발생할 가능성이 높은가?",
+    "병목 완화 시 최대 수혜 후보는 누구인가?",
+    "어떤 인접 product/process/technology/company로 Link Expansion해야 하는가?"
+  ]
+}

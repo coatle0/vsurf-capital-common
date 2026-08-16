@@ -1,0 +1,44 @@
+{
+  "order": 141,
+  "run_id": "ORDER-141-PHASE-A-01",
+  "result": "BLOCKED",
+  "input_path": "examples/141_ai_data_center_power_intake.json",
+  "graph_snapshot_path": "examples/141_ai_data_center_power_graph.json",
+  "blueprint_path": "artifacts/141_ai_data_center_power_blueprint.json",
+  "intake": {"status": "PASS"},
+  "normalized": {
+    "seeds": ["VRT", "ETN", "VST", "ON", "WOLF"],
+    "deduplicated": true,
+    "primary_frame": "Sponsor→Value Chain→Bottleneck",
+    "thesis_preserved": true,
+    "question_count": 4
+  },
+  "graph_check": {
+    "read_path": "neo4j-official.read_cypher",
+    "write_count": 0,
+    "existing_seeds": [],
+    "unresolved_seeds": ["VRT", "ETN", "VST", "ON", "WOLF"]
+  },
+  "blueprint": {"contract_version": "ivk-blueprint-1.0", "schema_status": "PASS", "auto_confirm": false},
+  "pack_selection": {
+    "status": "BLOCKED",
+    "frame": "sponsor_valuechain_bottleneck@1.0.0",
+    "sector_selector": "power semiconductor",
+    "sector": null,
+    "region": "us@1.0.0",
+    "manifest": null,
+    "error": "unknown sector pack: power semiconductor"
+  },
+  "source_plan": {"status": "NOT_CREATED", "task_count": 0, "entity_resolution_tasks": 0, "evidence_collection_tasks": 0, "question_evidence_tasks": 0},
+  "question_evidence_coverage": {"status": "NOT_EVALUATED", "covered": 0, "total": 4},
+  "token_budget": {"status": "NOT_CREATED", "stages": null, "model": null},
+  "determinism": {"intake_blueprint": "PASS", "source_plan": "NOT_EVALUATED", "excluded_fields": []},
+  "negative_tests": [
+    {"case": "empty seed", "status": "PASS", "outcome": "validation reject"},
+    {"case": "malformed questions field type", "status": "PASS", "outcome": "validation reject"}
+  ],
+  "llm_call_count": 0,
+  "neo4j_write_count": 0,
+  "blockers": ["No power-semiconductor sector pack exists; Order 141 prohibits modifying Factory core to add one."],
+  "commit_push": "NOT_PERFORMED_DISPATCHER_OWNED"
+}
