@@ -20,9 +20,16 @@ class IVKFactoryPhaseATests(unittest.TestCase):
         self.assertEqual("sponsor_valuechain_bottleneck@1.0.0", selection.manifest()["frame"])
         self.assertEqual(["us@1.0.0"], selection.manifest()["regions"])
 
-    def test_unknown_pack_fails_explicitly(self):
-        with self.assertRaisesRegex(FactoryValidationError, "unknown sector"):
-            self.registry.select(frame="Sponsor→Value Chain→Bottleneck", sector="biotech", regions=["us"])
+    def test_unknown_sector_uses_explicit_bootstrap_pack(self):
+        selection = self.registry.select(
+            frame="Sponsor→Value Chain→Bottleneck", sector="biotech", regions=["us"]
+        )
+        self.assertEqual("bootstrap", selection.sector["pack_mode"])
+        self.assertEqual("biotech", selection.sector["requested_selector"])
+        self.assertEqual("bootstrap_biotech@0.0.0", selection.manifest()["sector"])
+        plan = build_source_plan(self.blueprint, selection)
+        self.assertEqual("bootstrap", plan["pack_policy"]["mode"])
+        self.assertFalse(plan["pack_policy"]["reusable_sector_pack"])
 
     def test_source_plan_is_complete_and_retains_unresolved_seeds(self):
         selection = self.registry.select(frame=self.blueprint["normalized"]["primary_frame"], sector="semiconductor_optical", regions=["us"])

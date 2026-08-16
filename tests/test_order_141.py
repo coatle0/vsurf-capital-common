@@ -9,7 +9,7 @@ import jsonschema
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from scripts.ivk_factory import FactoryValidationError, PackRegistry
+from scripts.ivk_factory import PackRegistry, build_source_plan
 from scripts.ivk_new_intake import IntakeValidationError, build_blueprint, normalize_intake
 
 
@@ -33,10 +33,20 @@ class Order141PhaseAE2ETests(unittest.TestCase):
         schema = json.loads((ROOT / "schemas/ivk_blueprint.schema.json").read_text(encoding="utf-8"))
         jsonschema.Draft202012Validator(schema).validate(first)
 
-    def test_registry_rejects_missing_power_semiconductor_sector_pack(self):
+    def test_missing_power_semiconductor_sector_pack_bootstraps_and_plans(self):
         registry = PackRegistry(ROOT / "registry/ivk_factory_packs.json")
-        with self.assertRaisesRegex(FactoryValidationError, "unknown sector pack: power semiconductor"):
-            registry.select(frame=self.raw["frame"], sector="power semiconductor", regions=["us"])
+        selection = registry.select(frame=self.raw["frame"], sector="power semiconductor", regions=["us"])
+        self.assertEqual("bootstrap", selection.sector["pack_mode"])
+        blueprint = build_blueprint(self.raw, self.graph, observed_at=self.observed_at)
+        plan = build_source_plan(blueprint, selection)
+        repeated = build_source_plan(blueprint, selection)
+        self.assertEqual("planned", plan["status"])
+        self.assertEqual("bootstrap_pending", plan["pack_policy"]["review_status"])
+        self.assertEqual(14, len(plan["tasks"]))
+        self.assertFalse(plan["evidence_policy"]["auto_confirm"])
+        plan.pop("created_at")
+        repeated.pop("created_at")
+        self.assertEqual(plan, repeated)
 
     def test_negative_empty_seed_is_rejected(self):
         invalid = copy.deepcopy(self.raw)

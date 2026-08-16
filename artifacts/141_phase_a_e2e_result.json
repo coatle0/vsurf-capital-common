@@ -1,7 +1,7 @@
 {
   "order": 141,
   "run_id": "ORDER-141-PHASE-A-01",
-  "result": "BLOCKED",
+  "result": "PHASE_A_PASS_NEXT_STAGE_BLOCKED",
   "input_path": "examples/141_ai_data_center_power_intake.json",
   "graph_snapshot_path": "examples/141_ai_data_center_power_graph.json",
   "blueprint_path": "artifacts/141_ai_data_center_power_blueprint.json",
@@ -21,24 +21,24 @@
   },
   "blueprint": {"contract_version": "ivk-blueprint-1.0", "schema_status": "PASS", "auto_confirm": false},
   "pack_selection": {
-    "status": "BLOCKED",
+    "status": "BOOTSTRAP",
     "frame": "sponsor_valuechain_bottleneck@1.0.0",
     "sector_selector": "power semiconductor",
-    "sector": null,
+    "sector": "bootstrap_power_semiconductor@0.0.0",
     "region": "us@1.0.0",
-    "manifest": null,
-    "error": "unknown sector pack: power semiconductor"
+    "manifest": {"frame": "sponsor_valuechain_bottleneck@1.0.0", "sector": "bootstrap_power_semiconductor@0.0.0", "regions": ["us@1.0.0"]},
+    "error": null
   },
-  "source_plan": {"status": "NOT_CREATED", "task_count": 0, "entity_resolution_tasks": 0, "evidence_collection_tasks": 0, "question_evidence_tasks": 0},
-  "question_evidence_coverage": {"status": "NOT_EVALUATED", "covered": 0, "total": 4},
-  "token_budget": {"status": "NOT_CREATED", "stages": null, "model": null},
-  "determinism": {"intake_blueprint": "PASS", "source_plan": "NOT_EVALUATED", "excluded_fields": []},
+  "source_plan": {"status": "PLANNED", "path": "artifacts/141_ai_data_center_power_source_plan.json", "task_count": 14, "entity_resolution_tasks": 5, "evidence_collection_tasks": 5, "question_evidence_tasks": 4},
+  "question_evidence_coverage": {"status": "PLANNED", "covered": 4, "total": 4},
+  "token_budget": {"status": "CREATED", "stages": 5, "total": 85000, "model": "assigned_by_downstream_executor"},
+  "determinism": {"intake_blueprint": "PASS", "source_plan": "PASS", "excluded_fields": ["created_at"]},
   "negative_tests": [
     {"case": "empty seed", "status": "PASS", "outcome": "validation reject"},
     {"case": "malformed questions field type", "status": "PASS", "outcome": "validation reject"}
   ],
   "llm_call_count": 0,
   "neo4j_write_count": 0,
-  "blockers": ["No power-semiconductor sector pack exists; Order 141 prohibits modifying Factory core to add one."],
+  "blockers": ["Source Collection / Evidence Packet / KE / Neo4j write / Review executors are not implemented in current Phase A Factory."],
   "commit_push": "NOT_PERFORMED_DISPATCHER_OWNED"
 }

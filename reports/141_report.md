@@ -1,50 +1,40 @@
 # Order 141 — IVK Factory Phase A new Value Chain E2E
 
-- Run-ID: `ORDER-141-PHASE-A-01`
-- Result: **BLOCKED**
+- Run-ID: `ORDER-141-PHASE-A-02`
+- Result: **PHASE A PASS / NEXT STAGE BLOCKED**
 - Executed: 2026-08-16
 
-## Governance and preflight
+## Policy decision applied
 
-The worktree was clean before execution; Git emitted only an inaccessible global-ignore warning. Existing Factory code, schemas, packs, registry, Golden Example, and Order 140/CPO fixtures were not modified. No commit or push was performed because the dispatcher owns Git finalization under the execution prompt and `AGENT_RULES.md`.
+Missing Sector Packs are no longer hard execution gates. A reusable pack is selected when available; otherwise the Factory creates an explicit empty bootstrap selection and continues. The fallback does not invent sector facts or substitute an unrelated pack.
 
-## Input and normalization
+Quality gates remain unchanged: evidence cannot become confirmed without support, assertions require provenance, unauthorized Neo4j writes are forbidden, and `auto_confirm=false` remains mandatory.
 
-The Order input is captured in `examples/141_ai_data_center_power_intake.json`. Intake passed. Ordered canonical seeds are `VRT`, `ETN`, `VST`, `ON`, and `WOLF`, with no duplicates. The primary frame is `Sponsor→Value Chain→Bottleneck`; the Korean thesis and all four questions are preserved exactly.
+## Input, normalization, and graph check
 
-## Canonical graph check
+The input remains `AI Data Center Power / Power Semiconductor`, with ordered seeds `VRT`, `ETN`, `VST`, `ON`, and `WOLF`. Intake, normalization, Blueprint schema validation, and both negative cases pass. The prior canonical `neo4j-official.read_cypher` observation remains valid: all five seeds are unresolved. Neo4j writes: **0**.
 
-The exact Order 140 parameterized query was executed through `neo4j-official.read_cypher`. It returned no Company match, value-chain observation, or assertion for any seed. All five are retained as unresolved starting points in `examples/141_ai_data_center_power_graph.json`; none are excluded. Neo4j writes: **0**.
+## Pack selection and Source Plan
 
-## Blueprint
+- Frame: `sponsor_valuechain_bottleneck@1.0.0`
+- Sector: `bootstrap_power_semiconductor@0.0.0`
+- Region: `us@1.0.0`
+- Policy: `mode=bootstrap`, `reusable_sector_pack=false`, `review_status=bootstrap_pending`
 
-`artifacts/141_ai_data_center_power_blueprint.json` was generated with contract `ivk-blueprint-1.0`. Internal validation and Draft 2020-12 JSON Schema validation passed. It contains five unresolved seeds, four source requirements, `review_status=pending`, and `epistemic_policy.auto_confirm=false`.
+The existing optical sector pack was not substituted. `artifacts/141_ai_data_center_power_source_plan.json` contains 14 tasks: five entity-resolution, five seed evidence-collection, and four question-evidence tasks. All unresolved seeds and all four questions are preserved.
 
-## Pack registry blocker
-
-Frame alias resolution succeeds to `sponsor_valuechain_bottleneck@1.0.0`, and region alias `us` resolves to `us@1.0.0`. Sector selection with `power semiconductor` explicitly rejects with `unknown sector pack: power semiconductor`.
-
-The registry contains only `semiconductor_optical@1.0.0`, whose aliases are semiconductor optical, optical networking, and CPO. Substituting it would misrepresent the requested Value Chain. Adding a power-semiconductor pack would modify Factory core, which Order 141 explicitly forbids. Therefore no valid pack manifest can be fixed and execution stops at this stage.
-
-## Source Plan, evidence tasks, and Token Ledger
-
-Because `PackRegistry.select` is a required planner input, no Source Plan was created. Task counts are zero; unresolved-seed entity-resolution preservation and question evidence coverage cannot be evaluated downstream. No stage/model token budget was created. Actual LLM calls: **0**. `auto_confirm=false` remains enforced in the Blueprint, and no unsupported confirmed evidence was created.
-
-## Determinism and negative cases
-
-Two in-process runs with the same raw input, captured canonical graph rows, and fixed `observed_at` produced identical complete Blueprint dictionaries, including normalized seed ordering and source-requirement ordering. No fields were excluded. Source Plan determinism was not evaluable because pack selection rejected both attempts before planning.
-
-Both required negative cases passed: an empty seed array rejected with `seed must contain at least one value`, and a string-valued `questions` field rejected with `questions must be an array`.
+Five stage budgets total 85,000 tokens. Model assignment remains a downstream executor concern. Actual LLM calls: **0**. Source Plan determinism passes after excluding only `created_at`.
 
 ## Validation
 
-- `python -m unittest tests.test_order_141 -v` — **PASS, 4/4**.
-- Blueprint Draft 2020-12 schema validation — **PASS** (inside the focused test).
-- Canonical Neo4j read — **PASS**, five unresolved results; writes **0**.
-- Pack resolution safety gate — **PASS**, unsupported sector explicitly rejected.
+- `python -m unittest tests.test_ivk_factory tests.test_order_141 -v` — **PASS, 9/9**
+- `python -m py_compile scripts/ivk_factory.py tests/test_ivk_factory.py tests/test_order_141.py` — **PASS**
+- JSON parse and `git diff --check` — **PASS**
+- `auto_confirm=false` — **PASS**
+- unsupported sector soft fallback without unrelated knowledge — **PASS**
 
-## Machine-readable result and disposition
+## Disposition and next bottleneck
 
-`artifacts/141_phase_a_e2e_result.json` records the input, normalization, Blueprint, unresolved seeds, pack failure, zero downstream task counts, absent token budget, determinism, negative tests, LLM/Neo4j counts, blocker, and overall result.
+Phase A now completes through Source Plan and Token Budget creation. The full requested path does not yet complete because Source Collection, Evidence Packet extraction, Knowledge Engineering, governed Neo4j write, and Review executors are not implemented in the current Factory. These stages were not fabricated.
 
-PASS/FAIL: **BLOCKED**. Intake, normalization, live read, Blueprint/schema, determinism through Blueprint, and negative validation pass. DoD items (c), (e), (f), (g), and Source Plan portion of (i) remain blocked by the missing sector pack. Commit/push is intentionally left to the dispatcher.
+PASS/FAIL: **PHASE A PASS / NEXT STAGE BLOCKED**. The first dry run has exposed the next real implementation boundary: Source Plan execution.

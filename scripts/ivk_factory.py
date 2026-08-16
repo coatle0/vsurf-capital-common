@@ -67,10 +67,29 @@ class PackRegistry:
                 return pack
         raise FactoryValidationError(f"unknown {kind} pack: {selector}")
 
+    def resolve_sector(self, selector: str) -> dict[str, Any]:
+        """Resolve a reusable sector pack or return an explicit empty bootstrap pack."""
+        try:
+            return self.resolve("sector", selector)
+        except FactoryValidationError:
+            return {
+                "kind": "sector",
+                "id": f"bootstrap_{_key(selector) or 'unspecified'}",
+                "version": "0.0.0",
+                "aliases": [],
+                "required_topics": [],
+                "metrics": [],
+                "allowed_extensions": [],
+                "token_budget_overrides": {},
+                "pack_mode": "bootstrap",
+                "requested_selector": selector,
+                "reusable": False,
+            }
+
     def select(self, *, frame: str, sector: str, regions: Iterable[str]) -> PackSelection:
         selected = PackSelection(
             frame=self.resolve("frame", frame),
-            sector=self.resolve("sector", sector),
+            sector=self.resolve_sector(sector),
             regions=tuple(self.resolve("region", item) for item in regions),
         )
         compatibility = self.raw.get("compatibility", {})
@@ -280,7 +299,14 @@ def build_source_plan(blueprint: dict[str, Any], selection: PackSelection) -> di
         "value_chain": normalized.get("identity"),
         "blueprint_contract": blueprint["contract_version"],
         "pack_manifest": selection.manifest(),
-        "pack_policy": {"core_revision_required": False, "review_status": "accepted_for_planning"},
+        "pack_policy": {
+            "mode": selection.sector.get("pack_mode", "reused"),
+            "requested_sector": selection.sector.get("requested_selector", selection.sector["id"]),
+            "reusable_sector_pack": selection.sector.get("reusable", True),
+            "core_revision_required": False,
+            "review_status": "bootstrap_pending" if selection.sector.get("pack_mode") == "bootstrap"
+            else "accepted_for_planning",
+        },
         "evidence_policy": {"primary_source_first": True, "reuse_by_content_hash": True,
                             "auto_confirm": False, "canonical_graph_read": "neo4j-official.read_cypher"},
         "tasks": tasks,

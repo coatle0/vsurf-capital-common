@@ -1,0 +1,275 @@
+{
+  "contract_version": "ivk-source-plan-1.0",
+  "created_at": "2026-08-16T09:11:06.695344+00:00",
+  "value_chain": {
+    "name": "AI Data Center Power / Power Semiconductor",
+    "slug": "ai-data-center-power-power-semiconductor"
+  },
+  "blueprint_contract": "ivk-blueprint-1.0",
+  "pack_manifest": {
+    "frame": "sponsor_valuechain_bottleneck@1.0.0",
+    "sector": "bootstrap_power_semiconductor@0.0.0",
+    "regions": [
+      "us@1.0.0"
+    ]
+  },
+  "pack_policy": {
+    "mode": "bootstrap",
+    "requested_sector": "power semiconductor",
+    "reusable_sector_pack": false,
+    "core_revision_required": false,
+    "review_status": "bootstrap_pending"
+  },
+  "evidence_policy": {
+    "primary_source_first": true,
+    "reuse_by_content_hash": true,
+    "auto_confirm": false,
+    "canonical_graph_read": "neo4j-official.read_cypher"
+  },
+  "tasks": [
+    {
+      "seed": "VRT",
+      "task_type": "entity_resolution",
+      "priority": 1,
+      "topics": [
+        "identity",
+        "exchange",
+        "ticker"
+      ],
+      "source_adapters": [
+        "tikr",
+        "sec",
+        "company_ir",
+        "earnings_call"
+      ]
+    },
+    {
+      "seed": "VRT",
+      "task_type": "evidence_collection",
+      "priority": 2,
+      "topics": [
+        "demand_driver",
+        "sponsor",
+        "system",
+        "process",
+        "component",
+        "bottleneck",
+        "beneficiary"
+      ],
+      "source_adapters": [
+        "tikr",
+        "sec",
+        "company_ir",
+        "earnings_call"
+      ]
+    },
+    {
+      "seed": "ETN",
+      "task_type": "entity_resolution",
+      "priority": 1,
+      "topics": [
+        "identity",
+        "exchange",
+        "ticker"
+      ],
+      "source_adapters": [
+        "tikr",
+        "sec",
+        "company_ir",
+        "earnings_call"
+      ]
+    },
+    {
+      "seed": "ETN",
+      "task_type": "evidence_collection",
+      "priority": 2,
+      "topics": [
+        "demand_driver",
+        "sponsor",
+        "system",
+        "process",
+        "component",
+        "bottleneck",
+        "beneficiary"
+      ],
+      "source_adapters": [
+        "tikr",
+        "sec",
+        "company_ir",
+        "earnings_call"
+      ]
+    },
+    {
+      "seed": "VST",
+      "task_type": "entity_resolution",
+      "priority": 1,
+      "topics": [
+        "identity",
+        "exchange",
+        "ticker"
+      ],
+      "source_adapters": [
+        "tikr",
+        "sec",
+        "company_ir",
+        "earnings_call"
+      ]
+    },
+    {
+      "seed": "VST",
+      "task_type": "evidence_collection",
+      "priority": 2,
+      "topics": [
+        "demand_driver",
+        "sponsor",
+        "system",
+        "process",
+        "component",
+        "bottleneck",
+        "beneficiary"
+      ],
+      "source_adapters": [
+        "tikr",
+        "sec",
+        "company_ir",
+        "earnings_call"
+      ]
+    },
+    {
+      "seed": "ON",
+      "task_type": "entity_resolution",
+      "priority": 1,
+      "topics": [
+        "identity",
+        "exchange",
+        "ticker"
+      ],
+      "source_adapters": [
+        "tikr",
+        "sec",
+        "company_ir",
+        "earnings_call"
+      ]
+    },
+    {
+      "seed": "ON",
+      "task_type": "evidence_collection",
+      "priority": 2,
+      "topics": [
+        "demand_driver",
+        "sponsor",
+        "system",
+        "process",
+        "component",
+        "bottleneck",
+        "beneficiary"
+      ],
+      "source_adapters": [
+        "tikr",
+        "sec",
+        "company_ir",
+        "earnings_call"
+      ]
+    },
+    {
+      "seed": "WOLF",
+      "task_type": "entity_resolution",
+      "priority": 1,
+      "topics": [
+        "identity",
+        "exchange",
+        "ticker"
+      ],
+      "source_adapters": [
+        "tikr",
+        "sec",
+        "company_ir",
+        "earnings_call"
+      ]
+    },
+    {
+      "seed": "WOLF",
+      "task_type": "evidence_collection",
+      "priority": 2,
+      "topics": [
+        "demand_driver",
+        "sponsor",
+        "system",
+        "process",
+        "component",
+        "bottleneck",
+        "beneficiary"
+      ],
+      "source_adapters": [
+        "tikr",
+        "sec",
+        "company_ir",
+        "earnings_call"
+      ]
+    },
+    {
+      "seed": null,
+      "task_type": "question_evidence",
+      "priority": 3,
+      "requirement_id": "question:1",
+      "question": "핵심 수요 드라이버는 무엇인가?",
+      "source_adapters": [
+        "tikr",
+        "sec",
+        "company_ir",
+        "earnings_call"
+      ]
+    },
+    {
+      "seed": null,
+      "task_type": "question_evidence",
+      "priority": 3,
+      "requirement_id": "question:2",
+      "question": "전력 공급망의 병목은 어디에서 발생할 가능성이 높은가?",
+      "source_adapters": [
+        "tikr",
+        "sec",
+        "company_ir",
+        "earnings_call"
+      ]
+    },
+    {
+      "seed": null,
+      "task_type": "question_evidence",
+      "priority": 3,
+      "requirement_id": "question:3",
+      "question": "병목 완화 시 최대 수혜 후보는 누구인가?",
+      "source_adapters": [
+        "tikr",
+        "sec",
+        "company_ir",
+        "earnings_call"
+      ]
+    },
+    {
+      "seed": null,
+      "task_type": "question_evidence",
+      "priority": 3,
+      "requirement_id": "question:4",
+      "question": "어떤 인접 product/process/technology/company로 Link Expansion해야 하는가?",
+      "source_adapters": [
+        "tikr",
+        "sec",
+        "company_ir",
+        "earnings_call"
+      ]
+    }
+  ],
+  "token_budgets": {
+    "source_planning": 5000,
+    "evidence_extraction": 50000,
+    "synthesis": 15000,
+    "exception_review": 10000,
+    "final_report": 5000
+  },
+  "stop_conditions": [
+    "unsupported_bottleneck",
+    "no_primary_source"
+  ],
+  "status": "planned"
+}
