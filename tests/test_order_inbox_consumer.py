@@ -1,5 +1,6 @@
 import importlib.util
 import json
+import os
 import tempfile
 import unittest
 from pathlib import Path
@@ -391,6 +392,9 @@ class CrashRecoveryTests(_WithDirs):
 
 
 class ConsumerLockTests(_WithDirs):
+    def test_current_pid_is_alive_without_terminating_process(self):
+        self.assertTrue(MODULE.ConsumerLock._pid_is_alive(os.getpid()))
+
     def test_second_lock_acquire_raises_while_first_held(self):
         with MODULE.ConsumerLock():
             with self.assertRaises(RuntimeError):
@@ -402,6 +406,48 @@ class ConsumerLockTests(_WithDirs):
             pass
         with MODULE.ConsumerLock():
             pass  # must not raise
+
+    def test_dead_owner_is_quarantined_and_new_lock_acquired(self):
+        MODULE.CONSUMER_LOCK_PATH.write_text(
+            "pid=999999 started=2026-08-15T12:47:30+09:00", encoding="utf-8"
+        )
+        with patch.object(MODULE.ConsumerLock, "_pid_is_alive", return_value=False):
+            with MODULE.ConsumerLock():
+                self.assertIn(f"pid={os.getpid()}", MODULE.CONSUMER_LOCK_PATH.read_text())
+                stale = list((MODULE.CONSUMER_LOCK_PATH.parent / "stale").iterdir())
+                self.assertEqual(1, len(stale))
+                self.assertIn("pid=999999", stale[0].read_text(encoding="utf-8"))
+        self.assertFalse(MODULE.CONSUMER_LOCK_PATH.exists())
+
+    def test_malformed_lock_fails_closed_and_is_preserved(self):
+        MODULE.CONSUMER_LOCK_PATH.write_text("partial", encoding="utf-8")
+        with self.assertRaisesRegex(RuntimeError, "Malformed consumer lock"):
+            with MODULE.ConsumerLock():
+                pass
+        self.assertEqual("partial", MODULE.CONSUMER_LOCK_PATH.read_text(encoding="utf-8"))
+
+    def test_concurrent_stale_recovery_keeps_singleton(self):
+        MODULE.CONSUMER_LOCK_PATH.write_text(
+            "pid=999998 started=2026-08-15T12:47:30+09:00", encoding="utf-8"
+        )
+        first = MODULE.ConsumerLock()
+        second = MODULE.ConsumerLock()
+        with patch.object(MODULE.ConsumerLock, "_pid_is_alive", side_effect=lambda pid: pid == os.getpid()):
+            with first:
+                with self.assertRaises(RuntimeError):
+                    second.__enter__()
+        stale = list((MODULE.CONSUMER_LOCK_PATH.parent / "stale").iterdir())
+        self.assertEqual(1, len(stale))
+
+    def test_recovery_is_reentrant_after_clean_exit(self):
+        MODULE.CONSUMER_LOCK_PATH.write_text(
+            "pid=999997 started=2026-08-15T12:47:30+09:00", encoding="utf-8"
+        )
+        with patch.object(MODULE.ConsumerLock, "_pid_is_alive", return_value=False):
+            with MODULE.ConsumerLock():
+                pass
+        with MODULE.ConsumerLock():
+            pass
 
 
 class ThreadReplyTests(_WithDirs):

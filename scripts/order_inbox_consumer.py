@@ -35,6 +35,7 @@ import os
 import re
 import sys
 import time
+from datetime import datetime
 from pathlib import Path
 from typing import Any
 
@@ -134,24 +135,89 @@ def configure_logging() -> None:
 class ConsumerLock:
     """Whole-process singleton guard (req: consumer 중복 프로세스 방지).
 
-    Like order_dispatcher.OrderLock, a crash leaves the lock file behind on
-    purpose: a stuck lock blocks automatic restarts until a human clears it,
-    which is safer than silently allowing two consumers to run at once.
+    A live owner remains fail-closed. A dead owner's lock is atomically moved
+    to the stale audit directory before acquisition is retried.  The rename
+    makes concurrent recovery safe: only one contender can quarantine the
+    old inode, and O_EXCL still decides which contender becomes the owner.
     """
 
     def __init__(self) -> None:
         self.path = CONSUMER_LOCK_PATH
         self.fd: int | None = None
 
+    @staticmethod
+    def _pid_is_alive(pid: int) -> bool:
+        if pid <= 0:
+            return False
+        if os.name == "nt":
+            # Windows os.kill(pid, 0) may terminate the target instead of
+            # acting as the harmless Unix existence probe. Use a read-only
+            # process handle and inspect its exit status.
+            import ctypes
+
+            process_query_limited_information = 0x1000
+            still_active = 259
+            kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
+            handle = kernel32.OpenProcess(process_query_limited_information, False, pid)
+            if not handle:
+                return ctypes.get_last_error() == 5  # access denied implies existence
+            try:
+                exit_code = ctypes.c_ulong()
+                if not kernel32.GetExitCodeProcess(handle, ctypes.byref(exit_code)):
+                    return True  # fail closed when status cannot be queried
+                return exit_code.value == still_active
+            finally:
+                kernel32.CloseHandle(handle)
+        try:
+            os.kill(pid, 0)
+        except ProcessLookupError:
+            return False
+        except PermissionError:
+            return True
+        except OSError:
+            return False
+        return True
+
+    def _existing_owner_pid(self) -> int:
+        try:
+            text = self.path.read_text(encoding="utf-8")
+        except FileNotFoundError:
+            raise
+        match = re.fullmatch(r"pid=(\d+)\s+started=(\S+)", text.strip())
+        if not match:
+            # A creator may be between O_EXCL creation and write. Never move
+            # an unparseable lock because doing so could break the singleton.
+            raise RuntimeError(f"Malformed consumer lock; refusing unsafe recovery: {self.path}")
+        return int(match.group(1))
+
+    def _quarantine_stale(self, pid: int) -> bool:
+        stale_dir = self.path.parent / "stale"
+        stale_dir.mkdir(parents=True, exist_ok=True)
+        stamp = datetime.now().astimezone().strftime("%Y%m%dT%H%M%S%f%z")
+        target = stale_dir / f"consumer.lock.{pid}.{stamp}"
+        try:
+            os.replace(self.path, target)
+        except FileNotFoundError:
+            return False  # another contender already recovered it
+        logger.warning("Quarantined stale consumer lock pid=%s to %s", pid, target)
+        return True
+
     def __enter__(self) -> "ConsumerLock":
         self.path.parent.mkdir(parents=True, exist_ok=True)
-        try:
-            self.fd = os.open(self.path, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
-        except FileExistsError as exc:
-            raise RuntimeError(
-                f"Another order_inbox_consumer instance already holds {self.path}; "
-                "if it is not actually running, remove the lock file manually."
-            ) from exc
+        while True:
+            try:
+                self.fd = os.open(self.path, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+                break
+            except FileExistsError as exc:
+                try:
+                    pid = self._existing_owner_pid()
+                except FileNotFoundError:
+                    continue
+                if self._pid_is_alive(pid):
+                    raise RuntimeError(
+                        f"Another order_inbox_consumer instance (pid={pid}) already holds {self.path}."
+                    ) from exc
+                self._quarantine_stale(pid)
         os.write(self.fd, f"pid={os.getpid()} started={order_dispatcher.now_iso()}".encode())
         return self
 
