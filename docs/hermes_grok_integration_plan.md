@@ -40,9 +40,15 @@
 8. **로컬(PC2) 추론 런타임 부재 확인** — `where ollama`, `where vllm` 둘 다 미설치.
 9. **codex CLI의 커스텀 provider 지원 조사 완료** — `~/.codex/config.toml`의
    `[model_providers.<id>]` 블록(`base_url`, `wire_api`, `env_key`)으로 임의의
-   OpenAI-호환 엔드포인트를 붙일 수 있음(공식 지원). 즉 Hermes 엔드포인트만 확보되면
-   **codex 실행 경로를 그대로 재사용**해 Order 123에서 만든 MCP registry 메커니즘까지
-   같이 상속시킬 수 있다 — 새 하니스를 따로 만들 필요 없음.
+   OpenAI-호환 엔드포인트를 붙일 수 있음(공식 지원).
+10. **[정정, CIO 지시] Hermes endpoint = Grok(api.x.ai) 재사용으로 확정** — 별도 Hermes
+    호스팅(로컬 GPU/외부 provider)을 구하지 않는다. `https://api.x.ai/v1`이 OpenAI-호환
+    chat completions 엔드포인트임을 확인(`base_url=https://api.x.ai/v1`, SDK 그대로
+    호환, 모델 예: `grok-4.5`). 즉 `model_providers.hermes`에
+    `base_url="https://api.x.ai/v1"`, `wire_api="chat"`, `env_key`에 Grok API key를
+    연결하면 끝 — **로컬 GPU도 별도 호스팅 계정도 불필요.** Grok 구독 하나로 (a) 네이티브
+    Grok CLI 실행기, (b) codex 하니스 기반 "hermes" 실행기(Order 123 MCP registry 상속)
+    두 경로가 동시에 풀린다. 기존 병목 #2(호스팅 방식 결정)는 이걸로 해소됨 — §4 갱신.
 
 ---
 
@@ -69,19 +75,16 @@
    (`grok inspect` 결과 현재 "Project trusted: no").
 3. **Grok용 scoped 권한 정책 검토·승인** — Bill이 설계안을 올리면 그 allow/deny·
    permission-mode를 최종 승인.
-4. **Hermes 호스팅 방식 결정** (순수 인프라/비용 의사결정, Bill이 대신 정할 수 없음):
-   - 로컬 GPU(Ollama/vLLM) — 모델 크기별 VRAM/디스크(수십 GB) 필요, 하드웨어 확보·비용.
-   - 외부 호스팅 provider(Hermes 서빙하는 API 서비스) — 계정 개설·과금·API key.
-5. Hermes 엔드포인트·API key 확정되면 Bill에게 전달.
+4. ~~Hermes 호스팅 방식 결정~~ — **해소됨.** Hermes endpoint를 Grok(api.x.ai)로 재사용하기로
+   확정(CIO 지시, 2026-08-16). 로컬 GPU/외부 호스팅 계정 불필요, 1번의 Grok API key만
+   있으면 됨.
 
 ---
 
-## 4. 병목 (진행 막는 지점)
+## 4. 병목 (진행 막는 지점, 2026-08-16 갱신)
 
-1. **Grok**: 인증(로그인/API key) 없이는 `-p` 실행 자체가 막힌다 — 설치까지가 Bill 권한
-   범위의 끝.
-2. **Hermes**: "설치"라는 표현 자체가 성립하지 않는다(CLI가 아니라 모델). 호스팅 방식이
-   정해지지 않으면 다음 단계(코드 작성) 자체가 검증 불가능한 추측이 되어 이 프로젝트의
-   "실측 필수·추정 금지" 원칙을 어기게 된다 — 결정이 선행돼야 함.
-3. 로컬(PC2)에 추론 런타임이 전혀 없어, 로컬 호스팅을 선택할 경우 런타임 설치·모델 다운로드
-   부터 새로 시작해야 한다.
+1. **Grok 인증만 남음** — Grok API key/로그인 없이는 Grok CLI `-p`도, Hermes(codex
+   model_providers) 경로의 `env_key`도 둘 다 막힌다. 이 하나가 두 실행기 전부의 유일한
+   남은 병목. 설치까지가 Bill 권한 범위의 끝 — 인증은 사람이 직접(브라우저 OAuth 또는
+   `grok login --device-auth`로 코드 발급 후 사람이 승인) 해야 함.
+2. ~~Hermes 호스팅 방식 미정~~, ~~로컬 추론 런타임 부재~~ — Grok endpoint 재사용으로 해소.
