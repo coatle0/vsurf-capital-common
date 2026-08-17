@@ -81,6 +81,39 @@
     ~9초 지연을 유발. Bill이 만든 것 아님, 별도 손 안 댐.
 16. **부가 발견**: `C:\lab\.git`이 완전히 빈 디렉토리(HEAD 없음, 깨진 repo) — `grok`이
     `isGitRepo:false, gitRoot:null`로 정확히 인식함. 손 안 댐, 기록만.
+17. **[2026-08-17] Hermes 배관(plumbing) — API key 없이 검증 완료.** "인증·모델 품질"
+    (실제 xAI 키 필요, 아직 없음)과 "배관"(codex의 커스텀 provider 라우팅 메커니즘 자체)은
+    분리 가능하다는 판단 하에, 로컬 mock OpenAI Responses API 서버(격리 scratch, 실
+    config.toml 미변경 — 전부 `-c` CLI 플래그로만)로 실측:
+    ```
+    -c model_providers.hermes_mock.base_url="http://127.0.0.1:PORT/v1"
+    -c model_providers.hermes_mock.wire_api="responses"
+    -c model_providers.hermes_mock.env_key="MOCK_XAI_KEY"
+    -c model_provider="hermes_mock"
+    ```
+    결과: `codex` 최종 출력 = `mock-hermes-ok` (mock이 반환하도록 설계한 문자열과 정확히
+    일치). 확인된 것:
+    - `Authorization: Bearer <MOCK_XAI_KEY 값>` 헤더 정상 구성 → `env_key` 자격증명
+      배선 정상
+    - 커스텀 `base_url`로 실제 HTTP 요청 전송 → provider 라우팅 정상
+    - Responses API 요청 바디 형식 정상(`model/instructions/input/tools/...`)
+    - SSE 스트림 파싱 정상(다만 정확한 이벤트 시퀀스가 필요 — 아래 참고)
+    시행착오(전부 실측, 최신 codex 0.147.0 기준):
+    - `wire_api="chat"`는 **더 이상 미지원** — 반드시 `"responses"`. 확인차 조사한 결과
+      xAI도 `/v1/responses`를 지원하며 오히려 **레거시 `/v1/chat/completions`보다 권장**
+      — 호환성 문제 없음.
+    - Responses API는 **평문 JSON이 아니라 SSE 스트림** 필요. 최소 시퀀스:
+      `response.created` → `response.in_progress` → `response.output_item.added` →
+      `response.content_part.added` → `response.output_text.delta` →
+      `response.output_text.done` → `response.content_part.done` →
+      `response.output_item.done` → `response.completed`. 이 중 `output_item.added`
+      없이 `output_text.delta`만 보내면 `OutputTextDelta without active item` 에러로
+      텍스트가 유실됨(응답 자체는 실패하지 않고 continue).
+    - codex는 세션 시작 시 `GET /v1/models`로 모델 메타데이터를 먼저 조회한다. mock이
+      이걸 못 받쳐줘도(404/스키마 불일치) **치명적이지 않음** — "fallback metadata"
+      경고만 내고 정상 진행.
+    - **남은 것은 진짜 xAI 키로 진짜 응답 품질을 보는 것뿐** — 배관 자체는 이제 재검증
+      불필요.
 
 ---
 
