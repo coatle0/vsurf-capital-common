@@ -209,7 +209,14 @@ def ensure_clean_and_current(project: Path, pull: bool) -> str:
     return before
 
 
-def build_prompt(request: DispatchRequest) -> str:
+def required_output_paths(request: DispatchRequest) -> list[str]:
+    """Extract explicit repository-relative report/artifact paths from an Order."""
+    order_text = Path(request.order_path).read_text(encoding="utf-8")
+    found = re.findall(r"(?i)(?:reports|artifacts|examples)/[A-Za-z0-9_.-]+", order_text)
+    return list(dict.fromkeys(found))
+
+
+def build_prompt(request: DispatchRequest, missing_outputs: Sequence[str] = ()) -> str:
     raw_section = ""
     if request.raw_message is not None:
         # Verbatim -- no summarizing/normalizing/trimming (work order
@@ -230,12 +237,24 @@ defensively, don't assume the literal last line is clean):
 {request.raw_message}
 --- SLACK MESSAGE END ---
 """
+    grok_section = ""
+    if request.executor == "grok":
+        grok_section = """
+GROK EXECUTION REQUIREMENT: completion requires actual filesystem changes. Use the
+Write/Edit tool to create every output path explicitly requested by the Order; do
+not merely describe a file in your final answer. Before finishing, verify each
+requested output with Read/Glob and report the exact changed paths.
+"""
+    retry_section = ""
+    if missing_outputs:
+        retry_section = "\nRETRY: The previous attempt did not create these required output paths. Create them now with Write/Edit and verify them before responding:\n- " + "\n- ".join(missing_outputs) + "\n"
     return f"""Execute VSURF Order {request.order_id}.
 
 Canonical Order: {request.order_path}
 Project root: {request.project_path}
 Shared rules: {COMMON_ROOT / 'AGENT_RULES.md'}
 {raw_section}
+{grok_section}{retry_section}
 Requirements:
 1. Read the canonical Order and shared rules completely before changing files.
 2. Work only inside the project root and explicitly allowed shared paths.
@@ -416,7 +435,7 @@ def audit_user_config_mcps(config_path: Path | None = None) -> tuple[list[str], 
     return loaded, write_capable
 
 
-def executor_command(request: DispatchRequest, summary_file: Path) -> list[str]:
+def executor_command(request: DispatchRequest, summary_file: Path, missing_outputs: Sequence[str] = ()) -> list[str]:
     prefix = executor_prefix(request.executor)
     if prefix is None:
         raise DispatchError(f"Executor CLI is not installed: {request.executor}")
@@ -452,7 +471,7 @@ def executor_command(request: DispatchRequest, summary_file: Path) -> list[str]:
             "--allow", "Bash(git:*)",
             "--deny", "Bash(git push*)",
             "--output-format", "json",
-            "-p", build_prompt(request),
+            "-p", build_prompt(request, missing_outputs),
         ]
     return [*prefix, "-p", build_prompt(request)]
 
@@ -467,6 +486,15 @@ def write_grok_summary(stdout: str, summary_file: Path) -> None:
     if not isinstance(text, str) or not text.strip():
         raise DispatchError("grok JSON output has no non-empty text summary; refusing completion.")
     summary_file.write_text(text.strip() + "\n", encoding="utf-8")
+
+
+def missing_output_paths(request: DispatchRequest) -> list[str]:
+    missing = []
+    for relative in required_output_paths(request):
+        candidate = canonical(Path(request.project_path) / relative)
+        if not is_within(candidate, Path(request.project_path)) or not candidate.is_file():
+            missing.append(relative)
+    return missing
 
 
 class OrderLock:
@@ -532,6 +560,26 @@ def dispatch(request: DispatchRequest, execute: bool, pull: bool, push: bool) ->
             )
             if request.executor == "grok":
                 write_grok_summary(completed.stdout, summary_file)
+                missing = missing_output_paths(request)
+                if missing:
+                    retry = run(
+                        executor_command(request, summary_file, missing), project, timeout=3600
+                    )
+                    (LOG_DIR / f"order-{request.order_id}-retry-stdout.log").write_text(
+                        retry.stdout, encoding="utf-8"
+                    )
+                    (LOG_DIR / f"order-{request.order_id}-retry-stderr.log").write_text(
+                        retry.stderr, encoding="utf-8"
+                    )
+                    if retry.returncode:
+                        raise DispatchError(f"grok retry exited with code {retry.returncode}.")
+                    write_grok_summary(retry.stdout, summary_file)
+                    missing = missing_output_paths(request)
+                    if missing:
+                        raise DispatchError(
+                            "grok completed but required output paths are still missing after one retry: "
+                            + ", ".join(missing)
+                        )
             if completed.returncode:
                 raise DispatchError(f"{request.executor} exited with code {completed.returncode}.")
             changes = git(project, "status", "--porcelain=v1")

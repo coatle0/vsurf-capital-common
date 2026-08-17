@@ -188,6 +188,18 @@ class ParseRequestTests(unittest.TestCase):
             with self.assertRaisesRegex(dispatcher.DispatchError, "no non-empty text"):
                 dispatcher.write_grok_summary(json.dumps({"text": ""}), summary)
 
+    def test_grok_prompt_requires_actual_write_and_extracts_outputs(self):
+        request = dispatcher.DispatchRequest(
+            order_id="143", executor="grok",
+            order_path=str(dispatcher.ORDERS_DIR / "143_grok_executor_e2e.md"),
+            project_path=str(dispatcher.COMMON_ROOT),
+        )
+        prompt = dispatcher.build_prompt(request, ["reports/143_grok_executor_e2e.md"])
+        self.assertIn("actual filesystem changes", prompt)
+        self.assertIn("Write/Edit", prompt)
+        self.assertIn("reports/143_grok_executor_e2e.md", prompt)
+        self.assertEqual(["reports/143_grok_executor_e2e.md"], dispatcher.required_output_paths(request))
+
     def test_user_config_inventory_and_write_warning_are_value_free(self):
         with tempfile.TemporaryDirectory() as raw:
             root = Path(raw)
