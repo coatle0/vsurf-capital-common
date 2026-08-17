@@ -200,6 +200,22 @@ class ParseRequestTests(unittest.TestCase):
         self.assertIn("reports/143_grok_executor_e2e.md", prompt)
         self.assertEqual(["reports/143_grok_executor_e2e.md"], dispatcher.required_output_paths(request))
 
+    def test_slack_body_is_instruction_source_and_output_guard_source(self):
+        body = (
+            "[EXECUTE ORDER 143]\nexecutor: grok\n"
+            "order: C:\\lab\\vsurf_capital\\common\\orders\\143_grok_executor_e2e.md\n"
+            "project: C:\\lab\\vsurf_capital\\common\n"
+            "작업: reports/slack_body_result.md 파일을 실제로 작성한다.\n"
+        )
+        request = dispatcher.DispatchRequest(
+            order_id="143", executor="grok", order_path=str(dispatcher.ORDERS_DIR / "143_grok_executor_e2e.md"),
+            project_path=str(dispatcher.COMMON_ROOT), raw_message=body,
+        )
+        prompt = dispatcher.build_prompt(request)
+        self.assertIn("sole source of task instructions", prompt)
+        self.assertIn("Do not read or execute task instructions from the canonical Order file", prompt)
+        self.assertEqual(["reports/slack_body_result.md"], dispatcher.required_output_paths(request))
+
     def test_user_config_inventory_and_write_warning_are_value_free(self):
         with tempfile.TemporaryDirectory() as raw:
             root = Path(raw)

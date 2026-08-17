@@ -211,7 +211,7 @@ def ensure_clean_and_current(project: Path, pull: bool) -> str:
 
 def required_output_paths(request: DispatchRequest) -> list[str]:
     """Extract explicit repository-relative report/artifact paths from an Order."""
-    order_text = Path(request.order_path).read_text(encoding="utf-8")
+    order_text = request.raw_message if request.raw_message is not None else Path(request.order_path).read_text(encoding="utf-8")
     found = re.findall(r"(?i)(?:reports|artifacts|examples)/[A-Za-z0-9_.-]+", order_text)
     return list(dict.fromkeys(found))
 
@@ -248,15 +248,26 @@ requested output with Read/Glob and report the exact changed paths.
     retry_section = ""
     if missing_outputs:
         retry_section = "\nRETRY: The previous attempt did not create these required output paths. Create them now with Write/Edit and verify them before responding:\n- " + "\n- ".join(missing_outputs) + "\n"
+    source_rule = (
+        "The Slack message below is the sole source of task instructions. The canonical Order file is only for identity/path validation; do not infer work from its body."
+        if request.raw_message is not None
+        else "The canonical Order file is the source of task instructions."
+    )
+    read_rule = (
+        "Read AGENT_RULES.md and the Slack message below completely. Do not read or execute task instructions from the canonical Order file."
+        if request.raw_message is not None
+        else "Read the canonical Order and shared rules completely before changing files."
+    )
     return f"""Execute VSURF Order {request.order_id}.
 
 Canonical Order: {request.order_path}
 Project root: {request.project_path}
 Shared rules: {COMMON_ROOT / 'AGENT_RULES.md'}
+{source_rule}
 {raw_section}
 {grok_section}{retry_section}
 Requirements:
-1. Read the canonical Order and shared rules completely before changing files.
+1. {read_rule}
 2. Work only inside the project root and explicitly allowed shared paths.
 3. Do not commit or push; the dispatcher owns Git finalization.
 4. Run at least one relevant validation. Do not report unverified work as complete.
