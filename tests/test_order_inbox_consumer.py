@@ -194,7 +194,7 @@ class IntakeRegistrationTests(_WithDirs):
         with self.assertRaises(DispatchError):
             MODULE.register_new_order_file("103", "speed_check_v2", "body", "claude")
 
-    def test_process_pending_registers_then_dispatches_reconstructed_order(self):
+    def test_process_pending_registers_then_dispatches_with_intake_body_preserved(self):
         path = self.write_pending(text=self.INTAKE_TEXT)
         fake_request = order_dispatcher.DispatchRequest(
             order_id="103", executor="claude", order_path="x", project_path="y"
@@ -203,11 +203,12 @@ class IntakeRegistrationTests(_WithDirs):
              patch.object(order_dispatcher, "dispatch", return_value=self.completed_result(order_id="103")), \
              patch.object(MODULE, "reply"):
             MODULE.process_pending(path, "tok")
-        # parse_request must see the reconstructed short message, not the
-        # original intake message with the embedded body.
+        # parse_request must receive the control header plus the original
+        # Slack intake body; the canonical file is not the instruction source.
         called_text = mock_parse.call_args.args[0]
         self.assertIn("[EXECUTE ORDER 103]", called_text)
-        self.assertNotIn("ORDER BODY", called_text)
+        self.assertIn("ORDER BODY", called_text)
+        self.assertIn("목적: 테스트", called_text)
         registered = list(Path(self._orders_tmp.name).glob("103_*.md"))
         self.assertEqual(len(registered), 1)
 

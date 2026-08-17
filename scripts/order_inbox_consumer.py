@@ -345,11 +345,18 @@ def process_pending(path: Path, token: str) -> None:
         # executor's prompt (order_dispatcher.build_prompt) now points at
         # a real, already-written canonical file -- no registration
         # instructions, no need to re-derive anything from Slack text.
+        # Preserve the Slack intake body in the handoff.  Slack is the sole
+        # source of execution instructions; the registered file is only
+        # identity/provenance.  Dropping this body leaves the executor with
+        # a control header and no actual work to perform.
         text = (
             f"[EXECUTE ORDER {parsed['number']}]\n"
             f"executor: {fields.get('executor', '')}\n"
             f"order: {new_path}\n"
-            f"project: {fields.get('project', '')}\n"
+            f"project: {fields.get('project', '')}\n\n"
+            "--- ORDER BODY ---\n"
+            f"{parsed['body']}\n"
+            "--- END ---\n"
         )
         record["text"] = text
 
