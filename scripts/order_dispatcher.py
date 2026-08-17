@@ -110,8 +110,8 @@ def parse_request(message: str, task_id: str | None = None) -> DispatchRequest:
         for key, value in FIELD_RE.findall(message)
     }
     executor = fields.get("executor", "").lower()
-    if executor not in {"codex", "claude", "available"}:
-        raise DispatchError("executor must be codex, claude, or available.")
+    if executor not in {"codex", "claude", "grok", "available"}:
+        raise DispatchError("executor must be codex, claude, grok, or available.")
 
     candidates = sorted(ORDERS_DIR.glob(f"{order_id}_*.md"))
     if len(candidates) != 1:
@@ -255,6 +255,12 @@ def executor_prefix(executor: str) -> list[str] | None:
     if executor == "codex":
         appdata = Path(os.environ.get("APPDATA", ""))
         entry = appdata / "npm" / "node_modules" / "@openai" / "codex" / "bin" / "codex.js"
+        node = shutil.which("node")
+        if node and entry.is_file():
+            return [node, str(entry)]
+    if executor == "grok":
+        appdata = Path(os.environ.get("APPDATA", ""))
+        entry = appdata / "npm" / "node_modules" / "@xai-official" / "grok" / "bin" / "grok"
         node = shutil.which("node")
         if node and entry.is_file():
             return [node, str(entry)]
@@ -430,7 +436,37 @@ def executor_command(request: DispatchRequest, summary_file: Path) -> list[str]:
             "--output-last-message", str(summary_file),
             build_prompt(request),
         ]
+    if request.executor == "grok":
+        # Grok inherits its OAuth session and MCP registry from ~/.grok. Keep
+        # it explicit and narrow in headless mode; final Git push remains owned
+        # by this dispatcher, not the child executor.
+        return [
+            *prefix,
+            "--cwd", request.project_path,
+            "--permission-mode", "dontAsk",
+            "--allow", "Read",
+            "--allow", "Write",
+            "--allow", "Edit",
+            "--allow", "Glob",
+            "--allow", "Grep",
+            "--allow", "Bash(git:*)",
+            "--deny", "Bash(git push*)",
+            "--output-format", "json",
+            "-p", build_prompt(request),
+        ]
     return [*prefix, "-p", build_prompt(request)]
+
+
+def write_grok_summary(stdout: str, summary_file: Path) -> None:
+    """Persist Grok's JSON text summary, failing closed on malformed output."""
+    try:
+        payload = json.loads(stdout.strip())
+    except json.JSONDecodeError as exc:
+        raise DispatchError("grok returned malformed JSON output; refusing completion.") from exc
+    text = payload.get("text") if isinstance(payload, dict) else None
+    if not isinstance(text, str) or not text.strip():
+        raise DispatchError("grok JSON output has no non-empty text summary; refusing completion.")
+    summary_file.write_text(text.strip() + "\n", encoding="utf-8")
 
 
 class OrderLock:
@@ -494,6 +530,8 @@ def dispatch(request: DispatchRequest, execute: bool, pull: bool, push: bool) ->
             (LOG_DIR / f"order-{request.order_id}-stderr.log").write_text(
                 completed.stderr, encoding="utf-8"
             )
+            if request.executor == "grok":
+                write_grok_summary(completed.stdout, summary_file)
             if completed.returncode:
                 raise DispatchError(f"{request.executor} exited with code {completed.returncode}.")
             changes = git(project, "status", "--porcelain=v1")

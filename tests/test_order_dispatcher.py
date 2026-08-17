@@ -1,4 +1,5 @@
 import importlib.util
+import json
 import os
 import subprocess
 import sys
@@ -50,6 +51,21 @@ class ParseRequestTests(unittest.TestCase):
                 request = dispatcher.parse_request(message, task_id="C1-1.0")
             self.assertEqual(request.task_id, "C1-1.0")
             self.assertEqual(request.raw_message, message)
+
+    def test_accepts_grok_executor(self):
+        with tempfile.TemporaryDirectory(dir=r"C:\lab") as raw:
+            project = Path(raw)
+            (project / ".git").mkdir()
+            order = dispatcher.ORDERS_DIR / "993_test.md"
+            order.write_text("# test", encoding="utf-8")
+            self.addCleanup(order.unlink, missing_ok=True)
+            message = (
+                "[EXECUTE ORDER 993]\nexecutor: grok\n"
+                f"order: {order}\nproject: {project}\n"
+            )
+            with patch.object(dispatcher, "executor_prefix", return_value=["node", "grok"]):
+                request = dispatcher.parse_request(message)
+            self.assertEqual(request.executor, "grok")
 
     def test_parse_request_without_task_id_defaults_to_none_but_keeps_message(self):
         with tempfile.TemporaryDirectory(dir=r"C:\lab") as raw:
@@ -146,6 +162,31 @@ class ParseRequestTests(unittest.TestCase):
         self.assertNotIn("mcp_servers.tikr.command=", command_str)
         self.assertNotIn("mcp_servers.gs.command=", command_str)
         self.assertNotIn("danger-full-access", command_str)
+
+    def test_grok_command_is_headless_and_push_denied(self):
+        request = dispatcher.DispatchRequest(
+            order_id="004", executor="grok", order_path="x", project_path=r"C:\lab\vsurf_capital\common"
+        )
+        with patch.object(dispatcher, "executor_prefix", return_value=["node", "grok"]):
+            command = dispatcher.executor_command(request, Path("summary.txt"))
+        self.assertIn("-p", command)
+        self.assertIn("--permission-mode", command)
+        self.assertIn("dontAsk", command)
+        self.assertIn("--output-format", command)
+        self.assertIn("json", command)
+        self.assertIn("Bash(git push*)", command)
+        self.assertNotIn("--always-approve", command)
+        self.assertNotIn("bypassPermissions", command)
+
+    def test_grok_summary_json_is_written_and_malformed_fails_closed(self):
+        with tempfile.TemporaryDirectory(dir=r"C:\lab") as raw:
+            summary = Path(raw) / "summary.txt"
+            dispatcher.write_grok_summary(json.dumps({"text": "completed"}), summary)
+            self.assertEqual("completed\n", summary.read_text(encoding="utf-8"))
+            with self.assertRaisesRegex(dispatcher.DispatchError, "malformed JSON"):
+                dispatcher.write_grok_summary("not-json", summary)
+            with self.assertRaisesRegex(dispatcher.DispatchError, "no non-empty text"):
+                dispatcher.write_grok_summary(json.dumps({"text": ""}), summary)
 
     def test_user_config_inventory_and_write_warning_are_value_free(self):
         with tempfile.TemporaryDirectory() as raw:
