@@ -43,12 +43,14 @@
    OpenAI-호환 엔드포인트를 붙일 수 있음(공식 지원).
 10. **[정정, CIO 지시] Hermes endpoint = Grok(api.x.ai) 재사용으로 확정** — 별도 Hermes
     호스팅(로컬 GPU/외부 provider)을 구하지 않는다. `https://api.x.ai/v1`이 OpenAI-호환
-    chat completions 엔드포인트임을 확인(`base_url=https://api.x.ai/v1`, SDK 그대로
-    호환, 모델 예: `grok-4.5`). 즉 `model_providers.hermes`에
-    `base_url="https://api.x.ai/v1"`, `wire_api="chat"`, `env_key`에 Grok API key를
-    연결하면 끝 — **로컬 GPU도 별도 호스팅 계정도 불필요.** Grok 구독 하나로 (a) 네이티브
-    Grok CLI 실행기, (b) codex 하니스 기반 "hermes" 실행기(Order 123 MCP registry 상속)
-    두 경로가 동시에 풀린다. 기존 병목 #2(호스팅 방식 결정)는 이걸로 해소됨 — §4 갱신.
+    엔드포인트임을 확인(`base_url=https://api.x.ai/v1`, SDK 그대로 호환, 모델 예:
+    `grok-4.5`). 즉 `model_providers.hermes`에 `base_url="https://api.x.ai/v1"`,
+    `env_key`에 Grok API key를 연결하면 끝 — **로컬 GPU도 별도 호스팅 계정도 불필요.**
+    ~~`wire_api="chat"`~~ **[2026-08-17 정정, §17 참고] `wire_api="responses"`가 맞다** —
+    이 문장을 쓴 시점엔 아직 실측 전이었고, codex 0.147.0은 `"chat"`을 지원하지 않는다
+    (§17에서 실측·확정). Grok 구독 하나로 (a) 네이티브 Grok CLI 실행기, (b) codex 하니스
+    기반 "hermes" 실행기(Order 123 MCP registry 상속) 두 경로가 동시에 풀린다. 기존
+    병목 #2(호스팅 방식 결정)는 이걸로 해소됨 — §4 갱신.
 11. **Grok 로그인 완료** — `grok login --device-auth`로 코드 발급, 사람이 브라우저에서
     승인 → `Signed in as coatle0@gmail.com` 확인 (2026-08-16). 시행착오: device code가
     짧은 TTL을 가져 미리 발급해두면 만료됨(`Error: Device code expired`) — 승인 직전에
@@ -114,6 +116,13 @@
       경고만 내고 정상 진행.
     - **남은 것은 진짜 xAI 키로 진짜 응답 품질을 보는 것뿐** — 배관 자체는 이제 재검증
       불필요.
+18. **[2026-08-17] PC1 독립 재현 완료 — 전부 일치.** PC1이 `pc1_grok_hermes_setup_prompt.md`를
+    그대로 실행: 1~5단계(Grok CLI 설치·로그인·MCP 상속·`--cwd C:\lab` 헤드리스 파일쓰기)
+    전부 PASS, console.x.ai API key는 PC1에도 없음(User/Machine 환경변수 확인).
+    Hermes 배관도 PC1이 **독립적으로** 로컬 mock으로 재검증 — 같은 결론(env_key→Bearer,
+    base_url 라우팅, SSE 파싱 전부 정상). PC1이 이 과정에서 위 §10의 `wire_api="chat"`
+    잔존 오기(§17 실측 이전에 쓴 문장)를 지적해 정정함. PC1·PC2 양쪽 다 config.toml 실물은
+    안 건드림 — 남은 유일한 병목은 여전히 console.x.ai API key 미보유 하나뿐.
 
 ---
 
