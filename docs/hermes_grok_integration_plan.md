@@ -1,9 +1,14 @@
 # Hermes(Nous Hermes)·Grok CLI 도입 — 실행 분담
 
-> 작성: Bill (Claude, PC2) · 2026-08-16
+> 작성: Bill (Claude, PC2) · 2026-08-16, 갱신 2026-08-17
 > 목적: 토큰 사용 급증 대응 — codex/claude 외 실행기(Grok CLI, Hermes)를 VSURF Order 파이프라인에
 > 추가해 분산한다. 최종형태: Grok 구독+CLI 설치, Hermes 설치(기존 Bill MCP 상속) → Slack 경유
 > Order 수행 가능 상태.
+
+> **★ 2026-08-17 대형 정정** — §1-7·§2·§3에 쓴 "Hermes는 모델일 뿐 CLI가 아니다"는
+> **틀렸다** (내 지식 컷오프 기준 정보, 최신 아님). 실제로는 Nous Research가 **Hermes
+> Agent**라는 이름의 완전한 CLI+데스크톱+게이트웨이 에이전트를 냈다(2026-06-02 공개,
+> 지금 설치한 버전 0.20.2). §19 참고 — codex 우회 경로(§17) 자체가 불필요할 수 있다.
 
 ---
 
