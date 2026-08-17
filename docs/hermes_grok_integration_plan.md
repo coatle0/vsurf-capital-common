@@ -8,7 +8,7 @@
 > **★ 2026-08-17 대형 정정** — §1-7·§2·§3에 쓴 "Hermes는 모델일 뿐 CLI가 아니다"는
 > **틀렸다** (내 지식 컷오프 기준 정보, 최신 아님). 실제로는 Nous Research가 **Hermes
 > Agent**라는 이름의 완전한 CLI+데스크톱+게이트웨이 에이전트를 냈다(2026-06-02 공개,
-> 지금 설치한 버전 0.20.2). §19 참고 — codex 우회 경로(§17) 자체가 불필요할 수 있다.
+> 지금 설치한 버전 0.20.2). §5 참고 — codex 우회 경로(§17) 자체가 불필요할 수 있다.
 
 ---
 
@@ -169,4 +169,82 @@
 ~~Grok 인증~~, ~~Project trust~~, ~~Hermes 호스팅~~, ~~home/cwd 확정~~ 전부 해소됨.
 남은 건 실제 코드 통합(§2) — `order_dispatcher.py`에 `executor="grok"`/`"hermes"` 분기
 추가 + 실 Order 종단검증. 이건 별도 지시 대기 없이 다음 세션에서 바로 착수 가능한
-상태.
+상태. **[2026-08-17] §5로 갱신 — 실제 Hermes Agent CLI 등장으로 "hermes" 실행기의
+정확한 형태(codex 우회 vs 진짜 hermes-agent 직접 실행)가 다시 열린 결정사항.**
+
+---
+
+## 5. [2026-08-17] Hermes Agent — 실체 재확인 및 설치
+
+### 정정 배경
+
+§1-7에서 "Hermes = Nous Research의 open-weight 모델, CLI/에이전트 아님"이라고 단정한 건
+내 지식 컷오프 기준 정보였다. 사용자 질문("hermes desktop app을 이야기한거야")을 계기로
+재조사한 결과, **Nous Research가 2026-06-02에 "Hermes Agent"라는 완전한 에이전트 제품을
+공개 프리뷰로 냈다** — CLI, 데스크톱 앱(macOS/Windows), 게이트웨이(Telegram/Discord/
+Slack/WhatsApp/Signal/이메일)를 갖추고 세션·설정·MCP를 전부 공유한다. Claude Code/
+Codex/Grok CLI와 같은 급의 제품이다.
+
+### PC2에 설치 완료 (실측)
+
+```powershell
+iex (irm https://hermes-agent.nousresearch.com/install.ps1)
+```
+- 결과: `Hermes Agent v0.20.2 (2026.8.16)`, `hermes` 명령어 PATH 등록 완료
+  (`C:\Users\coatl\AppData\Local\hermes\hermes-agent\bin\hermes.exe`)
+- 핵심 패키지 99개 설치 성공(uv 기반 venv, Python 3.11.16)
+- 부가 기능 일부 실패(비치명적): 브라우저 툴 npm install, TUI npm install, Computer
+  Use 드라이버 — 셋 다 core CLI 동작과 무관, 필요 시 나중에 수동 재설치 가능
+- `hermes doctor`: 핵심 구조 전부 정상, 남은 이슈는 전부 "인증 안 됨"류뿐
+
+### 헤드리스 모드 확인 (문서 기준, 아직 실행은 인증 필요해 미검증)
+
+`hermes -z "<prompt>"` — claude -p / grok -p / codex exec와 동일한 급의 단발 실행
+모드. `--ignore-user-config`, `--yolo`, `--json`류 옵션도 존재(codex/claude와 유사한
+네이밍). 자체 `hermes mcp` 서브커맨드(install/add/list/serve)로 MCP 관리도 가능 —
+**자체 Slack 헬퍼(`hermes slack`)까지 내장**돼 있다.
+
+### 인증 — 여러 경로, 전부 미완료
+
+`hermes doctor`가 보여준 인증 옵션 4가지, 전부 "not logged in":
+- **Nous Portal** (자체 구독+OAuth) — 추천 기본값("Quick Setup"), 그러나 **실제로는
+  유료 구독 필요**("Sign up: portal.nousresearch.com/manage-subscription" 문구
+  확인). "무료 OAuth"라는 설치 마법사 문구는 부정확하거나 최소한 오해 소지 있음.
+- **xAI OAuth** — Hermes 자체가 xAI Grok을 provider로 바로 선택 가능(`hermes model`)
+- **OpenAI Codex auth**, **MiniMax OAuth** — 기타 옵션
+
+Nous Portal 로그인 시도(`hermes portal login`) 결과: **device-code 방식 실제로 있음**
+(Grok과 같은 패턴) — `https://portal.nousresearch.com/manage-subscription?user_code=CX59-Z8LQ`
++ 코드 출력됨. 다만 30초 타임아웃 안에 사람이 승인 못 해 실패(`Timed out waiting for
+device authorization`). **Nous Portal 구독 계정이 있는지부터 확인 필요** — 있으면
+코드 재발급 즉시 승인하는 방식으로 재시도 가능(Grok 때와 동일 절차).
+
+### 재발견 — Grok용 Slack MCP가 이미 PC2에 별도로 설정돼 있었음
+
+이번 조사 중 우연히 확인: `grok mcp list`에 `slack` 항목이 이미 존재(오늘 10:56~10:57,
+아마 병행 중인 Codex 세션이 설정). `~/.grok/config.toml`:
+```toml
+[mcp_servers.slack]
+command = 'C:\Python314\python.exe'
+args = ['C:\autoai\slack-toolkit\slack_mcp_server.py']
+[mcp_servers.slack.env]
+SLACK_BOT_TOKEN = "${OPENACP_SLACK_BOT_TOKEN}"
+```
+`grok mcp doctor`로 건강 확인: handshake OK, 9개 tool 발견. 기존 Order 파이프라인의
+`OPENACP_SLACK_BOT_TOKEN`을 그대로 재사용 — 별도 Slack App 불필요. 내가 만든 게 아니라
+이미 돼 있던 것을 확인만 함.
+
+### 재검토가 필요한 결정 — "hermes" 실행기를 어떻게 만들 것인가
+
+세 가지 경로가 이제 다 유효하다:
+1. **codex + api.x.ai 우회** (§17에서 배관 검증 완료) — console.x.ai API key 필요(미보유)
+2. **Grok CLI를 hermes 이름으로 그대로 재사용** (앞서 논의) — 이미 로그인 완료, 즉시
+   가능하지만 grok과 완전히 같은 계정/쿼터
+3. **[신규] 진짜 hermes-agent CLI 직접 사용** — 이제 설치 완료, `hermes -z`로 codex/
+   claude/grok과 동일한 헤드리스 실행 가능. 인증만 하면 됨(Nous Portal 구독 또는
+   xAI OAuth 또는 bring-your-own-key). "토큰 분산"이라는 원래 목적에는 이 경로가 가장
+   부합(진짜 별도 계정/쿼터).
+
+**다음 결정 필요**: Nous Portal 구독 계정 보유 여부 확인 → 있으면 그걸로 로그인 재시도,
+없으면 hermes 자체의 xAI OAuth 옵션으로 우회(별도 subscription 불필요할 수 있음,
+`hermes model`에서 xAI Grok OAuth 선택) 검토.
