@@ -43,6 +43,13 @@ class IVKNewIntakeTests(unittest.TestCase):
         with self.assertRaisesRegex(IntakeValidationError, "must be an array"):
             normalize_intake(raw)
 
+    def test_frame_nickname_resolves_to_versioned_frame(self):
+        raw = dict(self.raw); raw["frame"] = "svb"
+        normalized = normalize_intake(raw)
+        self.assertEqual("Sponsor→Value Chain→Bottleneck", normalized["primary_frame"])
+        self.assertEqual("sponsor_valuechain_bottleneck", normalized["frame_ref"]["id"])
+        self.assertEqual("svb", normalized["frame_ref"]["nickname"])
+
 
 if __name__ == "__main__":
     unittest.main()

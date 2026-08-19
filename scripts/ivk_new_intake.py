@@ -13,6 +13,10 @@ REQUIRED = ("name", "seed", "frame", "thesis")
 LIST_FIELDS = ("seed", "questions", "known_links", "limitations", "references")
 EPISTEMIC = {"fact", "graph_observation", "inference", "hypothesis"}
 REVIEW = {"pending", "accepted", "rejected", "deferred"}
+FRAME_NICKNAMES = {
+    "svb": {"id": "sponsor_valuechain_bottleneck", "version": "1.0.0", "label": "Sponsor→Value Chain→Bottleneck"},
+    "sponsor_vcb": {"id": "sponsor_valuechain_bottleneck", "version": "1.0.0", "label": "Sponsor→Value Chain→Bottleneck"},
+}
 
 
 class IntakeValidationError(ValueError):
@@ -58,7 +62,22 @@ def _canonical_seed(value: str) -> str:
     return value.upper() if " " not in value else value
 
 
-def normalize_intake(raw: Any) -> dict[str, Any]:
+def _frame_key(value: str) -> str:
+    return "_".join("".join(c.lower() if c.isalnum() else " " for c in value).split())
+
+
+def resolve_frame(value: str) -> dict[str, Any]:
+    """Resolve a short frame nickname without making the intake verbose."""
+    key = _frame_key(value)
+    resolved = FRAME_NICKNAMES.get(key)
+    if resolved:
+        return {"input": value.strip(), "nickname": key, **resolved}
+    if key in {"sponsor_valuechain_bottleneck", "sponsor_value_chain_bottleneck"}:
+        return {"input": value.strip(), "nickname": None, **FRAME_NICKNAMES["svb"]}
+    return {"input": value.strip(), "nickname": None, "id": None, "version": None, "label": value.strip()}
+
+
+def _normalize_intake_legacy(raw: Any) -> dict[str, Any]:
     validated = validate_intake(raw)
     frames = [part.strip() for part in validated["frame"].split("→") if part.strip()]
     return {
@@ -68,6 +87,28 @@ def normalize_intake(raw: Any) -> dict[str, Any]:
             for item in validated["seed"]
         ],
         "primary_frame": validated["frame"].strip(),
+        "secondary_frame_candidates": frames[1:] if len(frames) > 1 else [],
+        "thesis": validated["thesis"].strip(),
+        "questions": [item.strip() for item in validated.get("questions", [])],
+        "known_links": [item.strip() for item in validated.get("known_links", [])],
+        "limitations": [item.strip() for item in validated.get("limitations", [])],
+        "references": [item.strip() for item in validated.get("references", [])],
+    }
+
+
+def normalize_intake(raw: Any) -> dict[str, Any]:
+    """Validate input and expand a frame nickname to a versioned frame reference."""
+    validated = validate_intake(raw)
+    frame = resolve_frame(validated["frame"])
+    frames = [part.strip() for part in validated["frame"].split("→") if part.strip()]
+    return {
+        "identity": {"name": validated["name"].strip(), "slug": _slug(validated["name"])},
+        "validated_seeds": [
+            {"input": item, "canonical_id": _canonical_seed(item), "kind": "ticker_or_company_id", "role": "starting_point"}
+            for item in validated["seed"]
+        ],
+        "primary_frame": frame["label"],
+        "frame_ref": {"id": frame["id"], "version": frame["version"], "nickname": frame["nickname"], "input": frame["input"]},
         "secondary_frame_candidates": frames[1:] if len(frames) > 1 else [],
         "thesis": validated["thesis"].strip(),
         "questions": [item.strip() for item in validated.get("questions", [])],
