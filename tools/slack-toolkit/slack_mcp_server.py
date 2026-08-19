@@ -1,38 +1,142 @@
 """Slack MCP server for Grok / local stdio clients.
 
 Uses the workspace bot token. Token resolution order:
-  SLACK_BOT_TOKEN -> OPENACP_SLACK_BOT_TOKEN
+  process SLACK_BOT_TOKEN -> process OPENACP_SLACK_BOT_TOKEN
+  -> HKCU\\Environment SLACK_BOT_TOKEN -> HKCU\\Environment OPENACP_SLACK_BOT_TOKEN
 
+Unexpanded Grok placeholders such as ${OPENACP_SLACK_BOT_TOKEN} are ignored.
 Never prints token values.
+
+Latency: reuse one HTTPS connection, cache the resolved token, resolve known
+channel names locally, and default history reads to 3 messages (limit=1 for a
+latest-message check).
 """
 from __future__ import annotations
 
+import http.client
 import json
 import os
-import urllib.error
+import ssl
+import sys
+import threading
 import urllib.parse
-import urllib.request
 
 from mcp.server.fastmcp import FastMCP
 
 mcp = FastMCP("slack")
 
 DEFAULT_TYPES = "public_channel,private_channel"
-DEFAULT_HISTORY_LIMIT = 20
+DEFAULT_HISTORY_LIMIT = 3
 MAX_LIMIT = 200
+_API_HOST = "slack.com"
+_API_TIMEOUT = 20
+_TOKEN_NAMES = ("SLACK_BOT_TOKEN", "OPENACP_SLACK_BOT_TOKEN")
+_KNOWN_CHANNEL_ROWS = (
+    {"id": "C0BR8722F6C", "name": "vsurf-skill"},
+    {"id": "C0BQQ8ZBCL8", "name": "vsurf-code-reports"},
+)
+KNOWN_CHANNELS: dict[str, dict] = {}
+for _row in _KNOWN_CHANNEL_ROWS:
+    KNOWN_CHANNELS[_row["name"]] = _row
+    KNOWN_CHANNELS[_row["id"].lower()] = _row
+
+_cached_token = ""
+_http_conn: http.client.HTTPSConnection | None = None
+_http_lock = threading.Lock()
+
+
+def _usable_token(value: str | None) -> str:
+    text = (value or "").strip()
+    if not text:
+        return ""
+    if text.startswith("${") and text.endswith("}"):
+        return ""
+    return text
+
+
+def _user_env(name: str) -> str:
+    if sys.platform != "win32":
+        return ""
+    try:
+        import winreg
+
+        with winreg.OpenKey(winreg.HKEY_CURRENT_USER, "Environment") as key:
+            value, _reg_type = winreg.QueryValueEx(key, name)
+    except OSError:
+        return ""
+    if not isinstance(value, str):
+        value = "" if value is None else str(value)
+    return _usable_token(value)
+
+
+def _reset_runtime_state() -> None:
+    global _cached_token, _http_conn
+    with _http_lock:
+        if _http_conn is not None:
+            try:
+                _http_conn.close()
+            except Exception:
+                pass
+        _http_conn = None
+        _cached_token = ""
 
 
 def _token() -> str:
-    token = (
-        os.environ.get("SLACK_BOT_TOKEN")
-        or os.environ.get("OPENACP_SLACK_BOT_TOKEN")
-        or ""
-    ).strip()
-    if not token:
-        raise RuntimeError(
-            "Slack token missing: set SLACK_BOT_TOKEN or OPENACP_SLACK_BOT_TOKEN"
-        )
-    return token
+    global _cached_token
+    if _cached_token:
+        return _cached_token
+    for name in _TOKEN_NAMES:
+        token = _usable_token(os.environ.get(name))
+        if token:
+            _cached_token = token
+            return token
+    for name in _TOKEN_NAMES:
+        token = _user_env(name)
+        if token:
+            _cached_token = token
+            return token
+    raise RuntimeError(
+        "Slack token missing: set User env OPENACP_SLACK_BOT_TOKEN "
+        "(unexpanded ${VAR} in Grok config is ignored)"
+    )
+
+
+def _close_http_conn_locked() -> None:
+    global _http_conn
+    if _http_conn is None:
+        return
+    try:
+        _http_conn.close()
+    except Exception:
+        pass
+    _http_conn = None
+
+
+def _http_post(path: str, body: bytes, headers: dict[str, str]) -> bytes:
+    global _http_conn
+    last_exc: Exception | None = None
+    for _attempt in range(2):
+        with _http_lock:
+            try:
+                if _http_conn is None:
+                    _http_conn = http.client.HTTPSConnection(
+                        _API_HOST, timeout=_API_TIMEOUT
+                    )
+                _http_conn.request("POST", path, body=body, headers=headers)
+                response = _http_conn.getresponse()
+                payload = response.read()
+                status = response.status
+            except (http.client.HTTPException, OSError, ssl.SSLError) as exc:
+                last_exc = exc
+                _close_http_conn_locked()
+                continue
+            if status < 200 or status >= 300:
+                detail = payload.decode("utf-8", errors="replace")[:300]
+                raise RuntimeError(f"Slack HTTP {status} on {path}: {detail}")
+            return payload
+    raise RuntimeError(
+        f"Slack HTTP failed on {path}: {type(last_exc).__name__}"
+    ) from last_exc
 
 
 def slack_api(method: str, payload: dict | None = None) -> dict:
@@ -44,18 +148,19 @@ def slack_api(method: str, payload: dict | None = None) -> dict:
             body[key] = "true" if value else "false"
         else:
             body[key] = str(value)
-    req = urllib.request.Request(
-        f"https://slack.com/api/{method}",
-        data=urllib.parse.urlencode(body).encode("utf-8"),
-        headers={"Authorization": f"Bearer {_token()}"},
-        method="POST",
+    raw = _http_post(
+        f"/api/{method}",
+        urllib.parse.urlencode(body).encode("utf-8"),
+        {
+            "Authorization": f"Bearer {_token()}",
+            "Content-Type": "application/x-www-form-urlencoded",
+            "Connection": "keep-alive",
+        },
     )
     try:
-        with urllib.request.urlopen(req, timeout=20) as response:
-            result = json.load(response)
-    except urllib.error.HTTPError as exc:
-        detail = exc.read().decode("utf-8", errors="replace")[:300]
-        raise RuntimeError(f"Slack HTTP {exc.code} on {method}: {detail}") from exc
+        result = json.loads(raw.decode("utf-8"))
+    except json.JSONDecodeError as exc:
+        raise RuntimeError(f"Slack {method} returned non-JSON") from exc
     if not result.get("ok"):
         raise RuntimeError(f"Slack {method} failed: {result.get('error', 'unknown_error')}")
     return result
@@ -74,6 +179,20 @@ def _clamp_limit(limit: int, default: int = DEFAULT_HISTORY_LIMIT) -> int:
     except (TypeError, ValueError):
         value = default
     return max(1, min(value, MAX_LIMIT))
+
+
+def _lookup_known_channel(channel: str) -> dict | None:
+    key = (channel or "").strip().lstrip("#").lower()
+    if not key:
+        return None
+    return KNOWN_CHANNELS.get(key)
+
+
+def _resolve_channel(channel: str) -> str:
+    known = _lookup_known_channel(channel)
+    if known:
+        return known["id"]
+    return (channel or "").strip()
 
 
 def _public_channel(item: dict) -> dict:
@@ -142,6 +261,13 @@ def _search_channels_body(query: str, limit: int = 20) -> dict:
     needle = (query or "").strip().lower().lstrip("#")
     if not needle:
         raise ValueError("query is required")
+    known = _lookup_known_channel(needle)
+    if known:
+        return {
+            "channels": [_public_channel(known)],
+            "count": 1,
+            "query": query,
+        }
     collected: list[dict] = []
     cursor = ""
     while len(collected) < _clamp_limit(limit) and True:
@@ -170,12 +296,13 @@ def _read_channel_body(
     latest: str = "",
     cursor: str = "",
 ) -> dict:
-    if not (channel or "").strip():
+    resolved = _resolve_channel(channel)
+    if not resolved:
         raise ValueError("channel is required")
     result = slack_api(
         "conversations.history",
         {
-            "channel": channel.strip(),
+            "channel": resolved,
             "limit": _clamp_limit(limit),
             "oldest": oldest,
             "latest": latest,
@@ -184,7 +311,7 @@ def _read_channel_body(
     )
     messages = [_public_message(item) for item in result.get("messages") or []]
     return {
-        "channel": channel.strip(),
+        "channel": resolved,
         "messages": messages,
         "count": len(messages),
         "has_more": bool(result.get("has_more")),
@@ -193,19 +320,20 @@ def _read_channel_body(
 
 
 def _read_thread_body(channel: str, thread_ts: str, limit: int = 50) -> dict:
-    if not (channel or "").strip() or not (thread_ts or "").strip():
+    resolved = _resolve_channel(channel)
+    if not resolved or not (thread_ts or "").strip():
         raise ValueError("channel and thread_ts are required")
     result = slack_api(
         "conversations.replies",
         {
-            "channel": channel.strip(),
+            "channel": resolved,
             "ts": thread_ts.strip(),
             "limit": _clamp_limit(limit, 50),
         },
     )
     messages = [_public_message(item) for item in result.get("messages") or []]
     return {
-        "channel": channel.strip(),
+        "channel": resolved,
         "thread_ts": thread_ts.strip(),
         "messages": messages,
         "count": len(messages),
@@ -214,43 +342,50 @@ def _read_thread_body(channel: str, thread_ts: str, limit: int = 50) -> dict:
 
 
 def _send_message_body(channel: str, text: str, thread_ts: str = "") -> dict:
-    if not (channel or "").strip():
+    resolved = _resolve_channel(channel)
+    if not resolved:
         raise ValueError("channel is required")
     if not (text or "").strip():
         raise ValueError("text is required")
     result = slack_api(
         "chat.postMessage",
         {
-            "channel": channel.strip(),
+            "channel": resolved,
             "text": text,
             "thread_ts": thread_ts,
         },
     )
     return {
-        "channel": result.get("channel") or channel.strip(),
+        "channel": result.get("channel") or resolved,
         "ts": result.get("ts"),
         "text": ((result.get("message") or {}).get("text") or text),
     }
 
 
 def _add_reaction_body(channel: str, timestamp: str, name: str) -> dict:
-    if not (channel or "").strip() or not (timestamp or "").strip() or not (name or "").strip():
+    resolved = _resolve_channel(channel)
+    if not resolved or not (timestamp or "").strip() or not (name or "").strip():
         raise ValueError("channel, timestamp, and name are required")
     slack_api(
         "reactions.add",
         {
-            "channel": channel.strip(),
+            "channel": resolved,
             "timestamp": timestamp.strip(),
             "name": name.strip().strip(":"),
         },
     )
-    return {"channel": channel.strip(), "timestamp": timestamp.strip(), "name": name.strip().strip(":")}
+    return {
+        "channel": resolved,
+        "timestamp": timestamp.strip(),
+        "name": name.strip().strip(":"),
+    }
 
 
 def _conversation_info_body(channel: str) -> dict:
-    if not (channel or "").strip():
+    resolved = _resolve_channel(channel)
+    if not resolved:
         raise ValueError("channel is required")
-    result = slack_api("conversations.info", {"channel": channel.strip()})
+    result = slack_api("conversations.info", {"channel": resolved})
     return {"channel": _public_channel(result.get("channel") or {})}
 
 
@@ -288,7 +423,7 @@ def slack_list_conversations(
 
 @mcp.tool()
 def slack_search_channels(query: str, limit: int = 20) -> dict:
-    """Find channels by name, topic, purpose, or channel ID. Example: vsurf-code-reports."""
+    """Find channels by name. Known IDs: #vsurf-skill=C0BR8722F6C, #vsurf-code-reports=C0BQQ8ZBCL8. Those names resolve locally; prefer slack_read_channel with the ID."""
     return _wrap(_search_channels_body, query, limit)
 
 
@@ -300,7 +435,7 @@ def slack_read_channel(
     latest: str = "",
     cursor: str = "",
 ) -> dict:
-    """Read recent messages from a Slack channel. channel is a channel ID (e.g. C0BQQ8ZBCL8)."""
+    """Read recent Slack messages. Use C0BR8722F6C (#vsurf-skill) or C0BQQ8ZBCL8 (#vsurf-code-reports); those names also resolve. Default limit=3. Pass limit=1 for a latest-message check. Do not search channels first."""
     return _wrap(_read_channel_body, channel, limit, oldest, latest, cursor)
 
 
