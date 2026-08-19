@@ -1,0 +1,11 @@
+{
+  "kind": "frame",
+  "id": "upstream_midstream_downstream",
+  "version": "1.0.0",
+  "nickname": "stream",
+  "aliases": ["stream", "upstream-midstream-downstream", "upstream midstream downstream", "supply chain stream"],
+  "definition": "A frame that analyzes a value chain by upstream, midstream, and downstream positions.",
+  "required_slots": ["upstream", "midstream", "downstream", "handoffs", "bottlenecks"],
+  "expansion_order": ["upstream_to_midstream", "midstream_to_downstream", "position_to_evidence"],
+  "stop_conditions": ["stage_undefined", "handoff_undefined", "no_primary_source"]
+}

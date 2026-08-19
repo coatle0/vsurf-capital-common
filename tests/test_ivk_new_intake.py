@@ -56,6 +56,12 @@ class IVKNewIntakeTests(unittest.TestCase):
         self.assertEqual("Matrix", normalized["primary_frame"])
         self.assertEqual("matrix", normalized["frame_ref"]["id"])
 
+    def test_stream_is_upstream_midstream_downstream_frame(self):
+        raw = dict(self.raw); raw["frame"] = "stream"
+        normalized = normalize_intake(raw)
+        self.assertEqual("Upstream→Midstream→Downstream", normalized["primary_frame"])
+        self.assertEqual("upstream_midstream_downstream", normalized["frame_ref"]["id"])
+
 
 if __name__ == "__main__":
     unittest.main()

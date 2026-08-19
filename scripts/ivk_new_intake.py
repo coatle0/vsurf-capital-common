@@ -18,6 +18,7 @@ FRAME_NICKNAMES = {
     "sponsor_vcb": {"id": "sponsor_valuechain_bottleneck", "version": "1.0.0", "label": "Sponsor→Value Chain→Bottleneck"},
     "matrix": {"id": "matrix", "version": "1.0.0", "label": "Matrix"},
     "cluster": {"id": "matrix", "version": "1.0.0", "label": "Matrix"},
+    "stream": {"id": "upstream_midstream_downstream", "version": "1.0.0", "label": "Upstream→Midstream→Downstream"},
 }
 
 

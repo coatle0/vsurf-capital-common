@@ -3,6 +3,7 @@
   "packs": [
     {"path": "../packs/frames/sponsor_valuechain_bottleneck.json"},
     {"path": "../packs/frames/matrix.json"},
+    {"path": "../packs/frames/stream.json"},
     {"path": "../packs/sectors/semiconductor_optical.json"},
     {"path": "../packs/regions/us.json"}
   ],
