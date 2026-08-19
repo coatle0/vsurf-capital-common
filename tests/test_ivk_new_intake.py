@@ -50,6 +50,12 @@ class IVKNewIntakeTests(unittest.TestCase):
         self.assertEqual("sponsor_valuechain_bottleneck", normalized["frame_ref"]["id"])
         self.assertEqual("svb", normalized["frame_ref"]["nickname"])
 
+    def test_matrix_is_a_frame_kind(self):
+        raw = dict(self.raw); raw["frame"] = "matrix"
+        normalized = normalize_intake(raw)
+        self.assertEqual("Matrix", normalized["primary_frame"])
+        self.assertEqual("matrix", normalized["frame_ref"]["id"])
+
 
 if __name__ == "__main__":
     unittest.main()

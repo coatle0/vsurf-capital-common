@@ -1,0 +1,11 @@
+{
+  "kind": "frame",
+  "id": "matrix",
+  "version": "1.0.0",
+  "nickname": "matrix",
+  "aliases": ["cluster", "cluster_matrix", "기업 클러스터"],
+  "definition": "A frame that analyzes a clustered set of companies as one comparable investment system.",
+  "required_slots": ["cluster_members", "clustering_basis", "comparison_axes", "shared_driver", "differentiators"],
+  "expansion_order": ["cluster_to_common_driver", "cluster_to_axes", "member_to_position", "member_to_evidence"],
+  "stop_conditions": ["cluster_members_undefined", "comparison_axis_undefined", "no_primary_source"]
+}

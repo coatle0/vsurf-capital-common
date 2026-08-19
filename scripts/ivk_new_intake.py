@@ -16,6 +16,8 @@ REVIEW = {"pending", "accepted", "rejected", "deferred"}
 FRAME_NICKNAMES = {
     "svb": {"id": "sponsor_valuechain_bottleneck", "version": "1.0.0", "label": "Sponsor→Value Chain→Bottleneck"},
     "sponsor_vcb": {"id": "sponsor_valuechain_bottleneck", "version": "1.0.0", "label": "Sponsor→Value Chain→Bottleneck"},
+    "matrix": {"id": "matrix", "version": "1.0.0", "label": "Matrix"},
+    "cluster": {"id": "matrix", "version": "1.0.0", "label": "Matrix"},
 }
 
 
