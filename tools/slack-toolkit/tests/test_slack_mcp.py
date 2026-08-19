@@ -72,6 +72,7 @@ class SlackMcpTests(unittest.TestCase):
     def test_resolve_known_channel_names(self):
         self.assertEqual(S._resolve_channel("#vsurf-skill"), "C0BR8722F6C")
         self.assertEqual(S._resolve_channel("vsurf-code-reports"), "C0BQQ8ZBCL8")
+        self.assertEqual(S._resolve_channel("#vsurf-agent-control"), "C0BNWS9QKDK")
         self.assertEqual(S._resolve_channel("C0BR8722F6C"), "C0BR8722F6C")
 
     def test_search_known_channel_skips_network(self):
@@ -254,6 +255,82 @@ class SlackMcpTests(unittest.TestCase):
         result = S.slack_post_markdown("C0BR8722F6C", path=r"C:\lab\secret.txt")
         self.assertFalse(result["ok"])
         self.assertIn(".md", result["error"])
+
+    def test_read_channel_includes_file_ids_not_body(self):
+        payload = {
+            "ok": True,
+            "messages": [
+                {
+                    "ts": "1.0",
+                    "text": "caption only",
+                    "files": [
+                        {
+                            "id": "F9",
+                            "name": "note.md",
+                            "title": "Note",
+                            "mimetype": "text/markdown",
+                            "url_private": "https://files.slack.com/secret",
+                        }
+                    ],
+                }
+            ],
+        }
+
+        def fake_http_post(path, body, headers):
+            return json.dumps(payload).encode("utf-8")
+
+        with patch.dict("os.environ", {"SLACK_BOT_TOKEN": "xoxb-test"}, clear=False):
+            with patch.object(S, "_http_post", side_effect=fake_http_post):
+                result = S.slack_read_channel("C0BR8722F6C", limit=1)
+        self.assertTrue(result["ok"])
+        msg = result["messages"][0]
+        self.assertEqual(msg["text"], "caption only")
+        self.assertEqual(msg["files"][0]["id"], "F9")
+        self.assertNotIn("url_private", msg["files"][0])
+        self.assertNotIn("# hello", json.dumps(result))
+
+    def test_read_file_returns_text_without_saving(self):
+        info = {
+            "ok": True,
+            "file": {
+                "id": "F9",
+                "name": "note.md",
+                "title": "Note",
+                "mimetype": "text/markdown",
+                "filetype": "markdown",
+                "url_private": "https://files.slack.com/files-pri/note.md",
+            },
+        }
+
+        def fake_http_post(path, body, headers):
+            self.assertEqual(path, "/api/files.info")
+            return json.dumps(info).encode("utf-8")
+
+        with patch.dict("os.environ", {"SLACK_BOT_TOKEN": "xoxb-test"}, clear=False):
+            with patch.object(S, "_http_post", side_effect=fake_http_post):
+                with patch.object(S, "_http_get_authorized", return_value=b"# hello\n") as get:
+                    result = S.slack_read_file("F9")
+        self.assertTrue(result["ok"])
+        self.assertEqual(result["text"], "# hello\n")
+        self.assertEqual(result["saved"], "")
+        get.assert_called_once()
+
+    def test_read_file_rejects_binary(self):
+        info = {
+            "ok": True,
+            "file": {
+                "id": "Fimg",
+                "name": "shot.png",
+                "mimetype": "image/png",
+                "filetype": "png",
+                "url_private": "https://files.slack.com/x.png",
+            },
+        }
+        with patch.dict("os.environ", {"SLACK_BOT_TOKEN": "xoxb-test"}, clear=False):
+            with patch.object(S, "_http_post", return_value=json.dumps(info).encode("utf-8")):
+                result = S.slack_read_file("Fimg")
+        self.assertFalse(result["ok"])
+        self.assertIn("text/markdown", result["error"])
 
 
 class PatchGrokConfigTests(unittest.TestCase):
