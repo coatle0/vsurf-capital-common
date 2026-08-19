@@ -33,7 +33,8 @@ Grok config는 `C:\autoai\slack-toolkit`이 아니라 이 git 경로를 가리�
 | `#vsurf-skill` | `C0BR8722F6C` |
 | `#vsurf-code-reports` | `C0BQQ8ZBCL8` |
 
-- 최신 메시지 확인: `slack_read_channel(channel=C0BR8722F6C, limit=1)`
+- 최신 메시지 확인: `slack_read_channel(channel=C0BR8722F6C, limit=1)` 한 번. 회신은 ts + 본문 한 줄. 검색·파일 재읽기·표 금지.
+- 텍스트 게시: 항상 `.md`. `slack_post_markdown(channel=C0BR8722F6C, path=..., title=...)`. `slack_send_message`는 한 줄 ACK 전용.
 - 짧은 브리프: 기본 `limit=3` (이름 `#vsurf-skill`도 ID로 해석)
 - 서버는 HTTPS keep-alive와 토큰 캐시를 사용한다. 알려진 채널 이름은 목록 API 없이 해석한다.
 - Grok MCP 프로세스에 반영하려면 세션을 재시작한다.

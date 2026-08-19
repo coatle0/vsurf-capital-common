@@ -186,6 +186,75 @@ class SlackMcpTests(unittest.TestCase):
         self.assertEqual(result["count"], 1)
         self.assertEqual(result["channels"][0]["id"], "C9ELSE")
 
+    def test_post_markdown_uses_files_upload(self):
+        seen: dict[str, list[str]] = {"paths": []}
+        payloads = [
+            {
+                "ok": True,
+                "upload_url": "https://files.slack.com/upload/v1/x",
+                "file_id": "F1",
+            },
+            {
+                "ok": True,
+                "files": [
+                    {
+                        "id": "F1",
+                        "name": "Note.md",
+                        "title": "Note",
+                        "permalink": "https://slack.com/files/F1",
+                    }
+                ],
+            },
+        ]
+
+        def fake_http_post(path, body, headers):
+            seen["paths"].append(path)
+            return json.dumps(payloads.pop(0)).encode("utf-8")
+
+        with patch.dict("os.environ", {"SLACK_BOT_TOKEN": "xoxb-test"}, clear=False):
+            with patch.object(S, "_http_post", side_effect=fake_http_post):
+                with patch.object(S, "_http_upload_bytes") as upload:
+                    result = S.slack_post_markdown(
+                        "vsurf-skill",
+                        title="Note",
+                        markdown="# hello",
+                    )
+        self.assertTrue(result["ok"])
+        self.assertEqual(result["channel"], "C0BR8722F6C")
+        self.assertEqual(result["file_id"], "F1")
+        self.assertEqual(
+            seen["paths"],
+            ["/api/files.getUploadURLExternal", "/api/files.completeUploadExternal"],
+        )
+        upload.assert_called_once()
+        self.assertEqual(upload.call_args.args[1], b"# hello")
+
+    def test_post_markdown_from_lab_path(self):
+        md_path = ROOT / "tests" / "_tmp_skill_post.md"
+        md_path.write_text("# from file\n", encoding="utf-8")
+        self.addCleanup(lambda: md_path.unlink(missing_ok=True))
+        payloads = [
+            {"ok": True, "upload_url": "https://files.slack.com/upload/v1/x", "file_id": "F2"},
+            {"ok": True, "files": [{"id": "F2", "name": md_path.name, "title": "tmp", "permalink": ""}]},
+        ]
+
+        def fake_http_post(path, body, headers):
+            return json.dumps(payloads.pop(0)).encode("utf-8")
+
+        with patch.dict("os.environ", {"SLACK_BOT_TOKEN": "xoxb-test"}, clear=False):
+            with patch.object(S, "_http_post", side_effect=fake_http_post):
+                with patch.object(S, "_http_upload_bytes") as upload:
+                    result = S.slack_post_markdown("C0BR8722F6C", path=str(md_path))
+        self.assertTrue(result["ok"])
+        self.assertEqual(result["file_id"], "F2")
+        upload.assert_called_once()
+        self.assertEqual(upload.call_args.args[1], b"# from file\n")
+
+    def test_post_markdown_rejects_non_md_path(self):
+        result = S.slack_post_markdown("C0BR8722F6C", path=r"C:\lab\secret.txt")
+        self.assertFalse(result["ok"])
+        self.assertIn(".md", result["error"])
+
 
 class PatchGrokConfigTests(unittest.TestCase):
     def test_appends_block_without_writing_token_value(self):

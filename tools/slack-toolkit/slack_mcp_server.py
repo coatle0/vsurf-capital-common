@@ -16,10 +16,13 @@ from __future__ import annotations
 import http.client
 import json
 import os
+import pathlib
 import ssl
 import sys
 import threading
+import urllib.error
 import urllib.parse
+import urllib.request
 
 from mcp.server.fastmcp import FastMCP
 
@@ -28,6 +31,7 @@ mcp = FastMCP("slack")
 DEFAULT_TYPES = "public_channel,private_channel"
 DEFAULT_HISTORY_LIMIT = 3
 MAX_LIMIT = 200
+_LAB_ROOT = pathlib.Path(r"C:\lab").resolve()
 _API_HOST = "slack.com"
 _API_TIMEOUT = 20
 _TOKEN_NAMES = ("SLACK_BOT_TOKEN", "OPENACP_SLACK_BOT_TOKEN")
@@ -139,6 +143,29 @@ def _http_post(path: str, body: bytes, headers: dict[str, str]) -> bytes:
     ) from last_exc
 
 
+def _http_upload_bytes(url: str, data: bytes) -> None:
+    if not (url or "").startswith("https://"):
+        raise ValueError("upload url must be https")
+    req = urllib.request.Request(
+        url,
+        data=data,
+        method="POST",
+        headers={
+            "Content-Type": "application/octet-stream",
+            "Content-Length": str(len(data)),
+        },
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=_API_TIMEOUT) as response:
+            status = response.status
+            response.read()
+    except urllib.error.HTTPError as exc:
+        exc.read()
+        raise RuntimeError(f"Slack file binary upload HTTP {exc.code}") from exc
+    if status < 200 or status >= 300:
+        raise RuntimeError(f"Slack file binary upload HTTP {status}")
+
+
 def slack_api(method: str, payload: dict | None = None) -> dict:
     body: dict[str, str] = {}
     for key, value in (payload or {}).items():
@@ -193,6 +220,29 @@ def _resolve_channel(channel: str) -> str:
     if known:
         return known["id"]
     return (channel or "").strip()
+
+
+def _md_filename(title: str, filename: str) -> str:
+    raw = (filename or title or "note").strip()
+    raw = raw.replace("\\", "_").replace("/", "_").replace(":", "_")
+    if not raw:
+        raw = "note"
+    if not raw.lower().endswith(".md"):
+        raw += ".md"
+    return raw
+
+
+def _read_md_path(path: str) -> tuple[str, str]:
+    resolved = pathlib.Path(path).expanduser().resolve()
+    if resolved.suffix.lower() != ".md":
+        raise ValueError("path must end with .md")
+    try:
+        resolved.relative_to(_LAB_ROOT)
+    except ValueError as exc:
+        raise ValueError("markdown path must be under C:\\lab") from exc
+    if not resolved.is_file():
+        raise ValueError("markdown file not found")
+    return resolved.read_text(encoding="utf-8"), resolved.name
 
 
 def _public_channel(item: dict) -> dict:
@@ -362,6 +412,53 @@ def _send_message_body(channel: str, text: str, thread_ts: str = "") -> dict:
     }
 
 
+def _post_markdown_body(
+    channel: str,
+    title: str = "",
+    markdown: str = "",
+    path: str = "",
+    filename: str = "",
+    initial_comment: str = "",
+) -> dict:
+    resolved = _resolve_channel(channel)
+    if not resolved:
+        raise ValueError("channel is required")
+    source_name = ""
+    text = markdown
+    if (path or "").strip():
+        text, source_name = _read_md_path(path)
+    if not (text or "").strip():
+        raise ValueError("markdown or path is required")
+    fname = _md_filename(title, filename or source_name)
+    heading = (title or "").strip() or pathlib.Path(fname).stem
+    payload = text.encode("utf-8")
+    ticket = slack_api(
+        "files.getUploadURLExternal",
+        {"filename": fname, "length": str(len(payload))},
+    )
+    upload_url = ticket.get("upload_url") or ""
+    file_id = ticket.get("file_id") or ""
+    if not upload_url or not file_id:
+        raise RuntimeError("Slack upload URL missing")
+    _http_upload_bytes(upload_url, payload)
+    done = slack_api(
+        "files.completeUploadExternal",
+        {
+            "files": json.dumps([{"id": file_id, "title": heading}]),
+            "channel_id": resolved,
+            "initial_comment": initial_comment,
+        },
+    )
+    uploaded = ((done.get("files") or [{}])[0]) if isinstance(done.get("files"), list) else {}
+    return {
+        "channel": resolved,
+        "file_id": uploaded.get("id") or file_id,
+        "filename": uploaded.get("name") or fname,
+        "title": uploaded.get("title") or heading,
+        "permalink": uploaded.get("permalink") or "",
+    }
+
+
 def _add_reaction_body(channel: str, timestamp: str, name: str) -> dict:
     resolved = _resolve_channel(channel)
     if not resolved or not (timestamp or "").strip() or not (name or "").strip():
@@ -447,8 +544,29 @@ def slack_read_thread(channel: str, thread_ts: str, limit: int = 50) -> dict:
 
 @mcp.tool()
 def slack_send_message(channel: str, text: str, thread_ts: str = "") -> dict:
-    """Post a Slack message. Use thread_ts to reply in a thread."""
+    """Short one-line ACK only. Prompts, reports, and any document text must use slack_post_markdown."""
     return _wrap(_send_message_body, channel, text, thread_ts)
+
+
+@mcp.tool()
+def slack_post_markdown(
+    channel: str,
+    title: str = "",
+    markdown: str = "",
+    path: str = "",
+    filename: str = "",
+    initial_comment: str = "",
+) -> dict:
+    """Post Slack text as a Markdown file. Pass path to a C:\\lab .md file, or markdown body. Do not dump documents via slack_send_message."""
+    return _wrap(
+        _post_markdown_body,
+        channel,
+        title,
+        markdown,
+        path,
+        filename,
+        initial_comment,
+    )
 
 
 @mcp.tool()
