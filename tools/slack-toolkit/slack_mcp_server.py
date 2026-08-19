@@ -34,10 +34,13 @@ MAX_LIMIT = 200
 _LAB_ROOT = pathlib.Path(r"C:\lab").resolve()
 _API_HOST = "slack.com"
 _API_TIMEOUT = 20
+_MAX_READ_FILE_BYTES = 512 * 1024
+_TEXT_FILETYPES = {"text", "markdown", "plain", "python", "javascript", "json", "yaml"}
 _TOKEN_NAMES = ("SLACK_BOT_TOKEN", "OPENACP_SLACK_BOT_TOKEN")
 _KNOWN_CHANNEL_ROWS = (
     {"id": "C0BR8722F6C", "name": "vsurf-skill"},
     {"id": "C0BQQ8ZBCL8", "name": "vsurf-code-reports"},
+    {"id": "C0BNWS9QKDK", "name": "vsurf-agent-control"},
 )
 KNOWN_CHANNELS: dict[str, dict] = {}
 for _row in _KNOWN_CHANNEL_ROWS:
@@ -141,6 +144,26 @@ def _http_post(path: str, body: bytes, headers: dict[str, str]) -> bytes:
     raise RuntimeError(
         f"Slack HTTP failed on {path}: {type(last_exc).__name__}"
     ) from last_exc
+
+
+def _http_get_authorized(url: str) -> bytes:
+    if not (url or "").startswith("https://"):
+        raise ValueError("download url must be https")
+    req = urllib.request.Request(
+        url,
+        method="GET",
+        headers={"Authorization": f"Bearer {_token()}"},
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=_API_TIMEOUT) as response:
+            status = response.status
+            payload = response.read()
+    except urllib.error.HTTPError as exc:
+        exc.read()
+        raise RuntimeError(f"Slack file download HTTP {exc.code}") from exc
+    if status < 200 or status >= 300:
+        raise RuntimeError(f"Slack file download HTTP {status}")
+    return payload
 
 
 def _http_upload_bytes(url: str, data: bytes) -> None:
@@ -260,7 +283,30 @@ def _public_channel(item: dict) -> dict:
     }
 
 
+def _public_file(item: dict) -> dict:
+    return {
+        "id": item.get("id"),
+        "name": item.get("name") or "",
+        "title": item.get("title") or "",
+        "mimetype": item.get("mimetype") or "",
+        "filetype": item.get("filetype") or "",
+        "size": item.get("size"),
+    }
+
+
+def _is_text_file(name: str, mimetype: str, filetype: str) -> bool:
+    lower = (name or "").lower()
+    mime = (mimetype or "").lower()
+    kind = (filetype or "").lower()
+    if lower.endswith((".md", ".txt", ".markdown", ".json", ".yaml", ".yml", ".py", ".toml")):
+        return True
+    if mime.startswith("text/"):
+        return True
+    return kind in _TEXT_FILETYPES
+
+
 def _public_message(item: dict) -> dict:
+    files = [_public_file(entry) for entry in (item.get("files") or []) if entry.get("id")]
     return {
         "ts": item.get("ts"),
         "thread_ts": item.get("thread_ts"),
@@ -269,6 +315,7 @@ def _public_message(item: dict) -> dict:
         "text": item.get("text") or "",
         "reply_count": item.get("reply_count"),
         "subtype": item.get("subtype"),
+        "files": files,
     }
 
 
@@ -459,6 +506,46 @@ def _post_markdown_body(
     }
 
 
+def _read_file_body(file_id: str, save_path: str = "") -> dict:
+    fid = (file_id or "").strip()
+    if not fid:
+        raise ValueError("file_id is required")
+    info = slack_api("files.info", {"file": fid})
+    item = info.get("file") or {}
+    name = item.get("name") or ""
+    mime = item.get("mimetype") or ""
+    kind = item.get("filetype") or ""
+    if not _is_text_file(name, mime, kind):
+        raise ValueError("only text/markdown files can be read")
+    url = item.get("url_private_download") or item.get("url_private") or ""
+    if not url:
+        raise RuntimeError("Slack file url missing")
+    raw = _http_get_authorized(url)
+    if len(raw) > _MAX_READ_FILE_BYTES:
+        raise ValueError(f"file exceeds {_MAX_READ_FILE_BYTES} bytes")
+    text = raw.decode("utf-8")
+    saved = ""
+    dest = (save_path or "").strip()
+    if dest:
+        resolved = pathlib.Path(dest).expanduser().resolve()
+        try:
+            resolved.relative_to(_LAB_ROOT)
+        except ValueError as exc:
+            raise ValueError("save_path must be under C:\\lab") from exc
+        resolved.parent.mkdir(parents=True, exist_ok=True)
+        resolved.write_text(text, encoding="utf-8")
+        saved = str(resolved)
+    return {
+        "file_id": item.get("id") or fid,
+        "filename": name,
+        "title": item.get("title") or "",
+        "mimetype": mime,
+        "bytes": len(raw),
+        "text": text,
+        "saved": saved,
+    }
+
+
 def _add_reaction_body(channel: str, timestamp: str, name: str) -> dict:
     resolved = _resolve_channel(channel)
     if not resolved or not (timestamp or "").strip() or not (name or "").strip():
@@ -520,7 +607,7 @@ def slack_list_conversations(
 
 @mcp.tool()
 def slack_search_channels(query: str, limit: int = 20) -> dict:
-    """Find channels by name. Known IDs: #vsurf-skill=C0BR8722F6C, #vsurf-code-reports=C0BQQ8ZBCL8. Those names resolve locally; prefer slack_read_channel with the ID."""
+    """Find channels by name. Known IDs: #vsurf-skill=C0BR8722F6C, #vsurf-code-reports=C0BQQ8ZBCL8, #vsurf-agent-control=C0BNWS9QKDK. Those names resolve locally; prefer slack_read_channel with the ID."""
     return _wrap(_search_channels_body, query, limit)
 
 
@@ -532,8 +619,14 @@ def slack_read_channel(
     latest: str = "",
     cursor: str = "",
 ) -> dict:
-    """Read recent Slack messages. Use C0BR8722F6C (#vsurf-skill) or C0BQQ8ZBCL8 (#vsurf-code-reports); those names also resolve. Default limit=3. Pass limit=1 for a latest-message check. Do not search channels first."""
+    """Read recent Slack messages. Use C0BR8722F6C (#vsurf-skill), C0BQQ8ZBCL8 (#vsurf-code-reports), or C0BNWS9QKDK (#vsurf-agent-control); those names also resolve. Default limit=3. Pass limit=1 for a latest-message check. Returns caption text plus attached file ids, not file bodies. Do not search channels first."""
     return _wrap(_read_channel_body, channel, limit, oldest, latest, cursor)
+
+
+@mcp.tool()
+def slack_read_file(file_id: str, save_path: str = "") -> dict:
+    """Read a Slack file body in memory. Pass file_id from slack_read_channel.files. Default does not write disk. save_path is optional and must be under C:\\lab. Text/markdown only."""
+    return _wrap(_read_file_body, file_id, save_path)
 
 
 @mcp.tool()
