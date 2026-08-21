@@ -70,7 +70,7 @@ DoD: ...
    하지 않는다 — 그건 여전히 `order_dispatcher.dispatch()` 단독 책임이다(`git pull` 도 dispatcher의
    `ensure_clean_and_current()`가 담당).
 
-**executor(claude/codex)는 아래만 수행한다:**
+**executor(claude/codex/grok)는 아래만 수행한다:**
 
 4. 2번에서 이미 등록된 파일을 **정본으로 읽어** 그 안의 "작업" 항목을 수행한다. 등록(1~3단계)은
    이미 끝난 상태로 넘어오므로 다시 하지 않는다.

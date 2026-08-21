@@ -31,7 +31,7 @@
 ## Slack 실행 Order
 
 - `[EXECUTE ORDER NNN]` 메시지는 일반 대화가 아니라 Git 정본 실행 신호다.
-- 신규 발주는 `ORDER_PROTOCOL.md` §5의 `[EXECUTE ORDER 100]` + `ORDER BODY` 형식만 사용한다. 필수 Slack 필드는 `executor`(`codex`/`claude`/`available`)와 `project`이며 외부 메시지에 `order:` 필드를 넣지 않는다.
+- 신규 발주는 `ORDER_PROTOCOL.md` §5의 `[EXECUTE ORDER 100]` + `ORDER BODY` 형식만 사용한다. 필수 Slack 필드는 `executor`(`codex`/`claude`/`grok`/`available`)와 `project`이며 외부 메시지에 `order:` 필드를 넣지 않는다.
 - durable inbox consumer와 dispatcher가 정본 등록·검증·executor 실행·검증·Git 최종화·Slack thread 회신을 담당한다. executor는 prompt 지시대로 commit/push하지 않는다.
 - REJECTED/FAILED를 임의 우회하지 않는다. credential/token 값을 출력하거나 저장하지 않는다.
 - `CONTINUE`, `APPROVE`, `HOLD`, `RETRY`, `CANCEL`은 상태 저장과 스레드 연결 구현이 완료되기 전까지 자동 실행하지 않는다.

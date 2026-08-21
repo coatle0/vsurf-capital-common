@@ -67,7 +67,7 @@ claimed → processed/ 로 아카이브 (종결)
 
 ## 4. Executor 분기 (`order_dispatcher.py`)
 
-`parse_request()`가 Slack 메시지의 `executor:` 필드(`codex`/`claude`/`available`만 허용, 소문자 비교)를 읽는다. `available`은 Codex CLI가 있으면 codex, 없으면 claude를 선택한다. 실제 분기는 두 함수에서 일어난다.
+`parse_request()`가 Slack 메시지의 `executor:` 필드(`codex`/`claude`/`grok`/`available`만 허용, 소문자 비교)를 읽는다. `available`은 Codex CLI가 있으면 codex, 없으면 claude를 선택한다(grok은 available 자동선택 대상이 아니다 — 명시 지정 시에만 사용). 실제 분기는 관련 함수들에서 일어난다.
 
 ```python
 # executor_prefix(): 실행 파일 경로 해석
