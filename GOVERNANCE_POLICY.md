@@ -1,11 +1,11 @@
 # VSURF Capital 3Phase Order 운영 정책
 
 - 상태: ACTIVE
-- 버전: v1.2
+- 버전: v1.3
 - 승인: CIO
 - Owner: COO
-- 시행일: 2026-08-15
-- Slack 근거: `#vsurf-governance`, message `1786767283.225149`
+- 시행일: 2026-08-22
+- Slack 근거: `#vsurf-governance`, message `1786767283.225149` (v1.2) · `#vsurf-code-reports`, PEV Runner 실행계획 스레드 (v1.3)
 
 ## 1. 기본 원칙
 
@@ -60,9 +60,10 @@ REJECT_DUPLICATE_ORDER_ID
 
 ## 5. 버전 관계
 
+- v1.3: PEV Runner의 CLAIMED·PLAN_READY 회신을 반영(§8)하고 MCP write 정책을 명시적으로 확정(§9).
 - v1.2: rpt 트랙을 정식 Order 번호공간에서 분리하여 위험 표면을 축소한다.
 - v1.1: `#vsurf-agent-control` 안에서 여러 GM·트랙이 동시에 번호를 발행할 때의 중복 위험을 Preflight 4게이트로 방어한다.
-- v1.2는 v1.1을 대체하지 않는다. 두 규칙을 함께 적용한다.
+- v1.1~v1.3은 서로 대체하지 않는다. 전부 함께 적용한다.
 
 ## 6. 적용 사례
 
@@ -77,3 +78,16 @@ REJECT_DUPLICATE_ORDER_ID
 - `neo4j-official`은 공식 서버 기본 동작대로 `read-cypher`와 `write-cypher`를 모두 노출한다.
 - 로컬 wrapper는 `NEO4J_READ_ONLY=false`를 명시하여 read-only 강제를 해제한다.
 - write 작업은 사전·사후 count, idempotent Cypher, source/evidence 검증을 포함해야 한다.
+
+## 8. PEV Runner — CLAIMED·PLAN_READY (2026-08-22)
+
+- 근거: `#vsurf-governance` 설계 검토(GO_WITH_CHANGES 판정) → 실행계획 → `#vsurf-code-reports` 스레드에서 라이브 검증(Order 149·150).
+- `order_inbox_consumer.py`가 claim 직후 `[CLAIMED ORDER NNN]`(run_id/executor/status)을 회신한다. 기존 종결 회신(`COMPLETED`/`FAILED`)을 대체하지 않으며 추가다.
+- claim 직후 곧바로 `[PLAN_READY ORDER NNN]`을 회신한다. Order 본문의 목적/작업/금지/DoD 필드를 기계적으로 추출한 것으로, 새 executor 프롬프트·별도 LLM 호출·게이트가 전혀 없다 — **가시성만 제공하고 실행을 막지 않는다.**
+- `target_pc`·`base_sha`·`AWAITING_APPROVAL` 승인 게이트는 이번 도입 범위에서 명시적으로 제외한다. 승인은 여전히 "COO가 `[EXECUTE ORDER NNN]`을 발행할지 결정하는 것" 하나로 충분하다고 본다 — 발행 이후 추가로 막는 단계는 두지 않는다.
+
+## 9. MCP write 노출 정책 (2026-08-22, 명시적 확정)
+
+- CIO 결정: **모든 MCP는 자유롭게 사용한다.** write-capable MCP(`github`/`investment-kg`/`neo4j-official`/`telegram-mcp`/`telegram-research`)를 코드로 차단하지 않는다.
+- `order_dispatcher.py::audit_user_config_mcps()`는 계속 감지·경고 로그만 남긴다(`logs/dispatcher/mcp-audit.log`) — 실행을 막지 않는다. 이 동작은 §7의 neo4j write 승인과 정합적이며, 앞으로 write-capable MCP가 추가돼도 별도 지시 없이는 차단 로직을 넣지 않는다.
+- 이 항목은 PEV Runner 검토 문서(§9 최종판단기준 6번, "고위험 write는 명시적 승인 없이 실행 안 됨")가 제안했던 강제 차단을 명시적으로 기각한 기록이다 — 같은 질문이 다시 나왔을 때 재논의하지 않도록 여기 남긴다.
