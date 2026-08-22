@@ -326,7 +326,8 @@ def process_pending(path: Path, token: str) -> None:
         order_inbox.mark_processed(path, {"status": "REJECTED", "error": reason, "sender": sender})
         return
 
-    if match.group(1) == INTAKE_ORDER_ID:
+    order_id_final = match.group(1)
+    if order_id_final == INTAKE_ORDER_ID:
         fields = {
             k.lower(): order_dispatcher.clean_field_value(v)
             for k, v in order_dispatcher.FIELD_RE.findall(text)
@@ -340,6 +341,7 @@ def process_pending(path: Path, token: str) -> None:
             reply(token, channel, ts, f"REJECTED [{tid}]: {exc}")
             order_inbox.mark_processed(path, {"status": "REJECTED", "error": str(exc)})
             return
+        order_id_final = parsed["number"]
         # Hand off to the normal Order path as if this had arrived as a
         # direct [EXECUTE ORDER NNN] for the file just registered. The
         # executor's prompt (order_dispatcher.build_prompt) now points at
@@ -359,6 +361,11 @@ def process_pending(path: Path, token: str) -> None:
             "--- END ---\n"
         )
         record["text"] = text
+    else:
+        fields = {
+            k.lower(): order_dispatcher.clean_field_value(v)
+            for k, v in order_dispatcher.FIELD_RE.findall(text)
+        }
 
     existing = order_inbox.load_outbox(tid)
     if existing is not None and existing.get("status") not in (None, "DISPATCHING"):
@@ -373,6 +380,20 @@ def process_pending(path: Path, token: str) -> None:
     claimed_path = order_inbox.claim(path)
     if claimed_path is None:
         return  # another process claimed it first
+    # PEV runner step 1 (2026-08-22): confirm the claim itself, separately
+    # from the terminal COMPLETED/FAILED reply that only arrives once
+    # dispatch finishes. order_id/executor are only known from here on
+    # (post-intake-registration for ORDER 100, straight from the message
+    # otherwise) -- target_pc and base_sha are deliberately omitted: the
+    # former has no representation anywhere in this codebase yet, and the
+    # latter would require this module to start calling git directly,
+    # which is dispatcher's job alone. This reply is additional, not a
+    # replacement for the ingress ACK in slack_ack_watcher.py -- that one
+    # fires before we even know this is a valid Order.
+    reply(
+        token, channel, ts,
+        f"[CLAIMED ORDER {order_id_final}] run_id={tid} executor={fields.get('executor', '')} status=CLAIMED",
+    )
     handle_claimed(claimed_path, token)
 
 

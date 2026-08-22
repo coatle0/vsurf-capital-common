@@ -267,6 +267,31 @@ class HappyPathTests(_WithDirs):
         outbox = order_inbox.load_outbox("C1-1.0")
         self.assertEqual(outbox["status"], "COMPLETED")
         self.assertTrue(outbox["replied"])
+        # PEV runner step 1: a claim confirmation precedes the terminal reply.
+        self.assertEqual(mock_reply.call_count, 2)
+        claimed_text = mock_reply.call_args_list[0].args[3]
+        self.assertIn("[CLAIMED ORDER 003]", claimed_text)
+        self.assertIn("executor=claude", claimed_text)
+        self.assertIn("status=CLAIMED", claimed_text)
+
+    def test_claimed_reply_uses_registered_order_number_for_intake(self):
+        path = self.write_pending(text=(
+            "[EXECUTE ORDER 100]\nexecutor: claude\nproject: C:\\lab\\vsurf_capital\\common\n\n"
+            "--- ORDER BODY ---\n번호: 103\n제목: claimed_reply_check\n목적: 테스트\n"
+            "작업:\n1. 아무것도 안 함\nDoD: N/A\n--- END ---"
+        ))
+        fake_request = order_dispatcher.DispatchRequest(
+            order_id="103", executor="claude", order_path="x", project_path="y"
+        )
+        with tempfile.TemporaryDirectory() as orders_tmp, \
+             patch.object(order_dispatcher, "ORDERS_DIR", Path(orders_tmp)), \
+             patch.object(order_dispatcher, "parse_request", return_value=fake_request), \
+             patch.object(order_dispatcher, "dispatch", return_value=self.completed_result(order_id="103")), \
+             patch.object(MODULE, "reply") as mock_reply:
+            MODULE.process_pending(path, "tok")
+        claimed_text = mock_reply.call_args_list[0].args[3]
+        self.assertIn("[CLAIMED ORDER 103]", claimed_text)  # registered number, not "100"
+        self.assertIn("executor=claude", claimed_text)
 
     def test_reboot_recovers_leftover_pending_end_to_end(self):
         # Simulate: a message was durably written before a reboot and never
