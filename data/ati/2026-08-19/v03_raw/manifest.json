@@ -1,0 +1,69 @@
+{
+  "contract": "ati-raw-snapshot-1.0",
+  "generated_at": "2026-08-20T16:56:33+09:00",
+  "as_of": "2026-08-19",
+  "source": "GS MCP csv payload",
+  "mcp_persistence": "temporary CSV deleted after payload read; this directory is the durable snapshot",
+  "records": [
+    {
+      "sheet": "bgd_year",
+      "tool": "read_bgdgs_sheet",
+      "rows": 220,
+      "cols": 46,
+      "latest_date": "2026-08-20",
+      "path": "data/ati/2026-08-19/v03_raw/bgd_year.csv",
+      "sha256": "6b6f141bef35b17f123500203a8ffc33ac2e84d3bf4f4aa6fa1ac46863123622",
+      "payload_parity": "PASS"
+    },
+    {
+      "sheet": "bgd_th",
+      "tool": "read_bgdgs_sheet",
+      "rows": 97,
+      "cols": 46,
+      "latest_date": "2026-08-20",
+      "path": "data/ati/2026-08-19/v03_raw/bgd_th.csv",
+      "sha256": "7c824292bc88c6157e219385ab9a71e03ad651f0cdb1ee02ba63643094c1041a",
+      "payload_parity": "PASS"
+    },
+    {
+      "sheet": "bgd_thih",
+      "tool": "read_bgdgs_sheet",
+      "rows": 97,
+      "cols": 70,
+      "latest_date": "2026-08-20",
+      "path": "data/ati/2026-08-19/v03_raw/bgd_thih.csv",
+      "sha256": "d1caf5aa02c9ec2d6c4fa4ee5c62fd7b0bf2cf5ac8c0ae0dd59086ec9c379805",
+      "payload_parity": "PASS"
+    },
+    {
+      "sheet": "kidx-Q",
+      "tool": "read_sggs_sheet",
+      "rows": 97,
+      "cols": 24,
+      "latest_date": "2026-08-19",
+      "path": "data/ati/2026-08-19/v03_raw/kidx-Q.csv",
+      "sha256": "809f0a7fa7ab7b2939e8d8803782ad5feceacae1830c93fbb9aa5c4dd2e4cc3f",
+      "payload_parity": "PASS"
+    },
+    {
+      "sheet": "kidx-W",
+      "tool": "read_sggs_sheet",
+      "rows": 40,
+      "cols": 24,
+      "latest_date": "2026-08-19",
+      "path": "data/ati/2026-08-19/v03_raw/kidx-W.csv",
+      "sha256": "cd81d60f32b8535bf56053773aca9ca48903f038f218adb365e9e377a902042f",
+      "payload_parity": "PASS"
+    },
+    {
+      "sheet": "kr_idx",
+      "tool": "read_gs_idx",
+      "rows": 98,
+      "cols": 3,
+      "latest_date": null,
+      "path": "data/ati/2026-08-19/v03_raw/kr_idx.csv",
+      "sha256": "3903718ee75a2be1ad7bb740e1e9aad6b4c115d4e609943244aa35911411a625",
+      "payload_parity": "PASS"
+    }
+  ]
+}

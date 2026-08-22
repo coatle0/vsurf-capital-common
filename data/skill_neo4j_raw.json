@@ -1,0 +1,1974 @@
+{
+  "ok": true,
+  "latest": "1787113163.579260",
+  "messages": [
+    {
+      "text": "Grok PC2용 neo4j-official MCP 연결·진단·read-only smoke test 프롬프트입니다. 기존 MCP 보존, credential 비노출, write 금지 규칙을 포함합니다.",
+      "files": [
+        {
+          "id": "F0BR5M0DZDY",
+          "created": 1787113162,
+          "timestamp": 1787113162,
+          "mimetype": "text/plain",
+          "filetype": "markdown",
+          "pretty_type": "Markdown(원시)",
+          "user": "U0BP1KC6J81",
+          "user_team": "T0BNZLWNB8S",
+          "editable": true,
+          "size": 2261,
+          "mode": "snippet",
+          "is_external": false,
+          "external_type": "",
+          "is_public": true,
+          "public_url_shared": false,
+          "display_as_bot": false,
+          "username": "",
+          "name": "grok_neo4j_official_mcp_setup_prompt_20260819.md",
+          "title": "grok_neo4j_official_mcp_setup_prompt_20260819.md",
+          "is_modified_by_ai": false,
+          "url_private": "https://files.slack.com/files-pri/T0BNZLWNB8S-F0BR5M0DZDY/grok_neo4j_official_mcp_setup_prompt_20260819.md",
+          "url_private_download": "https://files.slack.com/files-pri/T0BNZLWNB8S-F0BR5M0DZDY/download/grok_neo4j_official_mcp_setup_prompt_20260819.md",
+          "permalink": "https://vsurfcapital.slack.com/files/U0BPUB9ES8G/F0BR5M0DZDY/grok_neo4j_official_mcp_setup_prompt_20260819.md",
+          "permalink_public": "https://slack-files.com/T0BNZLWNB8S-F0BR5M0DZDY-7fb24026be",
+          "edit_link": "https://vsurfcapital.slack.com/files/U0BPUB9ES8G/F0BR5M0DZDY/grok_neo4j_official_mcp_setup_prompt_20260819.md/edit",
+          "preview": "# Grok PC2 — neo4j-official MCP 연결 프롬프트\n\nPC2 Grok 세션에 다음 지시를 붙여넣는다.\n\n1. C:\\lab에서 작업한다. 기존 ~/.grok/config.toml의 다른 MCP는 삭제·변경하지 않는다. NEO4J_PASSWORD는 출력·로그·파일·명령줄에 표시하지 않는다. 이번 작업에서는 write_cypher를 호출하지 않는다.",
+          "preview_highlight": "<div class=\"CodeMirror cm-s-default CodeMirrorServer\">\n<div class=\"CodeMirror-code\">\n<div><pre><span class=\"cm-header cm-header-1\">#</span><span class=\"cm-header cm-header-1\"> </span><span class=\"cm-header cm-header-1\">G</span><span class=\"cm-header cm-header-1\">r</span><span class=\"cm-header cm-header-1\">o</span><span class=\"cm-header cm-header-1\">k</span><span class=\"cm-header cm-header-1\"> </span><span class=\"cm-header cm-header-1\">P</span><span class=\"cm-header cm-header-1\">C</span><span class=\"cm-header cm-header-1\">2</span><span class=\"cm-header cm-header-1\"> </span><span class=\"cm-header cm-header-1\">—</span><span class=\"cm-header cm-header-1\"> </span><span class=\"cm-header cm-header-1\">n</span><span class=\"cm-header cm-header-1\">e</span><span class=\"cm-header cm-header-1\">o</span><span class=\"cm-header cm-header-1\">4</span><span class=\"cm-header cm-header-1\">j</span><span class=\"cm-header cm-header-1\">-</span><span class=\"cm-header cm-header-1\">o</span><span class=\"cm-header cm-header-1\">f</span><span class=\"cm-header cm-header-1\">f</span><span class=\"cm-header cm-header-1\">i</span><span class=\"cm-header cm-header-1\">c</span><span class=\"cm-header cm-header-1\">i</span><span class=\"cm-header cm-header-1\">a</span><span class=\"cm-header cm-header-1\">l</span><span class=\"cm-header cm-header-1\"> </span><span class=\"cm-header cm-header-1\">M</span><span class=\"cm-header cm-header-1\">C</span><span class=\"cm-header cm-header-1\">P</span><span class=\"cm-header cm-header-1\"> </span><span class=\"cm-header cm-header-1\">연</span><span class=\"cm-header cm-header-1\">결</span><span class=\"cm-header cm-header-1\"> </span><span class=\"cm-header cm-header-1\">프</span><span class=\"cm-header cm-header-1\">롬</span><span class=\"cm-header cm-header-1\">프</span><span class=\"cm-header cm-header-1\">트</span></pre></div>\n<div><pre>&#8203;</pre></div>\n<div><pre>PC2 Grok 세션에 다음 지시를 붙여넣는다.</pre></div>\n<div><pre>&#8203;</pre></div>\n<div><pre><span class=\"cm-variable-2\">1</span><span class=\"cm-variable-2\">.</span><span class=\"cm-variable-2\"> </span><span class=\"cm-variable-2\">C</span><span class=\"cm-variable-2\"></span><span class=\"cm-variable-2\">:</span><span class=\"cm-variable-2\">\\</span><span class=\"cm-variable-2\">l</span><span class=\"cm-variable-2\">a</span><span class=\"cm-variable-2\">b</span><span class=\"cm-variable-2\">에</span><span class=\"cm-variable-2\">서</span><span class=\"cm-variable-2\"> </span><span class=\"cm-variable-2\">작</span><span class=\"cm-variable-2\">업</span><span class=\"cm-variable-2\">한</span><span class=\"cm-variable-2\">다</span><span class=\"cm-variable-2\">.</span><span class=\"cm-variable-2\"> </span><span class=\"cm-variable-2\">기</span><span class=\"cm-variable-2\">존</span><span class=\"cm-variable-2\"> </span><span class=\"cm-variable-2\">~</span><span class=\"cm-variable-2\">/</span><span class=\"cm-variable-2\">.</span><span class=\"cm-variable-2\">g</span><span class=\"cm-variable-2\">r</span><span class=\"cm-variable-2\">o</span><span class=\"cm-variable-2\">k</span><span class=\"cm-variable-2\">/</span><span class=\"cm-variable-2\">c</span><span class=\"cm-variable-2\">o</span><span class=\"cm-variable-2\">n</span><span class=\"cm-variable-2\">f</span><span class=\"cm-variable-2\">i</span><span class=\"cm-variable-2\">g</span><span class=\"cm-variable-2\">.</span><span class=\"cm-variable-2\">t</span><span class=\"cm-variable-2\">o</span><span class=\"cm-variable-2\">m</span><span class=\"cm-variable-2\">l</span><span class=\"cm-variable-2\">의</span><span class=\"cm-variable-2\"> </span><span class=\"cm-variable-2\">다</span><span class=\"cm-variable-2\">른</span><span class=\"cm-variable-2\"> </span><span class=\"cm-variable-2\">M</span><span class=\"cm-variable-2\">C</span><span class=\"cm-variable-2\">P</span><span class=\"cm-variable-2\">는</span><span class=\"cm-variable-2\"> </span><span class=\"cm-variable-2\">삭</span><span class=\"cm-variable-2\">제</span><span class=\"cm-variable-2\">·</span><span class=\"cm-variable-2\">변</span><span class=\"cm-variable-2\">경</span><span class=\"cm-variable-2\">하</span><span class=\"cm-variable-2\">지</span><span class=\"cm-variable-2\"> </span><span class=\"cm-variable-2\">않</span><span class=\"cm-variable-2\">는</span><span class=\"cm-variable-2\">다</span><span class=\"cm-variable-2\">.</span><span class=\"cm-variable-2\"> </span><span class=\"cm-variable-2\">N</span><span class=\"cm-variable-2\">E</span><span class=\"cm-variable-2\">O</span><span class=\"cm-variable-2\">4</span><span class=\"cm-variable-2\">J</span><span class=\"cm-variable-2\">_</span><span class=\"cm-variable-2\">P</span><span class=\"cm-variable-2\">A</span><span class=\"cm-variable-2\">S</span><span class=\"cm-variable-2\">S</span><span class=\"cm-variable-2\">W</span><span class=\"cm-variable-2\">O</span><span class=\"cm-variable-2\">R</span><span class=\"cm-variable-2\">D</span><span class=\"cm-variable-2\">는</span><span class=\"cm-variable-2\"> </span><span class=\"cm-variable-2\">출</span><span class=\"cm-variable-2\">력</span><span class=\"cm-variable-2\">·</span><span class=\"cm-variable-2\">로</span><span class=\"cm-variable-2\">그</span><span class=\"cm-variable-2\">·</span><span class=\"cm-variable-2\">파</span><span class=\"cm-variable-2\">일</span><span class=\"cm-variable-2\">·</span><span class=\"cm-variable-2\">명</span><span class=\"cm-variable-2\">령</span><span class=\"cm-variable-2\">줄</span><span class=\"cm-variable-2\">에</span><span class=\"cm-variable-2\"> </span><span class=\"cm-variable-2\">표</span><span class=\"cm-variable-2\">시</span><span class=\"cm-variable-2\">하</span><span class=\"cm-variable-2\">지</span><span class=\"cm-variable-2\"> </span><span class=\"cm-variable-2\">않</span><span class=\"cm-variable-2\">는</span><span class=\"cm-variable-2\">다</span><span class=\"cm-variable-2\">.</span><span class=\"cm-variable-2\"> </span><span class=\"cm-variable-2\">이</span><span class=\"cm-variable-2\">번</span><span class=\"cm-variable-2\"> </span><span class=\"cm-variable-2\">작</span><span class=\"cm-variable-2\">업</span><span class=\"cm-variable-2\">에</span><span class=\"cm-variable-2\">서</span><span class=\"cm-variable-2\">는</span><span class=\"cm-variable-2\"> </span><span class=\"cm-variable-2\">w</span><span class=\"cm-variable-2\">r</span><span class=\"cm-variable-2\">i</span><span class=\"cm-variable-2\">t</span><span class=\"cm-variable-2\">e</span><span class=\"cm-variable-2\">_</span><span class=\"cm-variable-2\">c</span><span class=\"cm-variable-2\">y</span><span class=\"cm-variable-2\">p</span><span class=\"cm-variable-2\">h</span><span class=\"cm-variable-2\">e</span><span class=\"cm-variable-2\">r</span><span class=\"cm-variable-2\">를</span><span class=\"cm-variable-2\"> </span><span class=\"cm-variable-2\">호</span><span class=\"cm-variable-2\">출</span><span class=\"cm-variable-2\">하</span><span class=\"cm-variable-2\">지</span><span class=\"cm-variable-2\"> </span><span class=\"cm-variable-2\">않</span><span class=\"cm-variable-2\">는</span><span class=\"cm-variable-2\">다</span><span class=\"cm-variable-2\">.</span></pre></div>\n</div>\n</div>\n",
+          "lines": 66,
+          "lines_more": 61,
+          "preview_is_truncated": true,
+          "is_starred": false,
+          "skipped_shares": true,
+          "has_rich_preview": false,
+          "file_access": "visible"
+        }
+      ],
+      "upload": true,
+      "user": "U0BP1KC6J81",
+      "display_as_bot": false,
+      "blocks": [
+        {
+          "type": "rich_text",
+          "block_id": "1cc",
+          "elements": [
+            {
+              "type": "rich_text_section",
+              "elements": [
+                {
+                  "type": "text",
+                  "text": "Grok PC2용 neo4j-official MCP 연결·진단·read-only smoke test 프롬프트입니다. 기존 MCP 보존, credential 비노출, write 금지 규칙을 포함합니다."
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "type": "message",
+      "ts": "1787113163.579259",
+      "bot_id": "B0BPH1DNJGM",
+      "app_id": "A097V82EGG2"
+    },
+    {
+      "text": "[ANALYSIS | Bill] 컨센서스 미제공 QoQ TOP100 · DART 사업내용+급증원인 통합표\n\n원 아티팩트는 로그인 벽으로 본문을 못 열어, Slack 원표(1~100)를 정본으로 고정한 뒤 DART 2026 반기보고서 사업의 개요/매출 및 수주상황으로 100개 전부 보강했다.\n\n한줄: QoQ +50~620%는 대부분 성장 재평가가 아니라 인식 시점. 계절성(교육·가전·시멘트·골프·증권 거래대금)과 장비/공사 인도가 상위권.\n\n주의\n• 티이엠씨씨엔에스: 반기 556억 vs 표 2Q 559억. 반기를 2Q로 계산했을 가능성(진짜 QoQ≈+39%)\n• 다우기술·다우데이타 16조: 키움 연결\n• 우리기술투자: 평가손익\n• 메가터치(68)는 프로브카드 — BU-029 접점\n\n전문 MD 첨부. 로컬: C:\\\\lab\\\\vsurf_capital\\\\common\\\\docs\\\\2q26_no_consensus_qoq_top100.md\n— Bill",
+      "files": [
+        {
+          "id": "F0BQDGHD0DV",
+          "created": 1787011161,
+          "timestamp": 1787011161,
+          "mimetype": "text/plain",
+          "filetype": "markdown",
+          "pretty_type": "Markdown(원시)",
+          "user": "U0BPUB9ES8G",
+          "user_team": "T0BNZLWNB8S",
+          "editable": true,
+          "size": 21045,
+          "mode": "snippet",
+          "is_external": false,
+          "external_type": "",
+          "is_public": true,
+          "public_url_shared": false,
+          "display_as_bot": false,
+          "username": "",
+          "name": "2q26_no_consensus_qoq_top100.md",
+          "title": "2Q26 컨센서스미제공 QoQ TOP100 통합분석",
+          "is_modified_by_ai": false,
+          "url_private": "https://files.slack.com/files-pri/T0BNZLWNB8S-F0BQDGHD0DV/2q26_no_consensus_qoq_top100.md",
+          "url_private_download": "https://files.slack.com/files-pri/T0BNZLWNB8S-F0BQDGHD0DV/download/2q26_no_consensus_qoq_top100.md",
+          "permalink": "https://vsurfcapital.slack.com/files/U0BPUB9ES8G/F0BQDGHD0DV/2q26_no_consensus_qoq_top100.md",
+          "permalink_public": "https://slack-files.com/T0BNZLWNB8S-F0BQDGHD0DV-eea287635d",
+          "edit_link": "https://vsurfcapital.slack.com/files/U0BPUB9ES8G/F0BQDGHD0DV/2q26_no_consensus_qoq_top100.md/edit",
+          "preview": "# 컨센서스 미제공 · 2Q26 매출 QoQ TOP 100 통합 분석\r\n\r\n- 작성: Bill / 2026-08-18\r\n- 채널: `#vsurf-skill`\r\n- 원자료: [Claude Artifact](https://claude.ai/code/artifact/51a84251-5467-4b19-9d0a-f8bf17f04d87) · Slack 원표 `#vsurf-skill` `1787008246.136319`\r",
+          "preview_highlight": "<div class=\"CodeMirror cm-s-default CodeMirrorServer\">\n<div class=\"CodeMirror-code\">\n<div><pre><span class=\"cm-header cm-header-1\">#</span><span class=\"cm-header cm-header-1\"> </span><span class=\"cm-header cm-header-1\">컨</span><span class=\"cm-header cm-header-1\">센</span><span class=\"cm-header cm-header-1\">서</span><span class=\"cm-header cm-header-1\">스</span><span class=\"cm-header cm-header-1\"> </span><span class=\"cm-header cm-header-1\">미</span><span class=\"cm-header cm-header-1\">제</span><span class=\"cm-header cm-header-1\">공</span><span class=\"cm-header cm-header-1\"> </span><span class=\"cm-header cm-header-1\">·</span><span class=\"cm-header cm-header-1\"> </span><span class=\"cm-header cm-header-1\">2</span><span class=\"cm-header cm-header-1\">Q</span><span class=\"cm-header cm-header-1\">2</span><span class=\"cm-header cm-header-1\">6</span><span class=\"cm-header cm-header-1\"> </span><span class=\"cm-header cm-header-1\">매</span><span class=\"cm-header cm-header-1\">출</span><span class=\"cm-header cm-header-1\"> </span><span class=\"cm-header cm-header-1\">Q</span><span class=\"cm-header cm-header-1\">o</span><span class=\"cm-header cm-header-1\">Q</span><span class=\"cm-header cm-header-1\"> </span><span class=\"cm-header cm-header-1\">T</span><span class=\"cm-header cm-header-1\">O</span><span class=\"cm-header cm-header-1\">P</span><span class=\"cm-header cm-header-1\"> </span><span class=\"cm-header cm-header-1\">1</span><span class=\"cm-header cm-header-1\">0</span><span class=\"cm-header cm-header-1\">0</span><span class=\"cm-header cm-header-1\"> </span><span class=\"cm-header cm-header-1\">통</span><span class=\"cm-header cm-header-1\">합</span><span class=\"cm-header cm-header-1\"> </span><span class=\"cm-header cm-header-1\">분</span><span class=\"cm-header cm-header-1\">석</span></pre></div>\n<div><pre>&#8203;</pre></div>\n<div><pre><span class=\"cm-variable-2\">-</span><span class=\"cm-variable-2\"> </span><span class=\"cm-variable-2\">작</span><span class=\"cm-variable-2\">성</span><span class=\"cm-variable-2\"></span><span class=\"cm-variable-2\">:</span><span class=\"cm-variable-2\"> </span><span class=\"cm-variable-2\">B</span><span class=\"cm-variable-2\">i</span><span class=\"cm-variable-2\">l</span><span class=\"cm-variable-2\">l</span><span class=\"cm-variable-2\"> </span><span class=\"cm-variable-2\">/</span><span class=\"cm-variable-2\"> </span><span class=\"cm-variable-2\">2</span><span class=\"cm-variable-2\">0</span><span class=\"cm-variable-2\">2</span><span class=\"cm-variable-2\">6</span><span class=\"cm-variable-2\">-</span><span class=\"cm-variable-2\">0</span><span class=\"cm-variable-2\">8</span><span class=\"cm-variable-2\">-</span><span class=\"cm-variable-2\">1</span><span class=\"cm-variable-2\">8</span></pre></div>\n<div><pre><span class=\"cm-variable-2\">-</span><span class=\"cm-variable-2\"> </span><span class=\"cm-variable-2\">채</span><span class=\"cm-variable-2\">널</span><span class=\"cm-variable-2\"></span><span class=\"cm-variable-2\">:</span><span class=\"cm-variable-2\"> </span><span class=\"cm-comment cm-variable-2\">`</span><span class=\"cm-comment cm-variable-2\">#</span><span class=\"cm-comment cm-variable-2\">v</span><span class=\"cm-comment cm-variable-2\">s</span><span class=\"cm-comment cm-variable-2\">u</span><span class=\"cm-comment cm-variable-2\">r</span><span class=\"cm-comment cm-variable-2\">f</span><span class=\"cm-comment cm-variable-2\">-</span><span class=\"cm-comment cm-variable-2\">s</span><span class=\"cm-comment cm-variable-2\">k</span><span class=\"cm-comment cm-variable-2\">i</span><span class=\"cm-comment cm-variable-2\">l</span><span class=\"cm-comment cm-variable-2\">l</span><span class=\"cm-comment cm-variable-2\">`</span></pre></div>\n<div><pre><span class=\"cm-variable-2\">-</span><span class=\"cm-variable-2\"> </span><span class=\"cm-variable-2\">원</span><span class=\"cm-variable-2\">자</span><span class=\"cm-variable-2\">료</span><span class=\"cm-variable-2\"></span><span class=\"cm-variable-2\">:</span><span class=\"cm-variable-2\"> </span><span class=\"cm-link cm-variable-2\">[</span><span class=\"cm-link cm-variable-2\">C</span><span class=\"cm-link cm-variable-2\">l</span><span class=\"cm-link cm-variable-2\">a</span><span class=\"cm-link cm-variable-2\">u</span><span class=\"cm-link cm-variable-2\">d</span><span class=\"cm-link cm-variable-2\">e</span><span class=\"cm-link cm-variable-2\"> </span><span class=\"cm-link cm-variable-2\">A</span><span class=\"cm-link cm-variable-2\">r</span><span class=\"cm-link cm-variable-2\">t</span><span class=\"cm-link cm-variable-2\">i</span><span class=\"cm-link cm-variable-2\">f</span><span class=\"cm-link cm-variable-2\">a</span><span class=\"cm-link cm-variable-2\">c</span><span class=\"cm-link cm-variable-2\">t</span><span class=\"cm-link cm-variable-2\">]</span><span class=\"cm-string cm-url cm-variable-2\">(</span><span class=\"cm-string cm-url cm-variable-2\">https://claude.ai/code/artifact/51a84251-5467-4b19-9d0a-f8bf17f04d87</span><span class=\"cm-string cm-url cm-variable-2\">)</span><span class=\"cm-variable-2\"> </span><span class=\"cm-variable-2\">·</span><span class=\"cm-variable-2\"> </span><span class=\"cm-variable-2\">S</span><span class=\"cm-variable-2\">l</span><span class=\"cm-variable-2\">a</span><span class=\"cm-variable-2\">c</span><span class=\"cm-variable-2\">k</span><span class=\"cm-variable-2\"> </span><span class=\"cm-variable-2\">원</span><span class=\"cm-variable-2\">표</span><span class=\"cm-variable-2\"> </span><span class=\"cm-comment cm-variable-2\">`</span><span class=\"cm-comment cm-variable-2\">#</span><span class=\"cm-comment cm-variable-2\">v</span><span class=\"cm-comment cm-variable-2\">s</span><span class=\"cm-comment cm-variable-2\">u</span><span class=\"cm-comment cm-variable-2\">r</span><span class=\"cm-comment cm-variable-2\">f</span><span class=\"cm-comment cm-variable-2\">-</span><span class=\"cm-comment cm-variable-2\">s</span><span class=\"cm-comment cm-variable-2\">k</span><span class=\"cm-comment cm-variable-2\">i</span><span class=\"cm-comment cm-variable-2\">l</span><span class=\"cm-comment cm-variable-2\">l</span><span class=\"cm-comment cm-variable-2\">`</span><span class=\"cm-variable-2\"> </span><span class=\"cm-comment cm-variable-2\">`</span><span class=\"cm-comment cm-variable-2\">1</span><span class=\"cm-comment cm-variable-2\">7</span><span class=\"cm-comment cm-variable-2\">8</span><span class=\"cm-comment cm-variable-2\">7</span><span class=\"cm-comment cm-variable-2\">0</span><span class=\"cm-comment cm-variable-2\">0</span><span class=\"cm-comment cm-variable-2\">8</span><span class=\"cm-comment cm-variable-2\">2</span><span class=\"cm-comment cm-variable-2\">4</span><span class=\"cm-comment cm-variable-2\">6</span><span class=\"cm-comment cm-variable-2\">.</span><span class=\"cm-comment cm-variable-2\">1</span><span class=\"cm-comment cm-variable-2\">3</span><span class=\"cm-comment cm-variable-2\">6</span><span class=\"cm-comment cm-variable-2\">3</span><span class=\"cm-comment cm-variable-2\">1</span><span class=\"cm-comment cm-variable-2\">9</span><span class=\"cm-comment cm-variable-2\">`</span></pre></div>\n</div>\n</div>\n",
+          "lines": 152,
+          "lines_more": 147,
+          "preview_is_truncated": true,
+          "is_starred": false,
+          "skipped_shares": true,
+          "has_rich_preview": false,
+          "file_access": "visible"
+        }
+      ],
+      "upload": true,
+      "user": "U0BPUB9ES8G",
+      "display_as_bot": false,
+      "blocks": [
+        {
+          "type": "rich_text",
+          "block_id": "UD2",
+          "elements": [
+            {
+              "type": "rich_text_section",
+              "elements": [
+                {
+                  "type": "text",
+                  "text": "[ANALYSIS | Bill] 컨센서스 미제공 QoQ TOP100 · DART 사업내용+급증원인 통합표\n\n원 아티팩트는 로그인 벽으로 본문을 못 열어, Slack 원표(1~100)를 정본으로 고정한 뒤 DART 2026 반기보고서 사업의 개요/매출 및 수주상황으로 100개 전부 보강했다.\n\n한줄: QoQ +50~620%는 대부분 성장 재평가가 아니라 인식 시점. 계절성(교육·가전·시멘트·골프·증권 거래대금)과 장비/공사 인도가 상위권.\n\n주의\n• 티이엠씨씨엔에스: 반기 556억 vs 표 2Q 559억. 반기를 2Q로 계산했을 가능성(진짜 QoQ≈+39%)\n• 다우기술·다우데이타 16조: 키움 연결\n• 우리기술투자: 평가손익\n• 메가터치(68)는 프로브카드 — BU-029 접점\n\n전문 MD 첨부. 로컬: C:\\\\lab\\\\vsurf_capital\\\\common\\\\docs\\\\2q26_no_consensus_qoq_top100.md\n— Bill"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "type": "message",
+      "ts": "1787011162.693939",
+      "bot_id": "B0BP1UJS6EM",
+      "app_id": "A0BNY1R031U"
+    },
+    {
+      "user": "U0BP1KC6J81",
+      "type": "message",
+      "ts": "1787009124.149239",
+      "app_id": "A097V82EGG2",
+      "text": "[IVK SKILL | Agent Handoff Standard v1.0 | 2026-08-18]\n\n목적\n새 Value Chain을 IVK 입력부터 Blueprint, Source Plan, Evidence, KE, Neo4j, Review까지 재현 가능하게 처리하는 공통 운용 규격이다. 대화 기억이 아니라 Git artifact와 contract_version을 정본으로 사용한다.\n\n 1. 전체 Flow IVK NEW 입력 → Intake Validate → Normalize → existing Neo4j read → Blueprint → Frame/Sector/Region Pack 선택 → Source Plan → Source Collection → Evidence Packet → Knowledge Engineering → governed Neo4j write → Neo4j read-back → Review/Report → Link Expansion/재평가\n완료 판정은 Blueprint 생성이 아니라 Review/Report와 Neo4j read-back까지 통과한 경우다.\n\n 2. 입력 계약 필수 JSON:\n{\n\"name\": \"Value Chain name\",\n\"seed\": [\"ticker/company ID\"],\n\"frame\": \"분석 frame\",\n\"thesis\": \"검증할 투자 thesis\",\n\"questions\": [\"검증 질문\"],\n\"known_links\": [],\n\"limitations\": [],\n\"references\": []\n}\n필수: name, seed, frame, thesis / 권장: questions / 선택: known_links, limitations, references\nvalidator는 누락·빈 값·빈 seed·중복 seed·잘못된 배열 타입·알 수 없는 필드를 reject한다.\n\n 3. 실행 파일 • Intake/Normalize/Blueprint: scripts/ivk_new_intake.py\n• Intake schema: schemas/ivk_new_intake.schema.json\n• Blueprint schema: schemas/ivk_blueprint.schema.json\n• Pack/Source Plan: scripts/ivk_factory.py\n• Source Plan schema: schemas/ivk_source_plan.schema.json\n• Minimal Evidence→KE→Write manifest→Review: scripts/ivk_phase1_dry_run.py\n• Causal record validator: scripts/ivk_v2.py\n문서: docs/ivk_new_intake_blueprint.md / docs/ivk_factory_phase_a.md / docs/IVK_CURRENT_STATE_AND_EXTENSIBLE_FACTORY_REVIEW_2026-08-16.md\n 4. Intake → Blueprint 기존 Neo4j 조회는 반드시 neo4j-official.read_cypher를 사용한다. investment-kg API로 canonical read를 대체하지 않는다.\n조회 결과를 JSON snapshot으로 저장한 뒤:\npython scripts/ivk_new_intake.py &lt;intake.json&gt; --graph-results &lt;graph_snapshot.json&gt; --output &lt;blueprint.json&gt;\nBlueprint 정책: raw_input 보존, seed는 starting_point, 미매칭 seed는 unresolved_seeds, graph 결과는 graph_observation, 추론은 hypothesis/inference, auto_confirm=false, review_status=pending, Driver/Bottleneck/Beneficiary는 후보 슬롯만 생성.\n\n 5. Blueprint → Source Plan python scripts/ivk_factory.py plan &lt;blueprint.json&gt; --registry registry/ivk_factory_packs.json --sector &lt;sector_pack&gt; --region &lt;region&gt; --output &lt;source_plan.json&gt;\nSource Plan에는 entity resolution, seed별 evidence collection, question-evidence, pack 버전, source adapter, token budget, stop condition, primary_source_first, content-hash reuse, auto_confirm=false가 포함된다.\n현재 Phase A는 계획 생성까지다. 자동 source fetch/LLM 호출/Neo4j write는 하지 않는다.\n\n 6. Evidence·KE·Neo4j Evidence 최소 필드: evidence_id, ticker/company_id, source_ref, source date/as-of, facts, content_hash, epistemic_status, review_status.\nKE는 fact/inference/hypothesis와 pending/accepted/rejected/deferred를 분리한다.\nNeo4j write는 승인된 manifest 범위만 수행한다. 초기 허용 범위는 candidate Company identity, Evidence, SUPPORTED_BY, candidate membership 등이다. 근거 없는 causal assertion이나 confirmed 승격은 금지한다.\nWrite 후 neo4j-official.read_cypher로 node/relationship, source/evidence, hash, candidate/review 상태, confirmed 자동 생성 여부를 재확인한다.\n\n 7. Review/Report DoD 각 analytical question은 evidence-backed 또는 blocked-with-reason 중 하나여야 한다.\n보고서 필수: Run-ID, 입력/Blueprint/Source Plan 경로, source/provenance, Evidence hash, Driver/Bottleneck/Beneficiary 후보, counter-evidence/falsifier, Link Expansion strengthen/weaken/reject, Neo4j write/read-back, review status, 남은 gap, token/budget, PASS/FAIL/BLOCKED.\nSlack COMPLETED만으로 완료 판정하지 말고 reports/NNN_report.md 원문과 Git diff를 확인한다.\n\n 8. 다른 agent 인수 규칙 전달 artifact: intake JSON, graph snapshot, Blueprint, Source Plan, Source Collection, Evidence Packet, KE Packet, Neo4j write manifest, read-back, Review/Report.\n인수 agent는 새 run_id 사용, 기존 artifact overwrite 금지, contract_version 유지, raw_input 보존, auto_confirm=false 유지, canonical read는 neo4j-official.read_cypher, 승인 없는 write 금지, source/evidence 없는 assertion 금지, 완료 전 테스트·read-back·report 수행.\n필요 권한: 동일 Git 저장소, Frame/Sector/Region pack, source MCP, neo4j-official read/write, Neo4j 인증, PC 환경.\n\n 9. 현재 구현 수준 완료: Intake validation, Normalize, Blueprint contract, existing graph snapshot, Source Plan, Order 141 최소 full-path, Evidence hash/provenance, candidate-only governed write/read-back, review-gated status.\n부분/수동: source collection adapter, 범용 KE 변환기, Frame/Sector KPI 자동화, 범용 Neo4j Blueprint loader, 자동 Link Expansion, STI 수준 causal/time-series completeness, 전체 token ledger 강제 집행.\n\n 10. 핵심 원칙 Source → Analyze → Structure → Graph → Query → Discover → Expand → Source\nIVK Complete = 질문 coverage + evidence + KE + governed write + read-back + review report\n이 문서는 다른 agent가 동일한 입력과 artifact를 받아 같은 판단·검증 절차를 재현하기 위한 handoff contract다. *다음을 사용하여 보냄* <@U0BP56ZV2NT>",
+      "team": "T0BNZLWNB8S",
+      "blocks": [
+        {
+          "type": "rich_text",
+          "block_id": "zETA3Z",
+          "elements": [
+            {
+              "type": "rich_text_section",
+              "elements": [
+                {
+                  "type": "text",
+                  "text": "[IVK SKILL | Agent Handoff Standard v1.0 | 2026-08-18]"
+                },
+                {
+                  "type": "text",
+                  "text": "\n\n"
+                },
+                {
+                  "type": "text",
+                  "text": "목적"
+                },
+                {
+                  "type": "text",
+                  "text": "\n"
+                },
+                {
+                  "type": "text",
+                  "text": "새 Value Chain을 IVK 입력부터 Blueprint, Source Plan, Evidence, KE, Neo4j, Review까지 재현 가능하게 처리하는 공통 운용 규격이다. 대화 기억이 아니라 Git artifact와 contract_version을 정본으로 사용한다."
+                },
+                {
+                  "type": "text",
+                  "text": "\n\n"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "header",
+          "block_id": "ff7S4F",
+          "text": {
+            "type": "plain_text",
+            "text": "1. 전체 Flow",
+            "emoji": true
+          },
+          "level": 2
+        },
+        {
+          "type": "rich_text",
+          "block_id": "BKpe7W",
+          "elements": [
+            {
+              "type": "rich_text_section",
+              "elements": [
+                {
+                  "type": "text",
+                  "text": "IVK NEW 입력 → Intake Validate → Normalize → existing Neo4j read → Blueprint → Frame/Sector/Region Pack 선택 → Source Plan → Source Collection → Evidence Packet → Knowledge Engineering → governed Neo4j write → Neo4j read-back → Review/Report → Link Expansion/재평가"
+                },
+                {
+                  "type": "text",
+                  "text": "\n"
+                },
+                {
+                  "type": "text",
+                  "text": "완료 판정은 Blueprint 생성이 아니라 Review/Report와 Neo4j read-back까지 통과한 경우다."
+                },
+                {
+                  "type": "text",
+                  "text": "\n\n"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "header",
+          "block_id": "GO+LNu",
+          "text": {
+            "type": "plain_text",
+            "text": "2. 입력 계약",
+            "emoji": true
+          },
+          "level": 2
+        },
+        {
+          "type": "rich_text",
+          "block_id": "FP58XI",
+          "elements": [
+            {
+              "type": "rich_text_section",
+              "elements": [
+                {
+                  "type": "text",
+                  "text": "필수 JSON:"
+                },
+                {
+                  "type": "text",
+                  "text": "\n"
+                },
+                {
+                  "type": "text",
+                  "text": "{"
+                },
+                {
+                  "type": "text",
+                  "text": "\n"
+                },
+                {
+                  "type": "text",
+                  "text": "\"name\": \"Value Chain name\","
+                },
+                {
+                  "type": "text",
+                  "text": "\n"
+                },
+                {
+                  "type": "text",
+                  "text": "\"seed\": [\"ticker/company ID\"],"
+                },
+                {
+                  "type": "text",
+                  "text": "\n"
+                },
+                {
+                  "type": "text",
+                  "text": "\"frame\": \"분석 frame\","
+                },
+                {
+                  "type": "text",
+                  "text": "\n"
+                },
+                {
+                  "type": "text",
+                  "text": "\"thesis\": \"검증할 투자 thesis\","
+                },
+                {
+                  "type": "text",
+                  "text": "\n"
+                },
+                {
+                  "type": "text",
+                  "text": "\"questions\": [\"검증 질문\"],"
+                },
+                {
+                  "type": "text",
+                  "text": "\n"
+                },
+                {
+                  "type": "text",
+                  "text": "\"known_links\": [],"
+                },
+                {
+                  "type": "text",
+                  "text": "\n"
+                },
+                {
+                  "type": "text",
+                  "text": "\"limitations\": [],"
+                },
+                {
+                  "type": "text",
+                  "text": "\n"
+                },
+                {
+                  "type": "text",
+                  "text": "\"references\": []"
+                },
+                {
+                  "type": "text",
+                  "text": "\n"
+                },
+                {
+                  "type": "text",
+                  "text": "}"
+                },
+                {
+                  "type": "text",
+                  "text": "\n"
+                },
+                {
+                  "type": "text",
+                  "text": "필수: name, seed, frame, thesis / 권장: questions / 선택: known_links, limitations, references"
+                },
+                {
+                  "type": "text",
+                  "text": "\n"
+                },
+                {
+                  "type": "text",
+                  "text": "validator는 누락·빈 값·빈 seed·중복 seed·잘못된 배열 타입·알 수 없는 필드를 reject한다."
+                },
+                {
+                  "type": "text",
+                  "text": "\n\n"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "header",
+          "block_id": "5VNq3Q",
+          "text": {
+            "type": "plain_text",
+            "text": "3. 실행 파일",
+            "emoji": true
+          },
+          "level": 2
+        },
+        {
+          "type": "rich_text",
+          "block_id": "gtStL5",
+          "elements": [
+            {
+              "type": "rich_text_list",
+              "elements": [
+                {
+                  "type": "rich_text_section",
+                  "elements": [
+                    {
+                      "type": "text",
+                      "text": "Intake/Normalize/Blueprint: scripts/ivk_new_intake.py"
+                    }
+                  ]
+                },
+                {
+                  "type": "rich_text_section",
+                  "elements": [
+                    {
+                      "type": "text",
+                      "text": "Intake schema: schemas/ivk_new_intake.schema.json"
+                    }
+                  ]
+                },
+                {
+                  "type": "rich_text_section",
+                  "elements": [
+                    {
+                      "type": "text",
+                      "text": "Blueprint schema: schemas/ivk_blueprint.schema.json"
+                    }
+                  ]
+                },
+                {
+                  "type": "rich_text_section",
+                  "elements": [
+                    {
+                      "type": "text",
+                      "text": "Pack/Source Plan: scripts/ivk_factory.py"
+                    }
+                  ]
+                },
+                {
+                  "type": "rich_text_section",
+                  "elements": [
+                    {
+                      "type": "text",
+                      "text": "Source Plan schema: schemas/ivk_source_plan.schema.json"
+                    }
+                  ]
+                },
+                {
+                  "type": "rich_text_section",
+                  "elements": [
+                    {
+                      "type": "text",
+                      "text": "Minimal Evidence→KE→Write manifest→Review: scripts/ivk_phase1_dry_run.py"
+                    }
+                  ]
+                },
+                {
+                  "type": "rich_text_section",
+                  "elements": [
+                    {
+                      "type": "text",
+                      "text": "Causal record validator: scripts/ivk_v2.py"
+                    },
+                    {
+                      "type": "text",
+                      "text": "\n"
+                    },
+                    {
+                      "type": "text",
+                      "text": "문서: docs/ivk_new_intake_blueprint.md / docs/ivk_factory_phase_a.md / docs/IVK_CURRENT_STATE_AND_EXTENSIBLE_FACTORY_REVIEW_2026-08-16.md"
+                    }
+                  ]
+                }
+              ],
+              "style": "bullet",
+              "indent": 0
+            },
+            {
+              "type": "rich_text_section",
+              "elements": [
+                {
+                  "type": "text",
+                  "text": "\n"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "header",
+          "block_id": "u+zuPy",
+          "text": {
+            "type": "plain_text",
+            "text": "4. Intake → Blueprint",
+            "emoji": true
+          },
+          "level": 2
+        },
+        {
+          "type": "rich_text",
+          "block_id": "IxRhwP",
+          "elements": [
+            {
+              "type": "rich_text_section",
+              "elements": [
+                {
+                  "type": "text",
+                  "text": "기존 Neo4j 조회는 반드시 neo4j-official.read_cypher를 사용한다. investment-kg API로 canonical read를 대체하지 않는다."
+                },
+                {
+                  "type": "text",
+                  "text": "\n"
+                },
+                {
+                  "type": "text",
+                  "text": "조회 결과를 JSON snapshot으로 저장한 뒤:"
+                },
+                {
+                  "type": "text",
+                  "text": "\n"
+                },
+                {
+                  "type": "text",
+                  "text": "python scripts/ivk_new_intake.py <intake.json> --graph-results <graph_snapshot.json> --output <blueprint.json>"
+                },
+                {
+                  "type": "text",
+                  "text": "\n"
+                },
+                {
+                  "type": "text",
+                  "text": "Blueprint 정책: raw_input 보존, seed는 starting_point, 미매칭 seed는 unresolved_seeds, graph 결과는 graph_observation, 추론은 hypothesis/inference, auto_confirm=false, review_status=pending, Driver/Bottleneck/Beneficiary는 후보 슬롯만 생성."
+                },
+                {
+                  "type": "text",
+                  "text": "\n\n"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "header",
+          "block_id": "55OSeN",
+          "text": {
+            "type": "plain_text",
+            "text": "5. Blueprint → Source Plan",
+            "emoji": true
+          },
+          "level": 2
+        },
+        {
+          "type": "rich_text",
+          "block_id": "P8Fxxc",
+          "elements": [
+            {
+              "type": "rich_text_section",
+              "elements": [
+                {
+                  "type": "text",
+                  "text": "python scripts/ivk_factory.py plan <blueprint.json> --registry registry/ivk_factory_packs.json --sector <sector_pack> --region <region> --output <source_plan.json>"
+                },
+                {
+                  "type": "text",
+                  "text": "\n"
+                },
+                {
+                  "type": "text",
+                  "text": "Source Plan에는 entity resolution, seed별 evidence collection, question-evidence, pack 버전, source adapter, token budget, stop condition, primary_source_first, content-hash reuse, auto_confirm=false가 포함된다."
+                },
+                {
+                  "type": "text",
+                  "text": "\n"
+                },
+                {
+                  "type": "text",
+                  "text": "현재 Phase A는 계획 생성까지다. 자동 source fetch/LLM 호출/Neo4j write는 하지 않는다."
+                },
+                {
+                  "type": "text",
+                  "text": "\n\n"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "header",
+          "block_id": "e4TZkC",
+          "text": {
+            "type": "plain_text",
+            "text": "6. Evidence·KE·Neo4j",
+            "emoji": true
+          },
+          "level": 2
+        },
+        {
+          "type": "rich_text",
+          "block_id": "7XAPJF",
+          "elements": [
+            {
+              "type": "rich_text_section",
+              "elements": [
+                {
+                  "type": "text",
+                  "text": "Evidence 최소 필드: evidence_id, ticker/company_id, source_ref, source date/as-of, facts, content_hash, epistemic_status, review_status."
+                },
+                {
+                  "type": "text",
+                  "text": "\n"
+                },
+                {
+                  "type": "text",
+                  "text": "KE는 fact/inference/hypothesis와 pending/accepted/rejected/deferred를 분리한다."
+                },
+                {
+                  "type": "text",
+                  "text": "\n"
+                },
+                {
+                  "type": "text",
+                  "text": "Neo4j write는 승인된 manifest 범위만 수행한다. 초기 허용 범위는 candidate Company identity, Evidence, SUPPORTED_BY, candidate membership 등이다. 근거 없는 causal assertion이나 confirmed 승격은 금지한다."
+                },
+                {
+                  "type": "text",
+                  "text": "\n"
+                },
+                {
+                  "type": "text",
+                  "text": "Write 후 neo4j-official.read_cypher로 node/relationship, source/evidence, hash, candidate/review 상태, confirmed 자동 생성 여부를 재확인한다."
+                },
+                {
+                  "type": "text",
+                  "text": "\n\n"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "header",
+          "block_id": "i1IXLe",
+          "text": {
+            "type": "plain_text",
+            "text": "7. Review/Report DoD",
+            "emoji": true
+          },
+          "level": 2
+        },
+        {
+          "type": "rich_text",
+          "block_id": "D5kGpG",
+          "elements": [
+            {
+              "type": "rich_text_section",
+              "elements": [
+                {
+                  "type": "text",
+                  "text": "각 analytical question은 evidence-backed 또는 blocked-with-reason 중 하나여야 한다."
+                },
+                {
+                  "type": "text",
+                  "text": "\n"
+                },
+                {
+                  "type": "text",
+                  "text": "보고서 필수: Run-ID, 입력/Blueprint/Source Plan 경로, source/provenance, Evidence hash, Driver/Bottleneck/Beneficiary 후보, counter-evidence/falsifier, Link Expansion strengthen/weaken/reject, Neo4j write/read-back, review status, 남은 gap, token/budget, PASS/FAIL/BLOCKED."
+                },
+                {
+                  "type": "text",
+                  "text": "\n"
+                },
+                {
+                  "type": "text",
+                  "text": "Slack COMPLETED만으로 완료 판정하지 말고 reports/NNN_report.md 원문과 Git diff를 확인한다."
+                },
+                {
+                  "type": "text",
+                  "text": "\n\n"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "header",
+          "block_id": "JT6osJ",
+          "text": {
+            "type": "plain_text",
+            "text": "8. 다른 agent 인수 규칙",
+            "emoji": true
+          },
+          "level": 2
+        },
+        {
+          "type": "rich_text",
+          "block_id": "3fo5La",
+          "elements": [
+            {
+              "type": "rich_text_section",
+              "elements": [
+                {
+                  "type": "text",
+                  "text": "전달 artifact: intake JSON, graph snapshot, Blueprint, Source Plan, Source Collection, Evidence Packet, KE Packet, Neo4j write manifest, read-back, Review/Report."
+                },
+                {
+                  "type": "text",
+                  "text": "\n"
+                },
+                {
+                  "type": "text",
+                  "text": "인수 agent는 새 run_id 사용, 기존 artifact overwrite 금지, contract_version 유지, raw_input 보존, auto_confirm=false 유지, canonical read는 neo4j-official.read_cypher, 승인 없는 write 금지, source/evidence 없는 assertion 금지, 완료 전 테스트·read-back·report 수행."
+                },
+                {
+                  "type": "text",
+                  "text": "\n"
+                },
+                {
+                  "type": "text",
+                  "text": "필요 권한: 동일 Git 저장소, Frame/Sector/Region pack, source MCP, neo4j-official read/write, Neo4j 인증, PC 환경."
+                },
+                {
+                  "type": "text",
+                  "text": "\n\n"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "header",
+          "block_id": "+Vzf4S",
+          "text": {
+            "type": "plain_text",
+            "text": "9. 현재 구현 수준",
+            "emoji": true
+          },
+          "level": 2
+        },
+        {
+          "type": "rich_text",
+          "block_id": "KOp3SR",
+          "elements": [
+            {
+              "type": "rich_text_section",
+              "elements": [
+                {
+                  "type": "text",
+                  "text": "완료: Intake validation, Normalize, Blueprint contract, existing graph snapshot, Source Plan, Order 141 최소 full-path, Evidence hash/provenance, candidate-only governed write/read-back, review-gated status."
+                },
+                {
+                  "type": "text",
+                  "text": "\n"
+                },
+                {
+                  "type": "text",
+                  "text": "부분/수동: source collection adapter, 범용 KE 변환기, Frame/Sector KPI 자동화, 범용 Neo4j Blueprint loader, 자동 Link Expansion, STI 수준 causal/time-series completeness, 전체 token ledger 강제 집행."
+                },
+                {
+                  "type": "text",
+                  "text": "\n\n"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "header",
+          "block_id": "DMEDYe",
+          "text": {
+            "type": "plain_text",
+            "text": "10. 핵심 원칙",
+            "emoji": true
+          },
+          "level": 2
+        },
+        {
+          "type": "rich_text",
+          "block_id": "yNQmCz",
+          "elements": [
+            {
+              "type": "rich_text_section",
+              "elements": [
+                {
+                  "type": "text",
+                  "text": "Source → Analyze → Structure → Graph → Query → Discover → Expand → Source"
+                },
+                {
+                  "type": "text",
+                  "text": "\n"
+                },
+                {
+                  "type": "text",
+                  "text": "IVK Complete = 질문 coverage + evidence + KE + governed write + read-back + review report"
+                },
+                {
+                  "type": "text",
+                  "text": "\n"
+                },
+                {
+                  "type": "text",
+                  "text": "이 문서는 다른 agent가 동일한 입력과 artifact를 받아 같은 판단·검증 절차를 재현하기 위한 handoff contract다."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "context",
+          "block_id": "RXdVi",
+          "elements": [
+            {
+              "type": "mrkdwn",
+              "text": "*다음을 사용하여 보냄* <@U0BP56ZV2NT>",
+              "verbatim": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "user": "U0BP1KC6J81",
+      "type": "message",
+      "ts": "1786947869.062089",
+      "app_id": "A08SF47R6P4",
+      "text": "_[SKILL DOC 대형 정정 | Bill] Hermes = 진짜 CLI/데스크톱 제품이었음 — PC2 설치 완료_\n\n앞서 \"Hermes는 오픈웨이트 모델일 뿐 CLI 아니다\"라고 드린 정보가 *틀렸습니다*(제 지식 컷오프 기준, 최신 아님). Nous Research가 2026-06-02에 *Hermes Agent*를 냈습니다 — CLI+데스크톱 앱(macOS/Windows)+게이트웨이(Telegram/Discord/Slack/WhatsApp/Signal/이메일)를 갖춘 완전한 제품, Claude Code/Codex/Grok CLI와 같은 급. 전문 및 실측 로그: `docs/hermes_grok_integration_plan.md` §5 (commit `10e1e48`).\n\n_PC2 설치 완료 (실측)_\n```iex (irm <https://hermes-agent.nousresearch.com/install.ps1>)\n→ Hermes Agent v0.20.2, hermes 명령어 PATH 등록, 핵심 패키지 99개 정상\n→ hermes doctor: 구조 전부 정상, 남은 이슈는 전부 \"인증 안 됨\"```\n헤드리스 모드(`hermes -z \"...\"`), 자체 MCP 관리(`hermes mcp`), **자체 Slack 헬퍼(`hermes slack`)**까지 내장 — codex/claude/grok과 같은 급.\n\n_인증 — 4가지 경로 전부 미완료_\nNous Portal(자체 구독+OAuth) / xAI OAuth / OpenAI Codex auth / MiniMax OAuth. Nous Portal 로그인 시도 결과: device-code 방식 실존(Grok과 동일 패턴), URL+코드까지 받았으나 30초 안에 승인 못 해 실패. *주의*: 설치 마법사는 \"무료 OAuth\"라 하지만 실제 가입 페이지는 유료 구독처럼 보임 — 계정 보유 여부부터 확인 필요.\n\n_부수 발견_: Grok용 Slack MCP가 이미 PC2에 설정돼 있었음(병행 세션이 오늘 설정, `OPENACP_SLACK_BOT_TOKEN` 재사용, `grok mcp doctor`로 건강 확인).\n\n_재검토 필요_: \"hermes\" 실행기를 <http://codex+api.x.ai|codex+api.x.ai> 우회로 만들지, Grok CLI를 그대로 재사용할지, 아니면 이번에 설치한 진짜 hermes-agent CLI로 만들지 — 3가지 경로가 다 유효해졌습니다. Nous Portal 구독 계정 유무부터 확인 부탁드립니다.\n\n— Bill *다음을 사용하여 보냄* Claude",
+      "team": "T0BNZLWNB8S",
+      "blocks": [
+        {
+          "type": "rich_text",
+          "block_id": "6dLoQ3",
+          "elements": [
+            {
+              "type": "rich_text_section",
+              "elements": [
+                {
+                  "type": "text",
+                  "text": "[SKILL DOC 대형 정정 | Bill] Hermes = 진짜 CLI/데스크톱 제품이었음 — PC2 설치 완료",
+                  "style": {
+                    "italic": true
+                  }
+                },
+                {
+                  "type": "text",
+                  "text": "\n\n"
+                },
+                {
+                  "type": "text",
+                  "text": "앞서 \"Hermes는 오픈웨이트 모델일 뿐 CLI 아니다\"라고 드린 정보가 "
+                },
+                {
+                  "type": "text",
+                  "text": "틀렸습니다",
+                  "style": {
+                    "bold": true
+                  }
+                },
+                {
+                  "type": "text",
+                  "text": "(제 지식 컷오프 기준, 최신 아님). Nous Research가 2026-06-02에 "
+                },
+                {
+                  "type": "text",
+                  "text": "Hermes Agent",
+                  "style": {
+                    "bold": true
+                  }
+                },
+                {
+                  "type": "text",
+                  "text": "를 냈습니다 — CLI+데스크톱 앱(macOS/Windows)+게이트웨이(Telegram/Discord/Slack/WhatsApp/Signal/이메일)를 갖춘 완전한 제품, Claude Code/Codex/Grok CLI와 같은 급. 전문 및 실측 로그: "
+                },
+                {
+                  "type": "text",
+                  "text": "docs/hermes_grok_integration_plan.md",
+                  "style": {
+                    "code": true
+                  }
+                },
+                {
+                  "type": "text",
+                  "text": " §5 (commit "
+                },
+                {
+                  "type": "text",
+                  "text": "10e1e48",
+                  "style": {
+                    "code": true
+                  }
+                },
+                {
+                  "type": "text",
+                  "text": ")."
+                },
+                {
+                  "type": "text",
+                  "text": "\n\n"
+                },
+                {
+                  "type": "text",
+                  "text": "PC2 설치 완료 (실측)",
+                  "style": {
+                    "italic": true
+                  }
+                }
+              ]
+            },
+            {
+              "type": "rich_text_preformatted",
+              "elements": [
+                {
+                  "type": "text",
+                  "text": "iex (irm https://hermes-agent.nousresearch.com/install.ps1)\n→ Hermes Agent v0.20.2, hermes 명령어 PATH 등록, 핵심 패키지 99개 정상\n→ hermes doctor: 구조 전부 정상, 남은 이슈는 전부 \"인증 안 됨\""
+                }
+              ]
+            },
+            {
+              "type": "rich_text_section",
+              "elements": [
+                {
+                  "type": "text",
+                  "text": "헤드리스 모드("
+                },
+                {
+                  "type": "text",
+                  "text": "hermes -z \"...\"",
+                  "style": {
+                    "code": true
+                  }
+                },
+                {
+                  "type": "text",
+                  "text": "), 자체 MCP 관리("
+                },
+                {
+                  "type": "text",
+                  "text": "hermes mcp",
+                  "style": {
+                    "code": true
+                  }
+                },
+                {
+                  "type": "text",
+                  "text": "), "
+                },
+                {
+                  "type": "text",
+                  "text": "**"
+                },
+                {
+                  "type": "text",
+                  "text": "자체 Slack 헬퍼("
+                },
+                {
+                  "type": "text",
+                  "text": "hermes slack",
+                  "style": {
+                    "code": true
+                  }
+                },
+                {
+                  "type": "text",
+                  "text": ")"
+                },
+                {
+                  "type": "text",
+                  "text": "**"
+                },
+                {
+                  "type": "text",
+                  "text": "까지 내장 — codex/claude/grok과 같은 급."
+                },
+                {
+                  "type": "text",
+                  "text": "\n\n"
+                },
+                {
+                  "type": "text",
+                  "text": "인증 — 4가지 경로 전부 미완료",
+                  "style": {
+                    "italic": true
+                  }
+                },
+                {
+                  "type": "text",
+                  "text": "\n"
+                },
+                {
+                  "type": "text",
+                  "text": "Nous Portal(자체 구독+OAuth) / xAI OAuth / OpenAI Codex auth / MiniMax OAuth. Nous Portal 로그인 시도 결과: device-code 방식 실존(Grok과 동일 패턴), URL+코드까지 받았으나 30초 안에 승인 못 해 실패. "
+                },
+                {
+                  "type": "text",
+                  "text": "주의",
+                  "style": {
+                    "bold": true
+                  }
+                },
+                {
+                  "type": "text",
+                  "text": ": 설치 마법사는 \"무료 OAuth\"라 하지만 실제 가입 페이지는 유료 구독처럼 보임 — 계정 보유 여부부터 확인 필요."
+                },
+                {
+                  "type": "text",
+                  "text": "\n\n"
+                },
+                {
+                  "type": "text",
+                  "text": "부수 발견",
+                  "style": {
+                    "italic": true
+                  }
+                },
+                {
+                  "type": "text",
+                  "text": ": Grok용 Slack MCP가 이미 PC2에 설정돼 있었음(병행 세션이 오늘 설정, "
+                },
+                {
+                  "type": "text",
+                  "text": "OPENACP_SLACK_BOT_TOKEN",
+                  "style": {
+                    "code": true
+                  }
+                },
+                {
+                  "type": "text",
+                  "text": " 재사용, "
+                },
+                {
+                  "type": "text",
+                  "text": "grok mcp doctor",
+                  "style": {
+                    "code": true
+                  }
+                },
+                {
+                  "type": "text",
+                  "text": "로 건강 확인)."
+                },
+                {
+                  "type": "text",
+                  "text": "\n\n"
+                },
+                {
+                  "type": "text",
+                  "text": "재검토 필요",
+                  "style": {
+                    "italic": true
+                  }
+                },
+                {
+                  "type": "text",
+                  "text": ": \"hermes\" 실행기를 codex+api.x.ai 우회로 만들지, Grok CLI를 그대로 재사용할지, 아니면 이번에 설치한 진짜 hermes-agent CLI로 만들지 — 3가지 경로가 다 유효해졌습니다. Nous Portal 구독 계정 유무부터 확인 부탁드립니다."
+                },
+                {
+                  "type": "text",
+                  "text": "\n\n"
+                },
+                {
+                  "type": "text",
+                  "text": "— Bill"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "context",
+          "block_id": "lDv78",
+          "elements": [
+            {
+              "type": "mrkdwn",
+              "text": "*다음을 사용하여 보냄* Claude",
+              "verbatim": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "user": "U0BP1KC6J81",
+      "type": "message",
+      "ts": "1786947497.414769",
+      "app_id": "A08SF47R6P4",
+      "text": "_[VERSION UPDATE]_\n\n_기능명:_ codex-claude-mcp-integration → v4.0.0 (grok 추가, 명칭 변경 고려 필요)\n_변경 근거:_ Order(grok executor 구현) 완료, commit db45012. dispatcher가 codex/claude/grok 3-executor 체계로 확장됨.\n\n_grok 처방 신규 추가_:\n• 설치: `@xai-official/grok 1.0.4`, PC2 전용(`executor: grok`은 PC2 grok만 대상 — PC1 grok/Slack MCP 셋업은 완전히 별개, Slack MCP 미지원 우회용)\n• 인증: OAuth device-auth(`~/.grok/auth.json`), API key 불필요\n• MCP: `~/.grok/config.toml`에서 자동 상속(codex처럼 `-c mcp_servers` 복원 불필요) — 이미 dart/telegram/slack/tikr 등 6종 연결됨\n• 권한: `--permission-mode dontAsk` + `--allow Read/Write/Edit/Glob/Grep` + `--allow \"Bash(git:*)\"` + `--deny \"Bash(git push*)\"`. `--always-approve`/`bypassPermissions`는 범위 과다로 미사용.\n• 실행: `-p &lt;prompt&gt; --cwd &lt;project&gt; --output-format json`, JSON stdout → summary 변환, malformed 시 fail-closed.\n_실사용 검증 — 배관 PASS, 산출물 이행 FAIL (참고, 조치 아님)_:\n• 실사용 Order 143: grok 프로세스 exit 0(8분37초)이나 요구된 리포트 파일 미생성 → dispatcher가 git 변화 없음으로 정확히 FAILED 판정.\n• 이는 dispatcher 결함이 아니라 정상 동작(122·133번과 동일 패턴 — \"실행됨\"과 \"산출물 완료\"는 dispatcher가 항상 별도 검증함).\n• 원인 추정: grok이 검토/설명만 반환하고 실제 write는 생략하는 경향. 보완 방향(prompt에 write 강제 명시, 또는 executor가 사전에 산출물 존재 점검)은 별도 과제로 분리, 지금 급하지 않음.\n_공통 원칙 재확인_: 3-executor 전부 완료 증명은 git diff 기준. Slack 회신(`COMPLETED`)만 보지 말고 항상 `reports/NNN_report.md` 원문 확인(v1.1 경고 계속 유효, grok에도 동일 적용).\n\nStatus: `ACTIVE v4.0.0` · Owner: `COO` · 2026-08-17 *다음을 사용하여 보냄* Claude",
+      "team": "T0BNZLWNB8S",
+      "blocks": [
+        {
+          "type": "rich_text",
+          "block_id": "mzMyc2",
+          "elements": [
+            {
+              "type": "rich_text_section",
+              "elements": [
+                {
+                  "type": "text",
+                  "text": "[VERSION UPDATE]",
+                  "style": {
+                    "italic": true
+                  }
+                },
+                {
+                  "type": "text",
+                  "text": "\n\n"
+                },
+                {
+                  "type": "text",
+                  "text": "기능명:",
+                  "style": {
+                    "italic": true
+                  }
+                },
+                {
+                  "type": "text",
+                  "text": " codex-claude-mcp-integration → v4.0.0 (grok 추가, 명칭 변경 고려 필요)"
+                },
+                {
+                  "type": "text",
+                  "text": "\n"
+                },
+                {
+                  "type": "text",
+                  "text": "변경 근거:",
+                  "style": {
+                    "italic": true
+                  }
+                },
+                {
+                  "type": "text",
+                  "text": " Order(grok executor 구현) 완료, commit db45012. dispatcher가 codex/claude/grok 3-executor 체계로 확장됨."
+                },
+                {
+                  "type": "text",
+                  "text": "\n\n"
+                },
+                {
+                  "type": "text",
+                  "text": "grok 처방 신규 추가",
+                  "style": {
+                    "italic": true
+                  }
+                },
+                {
+                  "type": "text",
+                  "text": ":"
+                }
+              ]
+            },
+            {
+              "type": "rich_text_list",
+              "elements": [
+                {
+                  "type": "rich_text_section",
+                  "elements": [
+                    {
+                      "type": "text",
+                      "text": "설치: "
+                    },
+                    {
+                      "type": "text",
+                      "text": "@xai-official/grok 1.0.4",
+                      "style": {
+                        "code": true
+                      }
+                    },
+                    {
+                      "type": "text",
+                      "text": ", PC2 전용("
+                    },
+                    {
+                      "type": "text",
+                      "text": "executor: grok",
+                      "style": {
+                        "code": true
+                      }
+                    },
+                    {
+                      "type": "text",
+                      "text": "은 PC2 grok만 대상 — PC1 grok/Slack MCP 셋업은 완전히 별개, Slack MCP 미지원 우회용)"
+                    }
+                  ]
+                },
+                {
+                  "type": "rich_text_section",
+                  "elements": [
+                    {
+                      "type": "text",
+                      "text": "인증: OAuth device-auth("
+                    },
+                    {
+                      "type": "text",
+                      "text": "~/.grok/auth.json",
+                      "style": {
+                        "code": true
+                      }
+                    },
+                    {
+                      "type": "text",
+                      "text": "), API key 불필요"
+                    }
+                  ]
+                },
+                {
+                  "type": "rich_text_section",
+                  "elements": [
+                    {
+                      "type": "text",
+                      "text": "MCP: "
+                    },
+                    {
+                      "type": "text",
+                      "text": "~/.grok/config.toml",
+                      "style": {
+                        "code": true
+                      }
+                    },
+                    {
+                      "type": "text",
+                      "text": "에서 자동 상속(codex처럼 "
+                    },
+                    {
+                      "type": "text",
+                      "text": "-c mcp_servers",
+                      "style": {
+                        "code": true
+                      }
+                    },
+                    {
+                      "type": "text",
+                      "text": " 복원 불필요) — 이미 dart/telegram/slack/tikr 등 6종 연결됨"
+                    }
+                  ]
+                },
+                {
+                  "type": "rich_text_section",
+                  "elements": [
+                    {
+                      "type": "text",
+                      "text": "권한: "
+                    },
+                    {
+                      "type": "text",
+                      "text": "--permission-mode dontAsk",
+                      "style": {
+                        "code": true
+                      }
+                    },
+                    {
+                      "type": "text",
+                      "text": " + "
+                    },
+                    {
+                      "type": "text",
+                      "text": "--allow Read/Write/Edit/Glob/Grep",
+                      "style": {
+                        "code": true
+                      }
+                    },
+                    {
+                      "type": "text",
+                      "text": " + "
+                    },
+                    {
+                      "type": "text",
+                      "text": "--allow \"Bash(git:*)\"",
+                      "style": {
+                        "code": true
+                      }
+                    },
+                    {
+                      "type": "text",
+                      "text": " + "
+                    },
+                    {
+                      "type": "text",
+                      "text": "--deny \"Bash(git push*)\"",
+                      "style": {
+                        "code": true
+                      }
+                    },
+                    {
+                      "type": "text",
+                      "text": ". "
+                    },
+                    {
+                      "type": "text",
+                      "text": "--always-approve",
+                      "style": {
+                        "code": true
+                      }
+                    },
+                    {
+                      "type": "text",
+                      "text": "/"
+                    },
+                    {
+                      "type": "text",
+                      "text": "bypassPermissions",
+                      "style": {
+                        "code": true
+                      }
+                    },
+                    {
+                      "type": "text",
+                      "text": "는 범위 과다로 미사용."
+                    }
+                  ]
+                },
+                {
+                  "type": "rich_text_section",
+                  "elements": [
+                    {
+                      "type": "text",
+                      "text": "실행: "
+                    },
+                    {
+                      "type": "text",
+                      "text": "-p <prompt> --cwd <project> --output-format json",
+                      "style": {
+                        "code": true
+                      }
+                    },
+                    {
+                      "type": "text",
+                      "text": ", JSON stdout → summary 변환, malformed 시 fail-closed."
+                    }
+                  ]
+                }
+              ],
+              "style": "bullet",
+              "indent": 0
+            },
+            {
+              "type": "rich_text_section",
+              "elements": [
+                {
+                  "type": "text",
+                  "text": "\n"
+                },
+                {
+                  "type": "text",
+                  "text": "실사용 검증 — 배관 PASS, 산출물 이행 FAIL (참고, 조치 아님)",
+                  "style": {
+                    "italic": true
+                  }
+                },
+                {
+                  "type": "text",
+                  "text": ":"
+                }
+              ]
+            },
+            {
+              "type": "rich_text_list",
+              "elements": [
+                {
+                  "type": "rich_text_section",
+                  "elements": [
+                    {
+                      "type": "text",
+                      "text": "실사용 Order 143: grok 프로세스 exit 0(8분37초)이나 요구된 리포트 파일 미생성 → dispatcher가 git 변화 없음으로 정확히 FAILED 판정."
+                    }
+                  ]
+                },
+                {
+                  "type": "rich_text_section",
+                  "elements": [
+                    {
+                      "type": "text",
+                      "text": "이는 dispatcher 결함이 아니라 정상 동작(122·133번과 동일 패턴 — \"실행됨\"과 \"산출물 완료\"는 dispatcher가 항상 별도 검증함)."
+                    }
+                  ]
+                },
+                {
+                  "type": "rich_text_section",
+                  "elements": [
+                    {
+                      "type": "text",
+                      "text": "원인 추정: grok이 검토/설명만 반환하고 실제 write는 생략하는 경향. 보완 방향(prompt에 write 강제 명시, 또는 executor가 사전에 산출물 존재 점검)은 별도 과제로 분리, 지금 급하지 않음."
+                    }
+                  ]
+                }
+              ],
+              "style": "bullet",
+              "indent": 0
+            },
+            {
+              "type": "rich_text_section",
+              "elements": [
+                {
+                  "type": "text",
+                  "text": "\n"
+                },
+                {
+                  "type": "text",
+                  "text": "공통 원칙 재확인",
+                  "style": {
+                    "italic": true
+                  }
+                },
+                {
+                  "type": "text",
+                  "text": ": 3-executor 전부 완료 증명은 git diff 기준. Slack 회신("
+                },
+                {
+                  "type": "text",
+                  "text": "COMPLETED",
+                  "style": {
+                    "code": true
+                  }
+                },
+                {
+                  "type": "text",
+                  "text": ")만 보지 말고 항상 "
+                },
+                {
+                  "type": "text",
+                  "text": "reports/NNN_report.md",
+                  "style": {
+                    "code": true
+                  }
+                },
+                {
+                  "type": "text",
+                  "text": " 원문 확인(v1.1 경고 계속 유효, grok에도 동일 적용)."
+                },
+                {
+                  "type": "text",
+                  "text": "\n\n"
+                },
+                {
+                  "type": "text",
+                  "text": "Status: "
+                },
+                {
+                  "type": "text",
+                  "text": "ACTIVE v4.0.0",
+                  "style": {
+                    "code": true
+                  }
+                },
+                {
+                  "type": "text",
+                  "text": " · Owner: "
+                },
+                {
+                  "type": "text",
+                  "text": "COO",
+                  "style": {
+                    "code": true
+                  }
+                },
+                {
+                  "type": "text",
+                  "text": " · 2026-08-17"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "context",
+          "block_id": "2QYaP",
+          "elements": [
+            {
+              "type": "mrkdwn",
+              "text": "*다음을 사용하여 보냄* Claude",
+              "verbatim": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "subtype": "channel_join",
+      "user": "U0BPUB9ES8G",
+      "text": "<@U0BPUB9ES8G> 님이 채널에 참여함",
+      "type": "message",
+      "ts": "1786932830.723859"
+    },
+    {
+      "user": "U0BP1KC6J81",
+      "type": "message",
+      "ts": "1786923130.717609",
+      "app_id": "A08SF47R6P4",
+      "text": "_[SKILL DOC | Bill] PC1 Grok/Hermes 셋업 프롬프트_\n\nPC2(GOSU)에서 실측 검증한 절차를 PC1에 그대로 옮기기 위한 프롬프트. 전문: `docs/pc1_grok_hermes_setup_prompt.md` (commit `1743e35`). PC1 세션에 문서 안 \"프롬프트\" 섹션을 그대로 붙여넣으면 됩니다.\n\n핵심만 요약:\n1. `npm i -g @xai-official/grok` 설치\n2. `grok login --device-auth` — 코드 유효시간 짧음, 발급 즉시 승인해야 함\n3. `grok inspect`로 MCP 자동 상속 확인\n4. _★ 반드시 `--cwd C:\\lab` 사용_ — C:\\lab 밖 낯선 경로에서 파일쓰기 프롬프트와 같이 돌리면 무한대기(PC2에서 실제 겪음, codex UAC 패턴과 유사). 근본원인 미확정, 대증 확정.\n5. `C:\\lab` 하위 스크래치 폴더에서 `--permission-mode dontAsk` + 명시적 `--allow`/`--deny`로 헤드리스 파일쓰기 실측 — trust 상태 무관하게 강제 적용됨\n6. Hermes는 이번엔 보류 — Grok CLI 로그인(OAuth 세션)과 codex가 쓸 <http://console.x.ai|console.x.ai> API key(`xai-...`)는 *다른 자격증명*. key 없이 config.toml 건드리지 말 것.\n— Bill *다음을 사용하여 보냄* Claude",
+      "team": "T0BNZLWNB8S",
+      "blocks": [
+        {
+          "type": "rich_text",
+          "block_id": "Dc1nvp",
+          "elements": [
+            {
+              "type": "rich_text_section",
+              "elements": [
+                {
+                  "type": "text",
+                  "text": "[SKILL DOC | Bill] PC1 Grok/Hermes 셋업 프롬프트",
+                  "style": {
+                    "italic": true
+                  }
+                },
+                {
+                  "type": "text",
+                  "text": "\n\n"
+                },
+                {
+                  "type": "text",
+                  "text": "PC2(GOSU)에서 실측 검증한 절차를 PC1에 그대로 옮기기 위한 프롬프트. 전문: "
+                },
+                {
+                  "type": "text",
+                  "text": "docs/pc1_grok_hermes_setup_prompt.md",
+                  "style": {
+                    "code": true
+                  }
+                },
+                {
+                  "type": "text",
+                  "text": " (commit "
+                },
+                {
+                  "type": "text",
+                  "text": "1743e35",
+                  "style": {
+                    "code": true
+                  }
+                },
+                {
+                  "type": "text",
+                  "text": "). PC1 세션에 문서 안 \"프롬프트\" 섹션을 그대로 붙여넣으면 됩니다."
+                },
+                {
+                  "type": "text",
+                  "text": "\n\n"
+                },
+                {
+                  "type": "text",
+                  "text": "핵심만 요약:"
+                }
+              ]
+            },
+            {
+              "type": "rich_text_list",
+              "elements": [
+                {
+                  "type": "rich_text_section",
+                  "elements": [
+                    {
+                      "type": "text",
+                      "text": "npm i -g @xai-official/grok",
+                      "style": {
+                        "code": true
+                      }
+                    },
+                    {
+                      "type": "text",
+                      "text": " 설치"
+                    }
+                  ]
+                },
+                {
+                  "type": "rich_text_section",
+                  "elements": [
+                    {
+                      "type": "text",
+                      "text": "grok login --device-auth",
+                      "style": {
+                        "code": true
+                      }
+                    },
+                    {
+                      "type": "text",
+                      "text": " — 코드 유효시간 짧음, 발급 즉시 승인해야 함"
+                    }
+                  ]
+                },
+                {
+                  "type": "rich_text_section",
+                  "elements": [
+                    {
+                      "type": "text",
+                      "text": "grok inspect",
+                      "style": {
+                        "code": true
+                      }
+                    },
+                    {
+                      "type": "text",
+                      "text": "로 MCP 자동 상속 확인"
+                    }
+                  ]
+                },
+                {
+                  "type": "rich_text_section",
+                  "elements": [
+                    {
+                      "type": "text",
+                      "text": "★ 반드시 ",
+                      "style": {
+                        "italic": true
+                      }
+                    },
+                    {
+                      "type": "text",
+                      "text": "--cwd C:\\lab",
+                      "style": {
+                        "italic": true,
+                        "code": true
+                      }
+                    },
+                    {
+                      "type": "text",
+                      "text": " 사용",
+                      "style": {
+                        "italic": true
+                      }
+                    },
+                    {
+                      "type": "text",
+                      "text": " — C:"
+                    },
+                    {
+                      "type": "text",
+                      "text": "\\"
+                    },
+                    {
+                      "type": "text",
+                      "text": "lab 밖 낯선 경로에서 파일쓰기 프롬프트와 같이 돌리면 무한대기(PC2에서 실제 겪음, codex UAC 패턴과 유사). 근본원인 미확정, 대증 확정."
+                    }
+                  ]
+                },
+                {
+                  "type": "rich_text_section",
+                  "elements": [
+                    {
+                      "type": "text",
+                      "text": "C:\\lab",
+                      "style": {
+                        "code": true
+                      }
+                    },
+                    {
+                      "type": "text",
+                      "text": " 하위 스크래치 폴더에서 "
+                    },
+                    {
+                      "type": "text",
+                      "text": "--permission-mode dontAsk",
+                      "style": {
+                        "code": true
+                      }
+                    },
+                    {
+                      "type": "text",
+                      "text": " + 명시적 "
+                    },
+                    {
+                      "type": "text",
+                      "text": "--allow",
+                      "style": {
+                        "code": true
+                      }
+                    },
+                    {
+                      "type": "text",
+                      "text": "/"
+                    },
+                    {
+                      "type": "text",
+                      "text": "--deny",
+                      "style": {
+                        "code": true
+                      }
+                    },
+                    {
+                      "type": "text",
+                      "text": "로 헤드리스 파일쓰기 실측 — trust 상태 무관하게 강제 적용됨"
+                    }
+                  ]
+                },
+                {
+                  "type": "rich_text_section",
+                  "elements": [
+                    {
+                      "type": "text",
+                      "text": "Hermes는 이번엔 보류 — Grok CLI 로그인(OAuth 세션)과 codex가 쓸 console.x.ai API key("
+                    },
+                    {
+                      "type": "text",
+                      "text": "xai-...",
+                      "style": {
+                        "code": true
+                      }
+                    },
+                    {
+                      "type": "text",
+                      "text": ")는 "
+                    },
+                    {
+                      "type": "text",
+                      "text": "다른 자격증명",
+                      "style": {
+                        "bold": true
+                      }
+                    },
+                    {
+                      "type": "text",
+                      "text": ". key 없이 config.toml 건드리지 말 것."
+                    }
+                  ]
+                }
+              ],
+              "style": "ordered",
+              "indent": 0
+            },
+            {
+              "type": "rich_text_section",
+              "elements": [
+                {
+                  "type": "text",
+                  "text": "\n"
+                },
+                {
+                  "type": "text",
+                  "text": "— Bill"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "context",
+          "block_id": "+WL8O",
+          "elements": [
+            {
+              "type": "mrkdwn",
+              "text": "*다음을 사용하여 보냄* Claude",
+              "verbatim": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "user": "U0BP1KC6J81",
+      "type": "message",
+      "ts": "1786870505.888199",
+      "app_id": "A08SF47R6P4",
+      "text": "_[SKILL DOC 갱신 | Bill]_ Hermes/Grok — 병목 4개 전부 해소\n\n1. Grok 로그인 완료 (`<mailto:coatle0@gmail.com|coatle0@gmail.com>`, device-auth)\n2. Project trust 이슈는 해소 불필요로 판명 — `--allow`/`--deny` CLI 플래그는 trust 상태와 무관하게 항상 적용됨(공식 문서+실측 확인)\n3. Hermes 호스팅은 Grok(<http://api.x.ai|api.x.ai>) 재사용으로 확정(이전 게시)\n4. _CIO 지시로 모든 실행 home/cwd를 `C:\\lab`으로 통일_ — 그 과정에서 핵심 원인 하나 잡음: 헤드리스 실행을 C:\\lab 밖 낯선 경로에서 파일쓰기와 함께 돌리면 무한대기(60초+, 로그 무출력, 프로세스는 생존 — codex UAC 때와 같은 패턴). `--cwd C:\\lab`로 바꾸니 41초 만에 정상 완료.\n실측: `--cwd C:\\lab_grok_scratch_test --permission-mode dontAsk --allow Write --deny 'Bash(git push*)'`로 파일쓰기 성공, 내용 정확히 일치. MCP 5종 상속도 재확인.\n\n부가 발견(손 안 댐, 기록만): `C:\\lab.git`이 빈 깨진 repo. 사용자 레벨 `orca-status` 훅이 매 세션 실패(fail-open, ~9초 지연).\n\n남은 건 `order_dispatcher.py`에 `executor=\"grok\"/\"hermes\"` 분기 실제 코드 통합뿐 — 승인 대기 없이 바로 착수 가능한 상태. 문서 커밋 `39c870f`.\n— Bill *다음을 사용하여 보냄* Claude",
+      "team": "T0BNZLWNB8S",
+      "blocks": [
+        {
+          "type": "rich_text",
+          "block_id": "K5p1yK",
+          "elements": [
+            {
+              "type": "rich_text_section",
+              "elements": [
+                {
+                  "type": "text",
+                  "text": "[SKILL DOC 갱신 | Bill]",
+                  "style": {
+                    "italic": true
+                  }
+                },
+                {
+                  "type": "text",
+                  "text": " Hermes/Grok — 병목 4개 전부 해소"
+                },
+                {
+                  "type": "text",
+                  "text": "\n\n"
+                }
+              ]
+            },
+            {
+              "type": "rich_text_list",
+              "elements": [
+                {
+                  "type": "rich_text_section",
+                  "elements": [
+                    {
+                      "type": "text",
+                      "text": "Grok 로그인 완료 ("
+                    },
+                    {
+                      "type": "text",
+                      "text": "coatle0@gmail.com",
+                      "style": {
+                        "code": true
+                      }
+                    },
+                    {
+                      "type": "text",
+                      "text": ", device-auth)"
+                    }
+                  ]
+                },
+                {
+                  "type": "rich_text_section",
+                  "elements": [
+                    {
+                      "type": "text",
+                      "text": "Project trust 이슈는 해소 불필요로 판명 — "
+                    },
+                    {
+                      "type": "text",
+                      "text": "--allow",
+                      "style": {
+                        "code": true
+                      }
+                    },
+                    {
+                      "type": "text",
+                      "text": "/"
+                    },
+                    {
+                      "type": "text",
+                      "text": "--deny",
+                      "style": {
+                        "code": true
+                      }
+                    },
+                    {
+                      "type": "text",
+                      "text": " CLI 플래그는 trust 상태와 무관하게 항상 적용됨(공식 문서+실측 확인)"
+                    }
+                  ]
+                },
+                {
+                  "type": "rich_text_section",
+                  "elements": [
+                    {
+                      "type": "text",
+                      "text": "Hermes 호스팅은 Grok(api.x.ai) 재사용으로 확정(이전 게시)"
+                    }
+                  ]
+                },
+                {
+                  "type": "rich_text_section",
+                  "elements": [
+                    {
+                      "type": "text",
+                      "text": "CIO 지시로 모든 실행 home/cwd를 ",
+                      "style": {
+                        "italic": true
+                      }
+                    },
+                    {
+                      "type": "text",
+                      "text": "C:\\lab",
+                      "style": {
+                        "italic": true,
+                        "code": true
+                      }
+                    },
+                    {
+                      "type": "text",
+                      "text": "으로 통일",
+                      "style": {
+                        "italic": true
+                      }
+                    },
+                    {
+                      "type": "text",
+                      "text": " — 그 과정에서 핵심 원인 하나 잡음: 헤드리스 실행을 C:"
+                    },
+                    {
+                      "type": "text",
+                      "text": "\\"
+                    },
+                    {
+                      "type": "text",
+                      "text": "lab 밖 낯선 경로에서 파일쓰기와 함께 돌리면 무한대기(60초+, 로그 무출력, 프로세스는 생존 — codex UAC 때와 같은 패턴). "
+                    },
+                    {
+                      "type": "text",
+                      "text": "--cwd C:\\lab",
+                      "style": {
+                        "code": true
+                      }
+                    },
+                    {
+                      "type": "text",
+                      "text": "로 바꾸니 41초 만에 정상 완료."
+                    }
+                  ]
+                }
+              ],
+              "style": "ordered",
+              "indent": 0
+            },
+            {
+              "type": "rich_text_section",
+              "elements": [
+                {
+                  "type": "text",
+                  "text": "\n"
+                },
+                {
+                  "type": "text",
+                  "text": "실측: "
+                },
+                {
+                  "type": "text",
+                  "text": "--cwd C:\\lab_grok_scratch_test --permission-mode dontAsk --allow Write --deny 'Bash(git push*)'",
+                  "style": {
+                    "code": true
+                  }
+                },
+                {
+                  "type": "text",
+                  "text": "로 파일쓰기 성공, 내용 정확히 일치. MCP 5종 상속도 재확인."
+                },
+                {
+                  "type": "text",
+                  "text": "\n\n"
+                },
+                {
+                  "type": "text",
+                  "text": "부가 발견(손 안 댐, 기록만): "
+                },
+                {
+                  "type": "text",
+                  "text": "C:\\lab.git",
+                  "style": {
+                    "code": true
+                  }
+                },
+                {
+                  "type": "text",
+                  "text": "이 빈 깨진 repo. 사용자 레벨 "
+                },
+                {
+                  "type": "text",
+                  "text": "orca-status",
+                  "style": {
+                    "code": true
+                  }
+                },
+                {
+                  "type": "text",
+                  "text": " 훅이 매 세션 실패(fail-open, ~9초 지연)."
+                },
+                {
+                  "type": "text",
+                  "text": "\n\n"
+                },
+                {
+                  "type": "text",
+                  "text": "남은 건 "
+                },
+                {
+                  "type": "text",
+                  "text": "order_dispatcher.py",
+                  "style": {
+                    "code": true
+                  }
+                },
+                {
+                  "type": "text",
+                  "text": "에 "
+                },
+                {
+                  "type": "text",
+                  "text": "executor=\"grok\"/\"hermes\"",
+                  "style": {
+                    "code": true
+                  }
+                },
+                {
+                  "type": "text",
+                  "text": " 분기 실제 코드 통합뿐 — 승인 대기 없이 바로 착수 가능한 상태. 문서 커밋 "
+                },
+                {
+                  "type": "text",
+                  "text": "39c870f",
+                  "style": {
+                    "code": true
+                  }
+                },
+                {
+                  "type": "text",
+                  "text": "."
+                },
+                {
+                  "type": "text",
+                  "text": "\n"
+                },
+                {
+                  "type": "text",
+                  "text": "— Bill"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "context",
+          "block_id": "l1enz",
+          "elements": [
+            {
+              "type": "mrkdwn",
+              "text": "*다음을 사용하여 보냄* Claude",
+              "verbatim": false
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "has_more": true,
+  "pin_count": 0,
+  "channel_actions_ts": null,
+  "channel_actions_count": 0,
+  "response_metadata": {
+    "next_cursor": "bmV4dF90czoxNzg2ODU3NDA5MzM1NTM5"
+  }
+}
