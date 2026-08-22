@@ -68,6 +68,44 @@ INTAKE_NUMBER_RE = re.compile(r"^번호:\s*(\d{3})\s*$", re.MULTILINE)
 INTAKE_TITLE_RE = re.compile(r"^제목:\s*(.+?)\s*$", re.MULTILINE)
 _UNSAFE_FILENAME_CHARS = re.compile(r'[<>:"/\\|?*\s]+')
 
+# PEV runner step 2 (2026-08-22): PLAN_READY is derived mechanically from
+# fields every Order body already carries (목적/작업/금지/DoD, per
+# orders/100_order_intake.md's own template) -- no new executor prompt, no
+# extra LLM call, no gate. This is visibility only: the reply fires and
+# execution proceeds regardless of what it contains.
+PLAN_SINGLE_FIELD_RE = re.compile(r"^(목적|금지|DoD)\s*:\s*(.+?)\s*$", re.MULTILINE)
+PLAN_TASKS_RE = re.compile(
+    r"^작업\s*:\s*\r?\n(.*?)(?=^\s*(?:금지|DoD)\s*:|\Z)", re.MULTILINE | re.DOTALL
+)
+
+
+def extract_plan_summary(order_body_text: str) -> dict[str, str]:
+    """Best-effort extraction. Missing/unparseable fields degrade to ''
+    rather than raising -- PLAN_READY is a visibility aid, not a validator."""
+    fields = dict(PLAN_SINGLE_FIELD_RE.findall(order_body_text))
+    tasks_match = PLAN_TASKS_RE.search(order_body_text)
+    tasks = tasks_match.group(1).strip() if tasks_match else ""
+    return {
+        "objective": fields.get("목적", ""),
+        "tasks": tasks,
+        "prohibitions": fields.get("금지", ""),
+        "dod": fields.get("DoD", ""),
+    }
+
+
+def format_plan_ready(order_id: str, tid: str, plan: dict[str, str]) -> str:
+    lines = [f"[PLAN_READY ORDER {order_id}] run_id={tid}"]
+    if plan["objective"]:
+        lines.append(f"objective: {plan['objective']}")
+    if plan["tasks"]:
+        lines.append(f"execution_steps: {plan['tasks']}")
+    if plan["prohibitions"]:
+        lines.append(f"prohibitions: {plan['prohibitions']}")
+    if plan["dod"]:
+        lines.append(f"expected_outputs: {plan['dod']}")
+    lines.append("decision: READY_TO_EXECUTE")
+    return "\n".join(lines)
+
 
 def parse_intake_body(text: str) -> dict[str, str]:
     """Extract 번호/제목/body from an ORDER 100 intake message. Raises
@@ -394,6 +432,19 @@ def process_pending(path: Path, token: str) -> None:
         token, channel, ts,
         f"[CLAIMED ORDER {order_id_final}] run_id={tid} executor={fields.get('executor', '')} status=CLAIMED",
     )
+    # PEV runner step 2: PLAN_READY, mechanically derived -- best-effort only.
+    # A missing/unreadable canonical file is not this function's job to
+    # reject; parse_request() inside handle_claimed() -> resolve_outcome()
+    # is the real validator and will REJECTED it properly if the order_id
+    # doesn't resolve. Silently skipping the plan reply here just means the
+    # normal REJECTED reply still follows right after.
+    try:
+        candidates = sorted(order_dispatcher.ORDERS_DIR.glob(f"{order_id_final}_*.md"))
+        if len(candidates) == 1:
+            plan = extract_plan_summary(candidates[0].read_text(encoding="utf-8"))
+            reply(token, channel, ts, format_plan_ready(order_id_final, tid, plan))
+    except OSError:
+        logger.exception("failed to read canonical order file for PLAN_READY; skipping")
     handle_claimed(claimed_path, token)
 
 

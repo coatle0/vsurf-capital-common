@@ -249,11 +249,63 @@ class IntakeRegistrationTests(_WithDirs):
         mock_register.assert_not_called()
 
 
+class PlanSummaryTests(unittest.TestCase):
+    """extract_plan_summary()/format_plan_ready() -- pure functions, no
+    filesystem or Slack involved. PEV runner step 2."""
+
+    def test_extracts_all_four_fields(self):
+        body = (
+            "목적: 테스트 목적\n"
+            "작업:\n1. 첫 단계\n2. 둘째 단계\n"
+            "금지: 삭제 금지\n"
+            "DoD: report 존재\n"
+        )
+        plan = MODULE.extract_plan_summary(body)
+        self.assertEqual(plan["objective"], "테스트 목적")
+        self.assertIn("1. 첫 단계", plan["tasks"])
+        self.assertIn("2. 둘째 단계", plan["tasks"])
+        self.assertEqual(plan["prohibitions"], "삭제 금지")
+        self.assertEqual(plan["dod"], "report 존재")
+
+    def test_missing_fields_degrade_to_empty_not_error(self):
+        plan = MODULE.extract_plan_summary("이 본문엔 표준 필드가 하나도 없다.")
+        self.assertEqual(plan, {"objective": "", "tasks": "", "prohibitions": "", "dod": ""})
+
+    def test_tasks_block_stops_before_prohibitions_field(self):
+        body = "작업:\n1. 할 일\n금지: 여기서부터는 작업이 아님\n"
+        plan = MODULE.extract_plan_summary(body)
+        self.assertIn("1. 할 일", plan["tasks"])
+        self.assertNotIn("금지", plan["tasks"])
+
+    def test_format_plan_ready_omits_empty_fields(self):
+        text = MODULE.format_plan_ready("003", "C1-1.0", {"objective": "", "tasks": "", "prohibitions": "", "dod": ""})
+        self.assertEqual(text, "[PLAN_READY ORDER 003] run_id=C1-1.0\ndecision: READY_TO_EXECUTE")
+
+    def test_format_plan_ready_includes_present_fields(self):
+        plan = {"objective": "목표", "tasks": "1. 단계", "prohibitions": "", "dod": "산출물"}
+        text = MODULE.format_plan_ready("003", "C1-1.0", plan)
+        self.assertIn("[PLAN_READY ORDER 003] run_id=C1-1.0", text)
+        self.assertIn("objective: 목표", text)
+        self.assertIn("execution_steps: 1. 단계", text)
+        self.assertNotIn("prohibitions:", text)
+        self.assertIn("expected_outputs: 산출물", text)
+
+
 class HappyPathTests(_WithDirs):
     def test_fresh_valid_order_dispatches_once_and_replies_with_commit(self):
+        orders_tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(orders_tmp.cleanup)
+        order_file = Path(orders_tmp.name) / "003_x.md"
+        order_file.write_text(
+            "목적: 파이프라인 smoke test\n"
+            "작업:\n1. 아무것도 안 함\n2. 결과 기록\n"
+            "금지: 파일 삭제\nDoD: reports/003_report.md 존재\n",
+            encoding="utf-8",
+        )
         path = self.write_pending(text="[EXECUTE ORDER 003]\nexecutor: claude\n")
         result = self.completed_result()
-        with patch.object(order_dispatcher, "parse_request", return_value=order_dispatcher.DispatchRequest(
+        with patch.object(order_dispatcher, "ORDERS_DIR", Path(orders_tmp.name)), \
+             patch.object(order_dispatcher, "parse_request", return_value=order_dispatcher.DispatchRequest(
             order_id="003", executor="claude", order_path="x", project_path="y")), \
              patch.object(order_dispatcher, "dispatch", return_value=result) as mock_dispatch, \
              patch.object(MODULE, "reply") as mock_reply:
@@ -267,12 +319,19 @@ class HappyPathTests(_WithDirs):
         outbox = order_inbox.load_outbox("C1-1.0")
         self.assertEqual(outbox["status"], "COMPLETED")
         self.assertTrue(outbox["replied"])
-        # PEV runner step 1: a claim confirmation precedes the terminal reply.
-        self.assertEqual(mock_reply.call_count, 2)
+        # PEV runner steps 1-2: CLAIMED, then PLAN_READY, precede the terminal reply.
+        self.assertEqual(mock_reply.call_count, 3)
         claimed_text = mock_reply.call_args_list[0].args[3]
         self.assertIn("[CLAIMED ORDER 003]", claimed_text)
         self.assertIn("executor=claude", claimed_text)
         self.assertIn("status=CLAIMED", claimed_text)
+        plan_text = mock_reply.call_args_list[1].args[3]
+        self.assertIn("[PLAN_READY ORDER 003]", plan_text)
+        self.assertIn("objective: 파이프라인 smoke test", plan_text)
+        self.assertIn("execution_steps: 1. 아무것도 안 함", plan_text)
+        self.assertIn("prohibitions: 파일 삭제", plan_text)
+        self.assertIn("expected_outputs: reports/003_report.md 존재", plan_text)
+        self.assertIn("decision: READY_TO_EXECUTE", plan_text)
 
     def test_claimed_reply_uses_registered_order_number_for_intake(self):
         path = self.write_pending(text=(
