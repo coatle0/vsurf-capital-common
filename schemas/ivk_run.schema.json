@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "ivk-run-0.1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "contract_version",
+    "run_id",
+    "operation",
+    "target_vc",
+    "value_chain",
+    "status",
+    "last_completed_stage",
+    "next_command",
+    "blockers",
+    "artifacts",
+    "created_at",
+    "updated_at"
+  ],
+  "properties": {
+    "contract_version": {"const": "ivk-run-0.1"},
+    "run_id": {"type": "string", "minLength": 1},
+    "operation": {"enum": ["new", "add", "update", "expand"]},
+    "target_vc": {"type": ["string", "null"]},
+    "value_chain": {"type": "object"},
+    "status": {"enum": ["CREATED", "VALIDATED", "GRAPH_CHECKED", "PLANNED", "RUNNING", "BLOCKED", "FAILED", "COMPLETED"]},
+    "last_completed_stage": {"type": ["string", "null"]},
+    "next_command": {"type": ["string", "null"]},
+    "blockers": {"type": "array"},
+    "artifacts": {"type": "object"},
+    "pack_selection": {"type": ["object", "null"]},
+    "created_at": {"type": "string", "minLength": 1},
+    "updated_at": {"type": "string", "minLength": 1}
+  }
+}

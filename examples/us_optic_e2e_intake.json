@@ -1,0 +1,39 @@
+{
+  "contract_version": "ivk-intake-1.0",
+  "operation": "new",
+  "target_vc": null,
+  "name": "us_optic",
+  "seed": ["NVDA", "COHR", "LITE", "CRDO"],
+  "frame": "Sponsor → Value Chain → Bottleneck",
+  "thesis": "AI 데이터센터의 optical/CPO 확대가 광부품·DSP·레이저·패키징 병목과 수혜기업을 만든다.",
+  "questions": [
+    "핵심 병목은 어디인가?",
+    "직접 수혜기업과 근거는 무엇인가?",
+    "seed 밖으로 확장해야 할 핵심 연결기업은 누구인가?"
+  ],
+  "scope": [
+    "value_chain",
+    "products",
+    "processes",
+    "technologies",
+    "end_markets",
+    "financials",
+    "earnings_call",
+    "counter_evidence",
+    "link_expansion"
+  ],
+  "known_links": [],
+  "limitations": [
+    "Seed is a starting point, not the final value-chain boundary.",
+    "No candidate is auto-promoted to confirmed without primary-source evidence and review.",
+    "Existing STI earnings, inventory, and segment nodes must not be modified or deleted."
+  ],
+  "references": [
+    "slack://vsurf-code-reports/1787451507.780609"
+  ],
+  "options": {
+    "periods": 5,
+    "auto_expand": true,
+    "write_policy": "approval_required"
+  }
+}

@@ -9,8 +9,18 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-REQUIRED = ("name", "seed", "frame", "thesis")
-LIST_FIELDS = ("seed", "questions", "known_links", "limitations", "references")
+LEGACY_REQUIRED = ("name", "seed", "frame", "thesis")
+LIST_FIELDS = ("seed", "questions", "scope", "known_links", "limitations", "references")
+OPERATIONS = {"new", "add", "update", "expand"}
+V1_FIELDS = {
+    "contract_version", "operation", "target_vc", "name", "seed", "frame",
+    "thesis", "questions", "scope", "known_links", "limitations",
+    "references", "options",
+}
+OPTION_FIELDS = {
+    "periods", "since", "max_depth", "max_candidates", "auto_expand",
+    "write_policy",
+}
 EPISTEMIC = {"fact", "graph_observation", "inference", "hypothesis"}
 REVIEW = {"pending", "accepted", "rejected", "deferred"}
 FRAME_NICKNAMES = {
@@ -38,26 +48,88 @@ def _nonempty_string(value: Any, field: str) -> str:
 def validate_intake(raw: Any) -> dict[str, Any]:
     if not isinstance(raw, dict):
         raise IntakeValidationError("intake must be an object")
-    missing = [field for field in REQUIRED if field not in raw]
-    if missing:
-        raise IntakeValidationError(f"missing required field(s): {', '.join(missing)}")
-    unknown = sorted(set(raw) - set(REQUIRED) - set(LIST_FIELDS))
-    if unknown:
-        raise IntakeValidationError(f"unknown field(s): {', '.join(unknown)}")
-    for field in ("name", "frame", "thesis"):
-        _nonempty_string(raw[field], field)
+    legacy = "contract_version" not in raw and "operation" not in raw
+    if legacy:
+        missing = [field for field in LEGACY_REQUIRED if field not in raw]
+        if missing:
+            raise IntakeValidationError(f"missing required field(s): {', '.join(missing)}")
+        allowed = set(LEGACY_REQUIRED) | {"questions", "known_links", "limitations", "references"}
+        unknown = sorted(set(raw) - allowed)
+        if unknown:
+            raise IntakeValidationError(f"unknown field(s): {', '.join(unknown)}")
+        value = {
+            "contract_version": "ivk-intake-1.0",
+            "operation": "new",
+            "target_vc": None,
+            "name": raw["name"],
+            "seed": raw["seed"],
+            "frame": raw["frame"],
+            "thesis": raw["thesis"],
+            "questions": raw.get("questions", []),
+            "scope": [],
+            "known_links": raw.get("known_links", []),
+            "limitations": raw.get("limitations", []),
+            "references": raw.get("references", []),
+            "options": {"periods": 5, "auto_expand": False, "write_policy": "approval_required"},
+        }
+    else:
+        missing = sorted(V1_FIELDS - set(raw))
+        if missing:
+            raise IntakeValidationError(f"missing required field(s): {', '.join(missing)}")
+        unknown = sorted(set(raw) - V1_FIELDS)
+        if unknown:
+            raise IntakeValidationError(f"unknown field(s): {', '.join(unknown)}")
+        value = deepcopy(raw)
+
+    if value["contract_version"] != "ivk-intake-1.0":
+        raise IntakeValidationError("contract_version must be ivk-intake-1.0")
+    operation = _nonempty_string(value["operation"], "operation").lower()
+    if operation not in OPERATIONS:
+        raise IntakeValidationError(f"unsupported operation: {operation}")
+    value["operation"] = operation
+    _nonempty_string(value["thesis"], "thesis")
+    for field in ("name", "frame", "target_vc"):
+        if value[field] is not None:
+            _nonempty_string(value[field], field)
     for field in LIST_FIELDS:
-        if field in raw and not isinstance(raw[field], list):
+        if not isinstance(value[field], list):
             raise IntakeValidationError(f"{field} must be an array")
-        for index, item in enumerate(raw.get(field, [])):
+        for index, item in enumerate(value[field]):
             _nonempty_string(item, f"{field}[{index}]")
-    if not raw["seed"]:
-        raise IntakeValidationError("seed must contain at least one value")
-    canonical = [_canonical_seed(item) for item in raw["seed"]]
+
+    if operation == "new":
+        if value["target_vc"] is not None:
+            raise IntakeValidationError("new operation requires target_vc=null")
+        _nonempty_string(value["name"], "name")
+        _nonempty_string(value["frame"], "frame")
+    else:
+        _nonempty_string(value["target_vc"], "target_vc")
+    if operation in {"new", "add", "expand"} and not value["seed"]:
+        raise IntakeValidationError(f"{operation} operation requires at least one seed")
+    if operation in {"add", "expand"}:
+        _nonempty_string(value["frame"], "frame")
+
+    canonical = [_canonical_seed(item) for item in value["seed"]]
     duplicates = sorted({item for item in canonical if canonical.count(item) > 1})
     if duplicates:
         raise IntakeValidationError(f"duplicate seed(s): {', '.join(duplicates)}")
-    return deepcopy(raw)
+
+    options = value["options"]
+    if not isinstance(options, dict):
+        raise IntakeValidationError("options must be an object")
+    unknown_options = sorted(set(options) - OPTION_FIELDS)
+    if unknown_options:
+        raise IntakeValidationError(f"unknown option(s): {', '.join(unknown_options)}")
+    for field in ("periods", "max_depth", "max_candidates"):
+        if field in options and (not isinstance(options[field], int) or isinstance(options[field], bool) or options[field] < 1):
+            raise IntakeValidationError(f"options.{field} must be a positive integer")
+    if "auto_expand" in options and not isinstance(options["auto_expand"], bool):
+        raise IntakeValidationError("options.auto_expand must be a boolean")
+    if options.get("write_policy") not in {"approval_required", "dry_run"}:
+        raise IntakeValidationError("options.write_policy must be approval_required or dry_run")
+    if "since" in options:
+        _nonempty_string(options["since"], "options.since")
+    return value
 
 
 def _canonical_seed(value: str) -> str:
@@ -102,22 +174,28 @@ def _normalize_intake_legacy(raw: Any) -> dict[str, Any]:
 def normalize_intake(raw: Any) -> dict[str, Any]:
     """Validate input and expand a frame nickname to a versioned frame reference."""
     validated = validate_intake(raw)
-    frame = resolve_frame(validated["frame"])
-    frames = [part.strip() for part in validated["frame"].split("→") if part.strip()]
+    frame = resolve_frame(validated["frame"]) if validated["frame"] is not None else None
+    frames = [part.strip() for part in validated["frame"].split("→") if part.strip()] if validated["frame"] else []
+    identity_name = validated["name"] or validated["target_vc"]
     return {
-        "identity": {"name": validated["name"].strip(), "slug": _slug(validated["name"])},
+        "operation": validated["operation"],
+        "target_vc": validated["target_vc"],
+        "identity": {"name": identity_name.strip(), "slug": _slug(identity_name)},
         "validated_seeds": [
             {"input": item, "canonical_id": _canonical_seed(item), "kind": "ticker_or_company_id", "role": "starting_point"}
             for item in validated["seed"]
         ],
-        "primary_frame": frame["label"],
-        "frame_ref": {"id": frame["id"], "version": frame["version"], "nickname": frame["nickname"], "input": frame["input"]},
+        "primary_frame": frame["label"] if frame else None,
+        "frame_ref": ({"id": frame["id"], "version": frame["version"], "nickname": frame["nickname"], "input": frame["input"]}
+                      if frame else {"id": None, "version": None, "nickname": None, "input": None}),
         "secondary_frame_candidates": frames[1:] if len(frames) > 1 else [],
         "thesis": validated["thesis"].strip(),
         "questions": [item.strip() for item in validated.get("questions", [])],
+        "scope": [item.strip() for item in validated.get("scope", [])],
         "known_links": [item.strip() for item in validated.get("known_links", [])],
         "limitations": [item.strip() for item in validated.get("limitations", [])],
         "references": [item.strip() for item in validated.get("references", [])],
+        "options": deepcopy(validated["options"]),
     }
 
 

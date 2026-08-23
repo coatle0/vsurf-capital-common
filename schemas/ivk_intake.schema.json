@@ -1,0 +1,78 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "ivk-intake-1.0",
+  "title": "IVK Factory intake",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "contract_version",
+    "operation",
+    "target_vc",
+    "name",
+    "seed",
+    "frame",
+    "thesis",
+    "questions",
+    "scope",
+    "known_links",
+    "limitations",
+    "references",
+    "options"
+  ],
+  "properties": {
+    "contract_version": {"const": "ivk-intake-1.0"},
+    "operation": {"enum": ["new", "add", "update", "expand"]},
+    "target_vc": {"type": ["string", "null"]},
+    "name": {"type": ["string", "null"]},
+    "seed": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "frame": {"type": ["string", "null"]},
+    "thesis": {"type": "string", "minLength": 1},
+    "questions": {"type": "array", "items": {"type": "string", "minLength": 1}},
+    "scope": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+    "known_links": {"type": "array", "items": {"type": "string", "minLength": 1}},
+    "limitations": {"type": "array", "items": {"type": "string", "minLength": 1}},
+    "references": {"type": "array", "items": {"type": "string", "minLength": 1}},
+    "options": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "periods": {"type": "integer", "minimum": 1},
+        "since": {"type": "string", "minLength": 1},
+        "max_depth": {"type": "integer", "minimum": 1},
+        "max_candidates": {"type": "integer", "minimum": 1},
+        "auto_expand": {"type": "boolean"},
+        "write_policy": {"enum": ["approval_required", "dry_run"]}
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"operation": {"const": "new"}}},
+      "then": {
+        "properties": {
+          "target_vc": {"type": "null"},
+          "name": {"type": "string", "minLength": 1},
+          "seed": {"minItems": 1},
+          "frame": {"type": "string", "minLength": 1}
+        }
+      }
+    },
+    {
+      "if": {"properties": {"operation": {"enum": ["add", "update", "expand"]}}},
+      "then": {"properties": {"target_vc": {"type": "string", "minLength": 1}}}
+    },
+    {
+      "if": {"properties": {"operation": {"enum": ["add", "expand"]}}},
+      "then": {
+        "properties": {
+          "seed": {"minItems": 1},
+          "frame": {"type": "string", "minLength": 1}
+        }
+      }
+    }
+  ]
+}

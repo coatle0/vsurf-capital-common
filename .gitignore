@@ -13,3 +13,7 @@ logs/inbox_consumer/
 logs/slack_bolt_listener_startup.log
 logs/inbox_consumer_startup.log
 .backup/
+runs/**/collection/raw/
+runs/**/cache/
+runs/**/tmp/
+runs/**/logs/

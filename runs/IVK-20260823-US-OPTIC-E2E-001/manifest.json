@@ -1,0 +1,40 @@
+{
+  "contract_version": "ivk-run-0.1",
+  "run_id": "IVK-20260823-US-OPTIC-E2E-001",
+  "operation": "new",
+  "target_vc": null,
+  "value_chain": {
+    "name": "us_optic",
+    "slug": "us-optic"
+  },
+  "status": "PLANNED",
+  "last_completed_stage": "plan",
+  "next_command": "external source collection / Phase 2 quality run",
+  "blockers": [],
+  "artifacts": {
+    "submitted_input": "submitted_input.json",
+    "intake": "intake.json",
+    "normalized": "normalized.json",
+    "intake_sha256": "4858ebe64342f64d0424367fe24c75aba71e0d6869e4581c314c049f93955826",
+    "existing_graph": "existing_graph.json",
+    "blueprint": "blueprint.json",
+    "graph_snapshot_sha256": "e1073d1cb58b68c76b62125a3cdcca471e662dae67e60977b37dc8c80d801950",
+    "source_plan": "source_plan.json"
+  },
+  "pack_selection": {
+    "sector": "semiconductor_optical",
+    "regions": [
+      "us"
+    ],
+    "registry": "registry\\ivk_factory_packs.json",
+    "manifest": {
+      "frame": "sponsor_valuechain_bottleneck@1.0.0",
+      "sector": "semiconductor_optical@1.0.0",
+      "regions": [
+        "us@1.0.0"
+      ]
+    }
+  },
+  "created_at": "2026-08-23T02:51:08.706087+00:00",
+  "updated_at": "2026-08-23T02:51:08.756700+00:00"
+}

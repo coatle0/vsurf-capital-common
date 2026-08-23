@@ -1,0 +1,53 @@
+{
+  "contract_version": "ivk-review-0.1",
+  "run_id": "IVK-20260823-US-OPTIC-E2E-001",
+  "path_status": "governed_write_readback_pass",
+  "source_documents": 12,
+  "companies": 4,
+  "confirmed_assertions": 0,
+  "pending_assertions": 3,
+  "question_closure": {
+    "핵심 병목은 어디인가?": "evidence-backed",
+    "직접 수혜기업과 근거는 무엇인가?": "evidence-backed",
+    "seed 밖으로 확장해야 할 핵심 연결기업은 누구인가?": "evidence-backed"
+  },
+  "link_expansion": [
+    {
+      "candidate": "AVGO",
+      "name": "Broadcom",
+      "decision": "strengthen",
+      "reason": "CPO/switch adjacency to NVDA AI systems and optical engines is the most connected seed-out name, but no TIKR collection was executed in this run so it is not written as a Company member.",
+      "source_recheck": "LITE/COHR CPO commentary plus public switch/CPO industry role; primary Broadcom 10-K not collected this run."
+    },
+    {
+      "candidate": "MRVL",
+      "name": "Marvell Technology",
+      "decision": "weaken",
+      "reason": "Optical DSP competitor to CRDO; relevant for comparison, not evidenced as a required us_optic member from seed-primary sources.",
+      "source_recheck": "CRDO FY2026 call discusses optical DSP design wins without naming Marvell as a required chain node."
+    },
+    {
+      "candidate": "AAOI",
+      "name": "Applied Optoelectronics",
+      "decision": "reject",
+      "reason": "Present in GS optic_idx generated intake (LITE/CRDO/COHR/AAOI) but absent from this ORDER seed list and not corroborated by the collected NVDA/COHR/LITE/CRDO primary sources as a required bottleneck/beneficiary node.",
+      "source_recheck": "Order seed NVDA/COHR/LITE/CRDO vs intakes/new/us_optic.json AAOI membership."
+    }
+  ],
+  "quality_gates": {
+    "all_nodes_have_provenance": true,
+    "auto_confirm": false,
+    "unsupported_assertions": 0,
+    "write_scope_limited": true,
+    "questions_closed": true,
+    "causal_record_present": true,
+    "counter_evidence_present": true,
+    "link_expansion_rechecked": true
+  },
+  "limitations": [
+    "No five-quarter segment/inventory time series was written for us_optic names.",
+    "AVGO was strengthened as an expansion frontier but not collected or written as a Company.",
+    "Causal records remain hypothesis/inference and pending; none are confirmed.",
+    "Existing PLANNED run IVK-20260823-US-OPTIC-001 used GS optic_idx seeds LITE/CRDO/COHR/AAOI and was not overwritten."
+  ]
+}

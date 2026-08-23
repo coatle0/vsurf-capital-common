@@ -6,7 +6,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from scripts.ivk_new_intake import IntakeValidationError, build_blueprint, normalize_intake
+from scripts.ivk_new_intake import IntakeValidationError, build_blueprint, normalize_intake, validate_intake
 
 
 class IVKNewIntakeTests(unittest.TestCase):
@@ -61,6 +61,50 @@ class IVKNewIntakeTests(unittest.TestCase):
         normalized = normalize_intake(raw)
         self.assertEqual("Upstream→Midstream→Downstream", normalized["primary_frame"])
         self.assertEqual("upstream_midstream_downstream", normalized["frame_ref"]["id"])
+
+    def test_legacy_input_upgrades_to_v1_new(self):
+        canonical = validate_intake(self.raw)
+        self.assertEqual("ivk-intake-1.0", canonical["contract_version"])
+        self.assertEqual("new", canonical["operation"])
+        self.assertIsNone(canonical["target_vc"])
+
+    def test_add_requires_target_vc(self):
+        raw = {
+            "contract_version": "ivk-intake-1.0", "operation": "add",
+            "target_vc": None, "name": None, "seed": ["MPI"], "frame": "matrix",
+            "thesis": "Add MPI", "questions": [], "scope": [], "known_links": [],
+            "limitations": [], "references": [],
+            "options": {"write_policy": "approval_required"},
+        }
+        with self.assertRaisesRegex(IntakeValidationError, "target_vc"):
+            validate_intake(raw)
+
+    def test_add_and_expand_normalize_target_vc(self):
+        for operation in ("add", "expand"):
+            raw = {
+                "contract_version": "ivk-intake-1.0", "operation": operation,
+                "target_vc": "vc:sti-ecosystem", "name": None, "seed": ["MPI"],
+                "frame": "matrix", "thesis": "Extend STI", "questions": [],
+                "scope": ["value_chain"], "known_links": [], "limitations": [],
+                "references": [], "options": {"write_policy": "approval_required"},
+            }
+            normalized = normalize_intake(raw)
+            self.assertEqual(operation, normalized["operation"])
+            self.assertEqual("vc:sti-ecosystem", normalized["target_vc"])
+            self.assertEqual("MPI", normalized["validated_seeds"][0]["canonical_id"])
+
+    def test_update_allows_empty_seed_and_null_frame(self):
+        raw = {
+            "contract_version": "ivk-intake-1.0", "operation": "update",
+            "target_vc": "vc:sti-ecosystem", "name": None, "seed": [], "frame": None,
+            "thesis": "Refresh time series", "questions": [], "scope": ["financials"],
+            "known_links": [], "limitations": [], "references": [],
+            "options": {"periods": 5, "write_policy": "approval_required"},
+        }
+        normalized = normalize_intake(raw)
+        self.assertEqual("update", normalized["operation"])
+        self.assertEqual("vc:sti-ecosystem", normalized["target_vc"])
+        self.assertEqual([], normalized["validated_seeds"])
 
 
 if __name__ == "__main__":

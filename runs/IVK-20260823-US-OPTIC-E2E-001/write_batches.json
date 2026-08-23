@@ -1,0 +1,318 @@
+[
+  {
+    "name": "value_chain",
+    "query": "MERGE (vc:ValueChain {id:$id}) SET vc.nickname=$nickname, vc.name=$name, vc.status=$status, vc.review_status=$review_status, vc.run_id=$run_id, vc.as_of=$as_of RETURN vc.id AS id, vc.nickname AS nickname, vc.status AS status",
+    "params": {
+      "id": "vc:us_optic",
+      "nickname": "us_optic",
+      "name": "us_optic",
+      "status": "candidate",
+      "review_status": "pending",
+      "run_id": "IVK-20260823-US-OPTIC-E2E-001",
+      "as_of": "2026-08-23"
+    }
+  },
+  {
+    "name": "companies",
+    "query": "UNWIND $rows AS row MERGE (c:Company {id:row.id}) SET c.ticker=row.ticker, c.name=row.name, c.name_en=row.name, c.exchange=row.exchange, c.tikr_cid=row.tikr_cid, c.status=row.status, c.review_status=row.review_status, c.run_id=$run_id WITH c, row MATCH (vc:ValueChain {id:$vc_id}) MERGE (c)-[m:CANDIDATE_IN]->(vc) SET m.status='candidate', m.review_status='pending', m.evidence_id=row.evidence_id, m.run_id=$run_id RETURN c.ticker AS ticker, m.status AS membership_status",
+    "params": {
+      "rows": [
+        {
+          "id": "company:NVDA",
+          "ticker": "NVDA",
+          "name": "NVIDIA Corporation",
+          "exchange": "NasdaqGS",
+          "tikr_cid": "32307",
+          "evidence_id": "ev:us_optic:NVDA:overview",
+          "status": "candidate",
+          "review_status": "pending",
+          "role": "sponsor_demand"
+        },
+        {
+          "id": "company:COHR",
+          "ticker": "COHR",
+          "name": "Coherent Corp.",
+          "exchange": "NYSE",
+          "tikr_cid": "309779",
+          "evidence_id": "ev:us_optic:COHR:overview",
+          "status": "candidate",
+          "review_status": "pending",
+          "role": "optical_components_systems"
+        },
+        {
+          "id": "company:LITE",
+          "ticker": "LITE",
+          "name": "Lumentum Holdings Inc.",
+          "exchange": "NasdaqGS",
+          "tikr_cid": "272054403",
+          "evidence_id": "ev:us_optic:LITE:overview",
+          "status": "candidate",
+          "review_status": "pending",
+          "role": "laser_chips_modules"
+        },
+        {
+          "id": "company:CRDO",
+          "ticker": "CRDO",
+          "name": "Credo Technology Group Holding Ltd",
+          "exchange": "NasdaqGS",
+          "tikr_cid": "662522214",
+          "evidence_id": "ev:us_optic:CRDO:overview",
+          "status": "candidate",
+          "review_status": "pending",
+          "role": "optical_dsp_sipho"
+        }
+      ],
+      "vc_id": "vc:us_optic",
+      "run_id": "IVK-20260823-US-OPTIC-E2E-001"
+    }
+  },
+  {
+    "name": "evidence",
+    "query": "UNWIND $rows AS row MERGE (e:Evidence {id:row.id}) SET e.source_ref=row.source_ref, e.source_url=row.source_url, e.source_date=row.source_date, e.content_hash=row.content_hash, e.status='pending', e.run_id=$run_id WITH e, row MATCH (c:Company {id:'company:'+split(row.id,':')[2]}) MERGE (c)-[:SUPPORTED_BY {run_id:$run_id}]->(e) RETURN e.id AS id, e.content_hash AS content_hash",
+    "params": {
+      "rows": [
+        {
+          "id": "ev:us_optic:NVDA:overview",
+          "source_ref": "tikr.company_overview:NVDA",
+          "content_hash": "a9c7cb601f2b9da9678b7d64d0ce6a8023631fa473618448638656e46a585adf",
+          "source_url": "https://www.nvidia.com",
+          "source_date": "2026-08-23"
+        },
+        {
+          "id": "ev:us_optic:NVDA:10k",
+          "source_ref": "sec.10-K:0001045810-26-000021",
+          "content_hash": "df6a5332945ed9a4adae0a3be3f1090735b189d07a711245cae6af4f51e72b06",
+          "source_url": "https://www.sec.gov/Archives/edgar/data/1045810/000104581026000021/nvda-20260125.htm",
+          "source_date": "2026-02-25"
+        },
+        {
+          "id": "ev:us_optic:NVDA:call",
+          "source_ref": "tikr.earnings_call:NVDA:3736292",
+          "content_hash": "af9b8cf37321d0cf9851fc5ef1b4e0f41d961fdbf221303673979fb2b625dccc",
+          "source_url": "tikr://transcript/NVDA/3736292",
+          "source_date": "2026-05-20"
+        },
+        {
+          "id": "ev:us_optic:COHR:overview",
+          "source_ref": "tikr.company_overview:COHR",
+          "content_hash": "0f036117ca88433c331ad3a03a32971392ff0f41d7e8f9d61a61f3c8ac5c9324",
+          "source_url": "https://www.coherent.com",
+          "source_date": "2026-08-23"
+        },
+        {
+          "id": "ev:us_optic:COHR:10k",
+          "source_ref": "sec.10-K:0000820318-26-000020",
+          "content_hash": "10f2312825577d6f041e9078e7da6a279fc703aae5649e74d7c67138ddf8d6f7",
+          "source_url": "https://www.sec.gov/Archives/edgar/data/820318/000082031826000020/iivi-20260630.htm",
+          "source_date": "2026-08-14"
+        },
+        {
+          "id": "ev:us_optic:COHR:call",
+          "source_ref": "tikr.earnings_call:COHR:3794531",
+          "content_hash": "bfa1fdf75b02b22e9c95c61a4f8617186b4e7fd19d495be47b529ceb606e7dda",
+          "source_url": "tikr://transcript/COHR/3794531",
+          "source_date": "2026-08-12"
+        },
+        {
+          "id": "ev:us_optic:LITE:overview",
+          "source_ref": "tikr.company_overview:LITE",
+          "content_hash": "ee0b5f129589973ccc5482d51d5f33fa3a534c74de9b272acc7350a2b62e5b96",
+          "source_url": "https://www.lumentum.com",
+          "source_date": "2026-08-23"
+        },
+        {
+          "id": "ev:us_optic:LITE:10k",
+          "source_ref": "sec.10-K:0001628280-26-057358",
+          "content_hash": "8c0886efbd0a20f55963d4e7f83379d5798563d0357692f57e1b1d306f57a162",
+          "source_url": "https://www.sec.gov/Archives/edgar/data/1633978/000162828026057358/lite-20260627.htm",
+          "source_date": "2026-08-17"
+        },
+        {
+          "id": "ev:us_optic:LITE:call",
+          "source_ref": "tikr.earnings_call:LITE:3795173",
+          "content_hash": "c5debf65980e46e83f4a2ee5eebeec4d5c963d9d65825199c2d331aaa8cb9f33",
+          "source_url": "tikr://transcript/LITE/3795173",
+          "source_date": "2026-08-11"
+        },
+        {
+          "id": "ev:us_optic:CRDO:overview",
+          "source_ref": "tikr.company_overview:CRDO",
+          "content_hash": "47e5f62541c751daed3163160cb3b7c3c9a337259e2b26906981652bf8a03aef",
+          "source_url": "https://credosemi.com",
+          "source_date": "2026-08-23"
+        },
+        {
+          "id": "ev:us_optic:CRDO:10k",
+          "source_ref": "sec.10-K:0001628280-26-043303",
+          "content_hash": "20a6ad0a5c0bce0f34744a0af1fabd8d0d8ba67a4f5d3c78ac2889fb94841070",
+          "source_url": "https://www.sec.gov/Archives/edgar/data/1807794/000162828026043303/crdo-20260502.htm",
+          "source_date": "2026-06-15"
+        },
+        {
+          "id": "ev:us_optic:CRDO:call",
+          "source_ref": "tikr.earnings_call:CRDO:3744443",
+          "content_hash": "ee1aeb266786e0b2f073550079075c967bcf2b86ab22a9e79e93b5c6510fb647",
+          "source_url": "tikr://transcript/CRDO/3744443",
+          "source_date": "2026-06-01"
+        }
+      ],
+      "run_id": "IVK-20260823-US-OPTIC-E2E-001"
+    }
+  },
+  {
+    "name": "products",
+    "query": "UNWIND $rows AS row MERGE (p:Product {id:row.id}) SET p.name=row.name, p.status='candidate', p.run_id=$run_id WITH p, row MATCH (c:Company {id:'company:'+row.producer}) MERGE (c)-[r:PRODUCES]->(p) SET r.status='candidate', r.as_of=$as_of, r.run_id=$run_id, r.source_url=row.evidence_id RETURN p.id AS id",
+    "params": {
+      "rows": [
+        {
+          "id": "product:us_optic:blackwell-system",
+          "name": "Blackwell data-center AI system",
+          "producer": "NVDA",
+          "evidence_id": "ev:us_optic:NVDA:10k"
+        },
+        {
+          "id": "product:us_optic:transceiver",
+          "name": "Datacenter optical transceiver",
+          "producer": "COHR",
+          "evidence_id": "ev:us_optic:COHR:overview"
+        },
+        {
+          "id": "product:us_optic:cpo",
+          "name": "Co-packaged optics",
+          "producer": "COHR",
+          "evidence_id": "ev:us_optic:COHR:call"
+        },
+        {
+          "id": "product:us_optic:ocs",
+          "name": "Optical circuit switch",
+          "producer": "COHR",
+          "evidence_id": "ev:us_optic:COHR:call"
+        },
+        {
+          "id": "product:us_optic:eml-cw-laser",
+          "name": "EML and CW laser chips",
+          "producer": "LITE",
+          "evidence_id": "ev:us_optic:LITE:call"
+        },
+        {
+          "id": "product:us_optic:uhp-laser",
+          "name": "Ultra high-power laser chips for CPO/ELS",
+          "producer": "LITE",
+          "evidence_id": "ev:us_optic:LITE:call"
+        },
+        {
+          "id": "product:us_optic:optical-dsp",
+          "name": "Optical DSP / retimer",
+          "producer": "CRDO",
+          "evidence_id": "ev:us_optic:CRDO:call"
+        },
+        {
+          "id": "product:us_optic:sipho-pic",
+          "name": "Silicon photonics PIC",
+          "producer": "CRDO",
+          "evidence_id": "ev:us_optic:CRDO:call"
+        }
+      ],
+      "run_id": "IVK-20260823-US-OPTIC-E2E-001",
+      "as_of": "2026-08-23"
+    }
+  },
+  {
+    "name": "processes",
+    "query": "UNWIND $rows AS row MERGE (p:Process {id:row.id}) SET p.name=row.name, p.status='candidate', p.run_id=$run_id WITH p, row MATCH (c:Company {id:'company:'+row.operator}) MERGE (c)-[r:OPERATES_IN]->(p) SET r.status='candidate', r.as_of=$as_of, r.run_id=$run_id RETURN p.id AS id",
+    "params": {
+      "rows": [
+        {
+          "id": "process:us_optic:inp-6inch",
+          "name": "6-inch indium phosphide laser/EML fabrication",
+          "operator": "COHR",
+          "evidence_id": "ev:us_optic:COHR:call"
+        },
+        {
+          "id": "process:us_optic:cpo-packaging",
+          "name": "Co-packaged / near-packaged optical integration",
+          "operator": "LITE",
+          "evidence_id": "ev:us_optic:LITE:call"
+        }
+      ],
+      "run_id": "IVK-20260823-US-OPTIC-E2E-001",
+      "as_of": "2026-08-23"
+    }
+  },
+  {
+    "name": "end_markets_drivers",
+    "query": "UNWIND $markets AS mrow MERGE (em:EndMarket {id:mrow.id}) SET em.name=mrow.name, em.status='candidate', em.run_id=$run_id WITH collect(em) AS _ UNWIND $drivers AS drow MERGE (d:DemandDriver {id:drow.id}) SET d.name=drow.name, d.status='candidate', d.run_id=$run_id, d.as_of=$as_of WITH d MATCH (em:EndMarket {id:'endmarket:us_optic:ai-datacenter'}) MERGE (d)-[r:DRIVES]->(em) SET r.status='candidate', r.as_of=$as_of, r.source_url=d.id RETURN d.id AS id",
+    "params": {
+      "markets": [
+        {
+          "id": "endmarket:us_optic:ai-datacenter",
+          "name": "AI datacenter optical interconnect",
+          "evidence_id": "ev:us_optic:NVDA:10k"
+        }
+      ],
+      "drivers": [
+        {
+          "id": "driver:us_optic:ai-optical-demand",
+          "name": "AI cluster scale-out/scale-up optical demand",
+          "evidence_id": "ev:us_optic:NVDA:call"
+        }
+      ],
+      "run_id": "IVK-20260823-US-OPTIC-E2E-001",
+      "as_of": "2026-08-23"
+    }
+  },
+  {
+    "name": "assertions",
+    "query": "UNWIND $rows AS row MERGE (a:CausalAssertion {id:row.id}) SET a.kind=row.kind, a.company_id=row.company_id, a.period=row.period, a.affected_metric=row.affected_metric, a.direction=row.direction, a.lag=row.lag, a.source=row.source, a.evidence=row.evidence, a.confidence=row.confidence, a.counter_evidence=row.counter_evidence, a.status=row.status, a.review_status=row.review_status, a.run_id=$run_id WITH a, row MATCH (c:Company {id:row.company_id}) MERGE (a)-[r:ASSERTED_FOR]->(c) SET r.evidence=row.evidence, r.review_status=row.review_status, r.source=row.source RETURN a.id AS id, a.review_status AS review_status, a.status AS status",
+    "params": {
+      "rows": [
+        {
+          "id": "ca:us_optic:driver:ai-optical-demand",
+          "kind": "EarningsDriverLink",
+          "company_id": "company:NVDA",
+          "period": "FY2026-FY2027",
+          "affected_metric": "datacenter_optical_demand",
+          "direction": "up",
+          "lag": "concurrent_to_1y",
+          "source": "sec.10-K:0001045810-26-000021; tikr.earnings_call:NVDA:3736292",
+          "evidence": "NVIDIA describes itself as a data-center-scale AI infrastructure company; Q1 FY2027 call cites rapid AI compute capacity stand-up and Data Center-led growth.",
+          "confidence": 0.72,
+          "counter_evidence": "NVIDIA states it is not immune to supply challenges, so demand does not automatically translate into unconstrained optical component shipments.",
+          "status": "inference",
+          "review_status": "pending"
+        },
+        {
+          "id": "ca:us_optic:bottleneck:inp-laser",
+          "kind": "Bottleneck",
+          "company_id": "company:COHR",
+          "period": "FY2026-FY2027",
+          "affected_metric": "laser_eml_inp_capacity",
+          "direction": "constrains_growth",
+          "lag": "2-6q",
+          "source": "tikr.earnings_call:COHR:3794531; tikr.earnings_call:LITE:3795173; tikr.earnings_call:CRDO:3744443",
+          "evidence": "Coherent is doubling internal 6-inch InP output and cites critical-component supply as a growth gate. Lumentum's CPO laser-chip ramp is timed to 2H calendar 2027. Credo says fewer lasers in SiPho designs can ease industry laser supply-chain limitations.",
+          "confidence": 0.68,
+          "counter_evidence": "Coherent reports 6-inch yields already exceeding 3-inch lines and an on-track doubling, which may relieve rather than persist the bottleneck. Lumentum also reports NPO as an intermediate architecture that can absorb demand before CPO scale-up.",
+          "status": "hypothesis",
+          "review_status": "pending"
+        },
+        {
+          "id": "ca:us_optic:beneficiary:laser-suppliers",
+          "kind": "BeneficiaryAssessment",
+          "company_id": "company:LITE",
+          "period": "FY2027-FY2028",
+          "affected_metric": "cpo_npo_laser_revenue",
+          "direction": "up_if_bottleneck_binds",
+          "lag": "2-6q",
+          "source": "tikr.earnings_call:LITE:3795173; tikr.earnings_call:COHR:3794531",
+          "evidence": "Lumentum says lead CPO customer demand increased and ultra high-power laser chips ramp in 2H 2027; Coherent expects CPO revenue contribution in fiscal Q2 on a production ramp.",
+          "confidence": 0.61,
+          "counter_evidence": "CPO scale-up is not current-period revenue for Lumentum's broader customer base, which is prioritizing NPO. Credo CPO/NPO revenue is guided to fiscal 2028. No confirmed ranking of beneficiaries is licensed without review.",
+          "status": "hypothesis",
+          "review_status": "pending"
+        }
+      ],
+      "run_id": "IVK-20260823-US-OPTIC-E2E-001"
+    }
+  }
+]

@@ -52,7 +52,8 @@ def build_outputs(plan: dict[str, Any], collection: dict[str, Any]) -> dict[str,
                      "questions": "pending_review"},
         "auto_confirm": False,
     }
-    vc_id = "vc:ai-data-center-power-power-semiconductor"
+    planned_vc = plan.get("value_chain", {})
+    vc_id = planned_vc.get("target_vc") or f"vc:{planned_vc.get('slug', 'unresolved-value-chain')}"
     ke = {
         "contract_version": "ivk-ke-packet-0.1",
         "run_id": collection["run_id"],
@@ -96,10 +97,10 @@ def main() -> None:
     parser.add_argument("--output-dir", type=Path, required=True)
     args = parser.parse_args()
     outputs = build_outputs(_read(args.plan), _read(args.collection))
-    names = {"evidence": "141_power_semiconductor_evidence_packet.json",
-             "ke": "141_power_semiconductor_ke_packet.json",
-             "write_manifest": "141_power_semiconductor_write_manifest.json",
-             "review": "141_power_semiconductor_review.json"}
+    names = {"evidence": "evidence_packet.json",
+             "ke": "ke_packet.json",
+             "write_manifest": "write_manifest.json",
+             "review": "review.json"}
     for key, name in names.items():
         _write(args.output_dir / name, outputs[key])
 

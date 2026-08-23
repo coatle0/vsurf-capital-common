@@ -1,0 +1,57 @@
+{
+  "contract_version": "ivk-quality-benchmark-0.1",
+  "run_id": "IVK-20260823-US-OPTIC-E2E-001",
+  "rubric": "order-142-six-axis-0-4",
+  "axes": [
+    {
+      "axis": "Source depth",
+      "sti": 4,
+      "us_optic": 3,
+      "note": "10-K + latest earnings call + overview for all 4 seeds; no five-quarter segment/inventory series."
+    },
+    {
+      "axis": "Evidence provenance / coverage",
+      "sti": 4,
+      "us_optic": 3,
+      "note": "All facts hashed with URL/as-of/collected_at; 3/3 questions evidence-backed pending review."
+    },
+    {
+      "axis": "Value Chain structure quality",
+      "sti": 4,
+      "us_optic": 3,
+      "note": "Canonical vc:us_optic plus products, InP/CPO processes, AI datacenter end-market and demand driver."
+    },
+    {
+      "axis": "Driver / bottleneck / beneficiary evidence",
+      "sti": 4,
+      "us_optic": 3,
+      "note": "One pending chain with counter-evidence; not confirmed and not a 3-company Golden Example replica."
+    },
+    {
+      "axis": "Link Expansion quality",
+      "sti": 4,
+      "us_optic": 3,
+      "note": "AVGO strengthen, MRVL weaken, AAOI reject with source-recheck notes; AVGO not collected."
+    },
+    {
+      "axis": "Neo4j completeness / reviewability",
+      "sti": 3,
+      "us_optic": 3,
+      "note": "Candidate graph plus pending causal records; STI time series left untouched."
+    }
+  ],
+  "sti_total": 23,
+  "us_optic_total": 18,
+  "relative_pct": 78.3,
+  "verdict": "PASS_STRUCTURE_NOT_STI_PARITY",
+  "unmet": [
+    "five-quarter financial/inventory/segment time series",
+    "confirmed causal review",
+    "primary-source collection for AVGO expansion name"
+  ],
+  "nonpublic": [],
+  "follow_up": [
+    "Collect AVGO 10-K/call before any membership write.",
+    "Add 5-quarter TIKR financials as separate FinancialPeriod nodes with us_optic run_id only."
+  ]
+}

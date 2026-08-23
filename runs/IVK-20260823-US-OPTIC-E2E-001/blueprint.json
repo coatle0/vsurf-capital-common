@@ -1,0 +1,229 @@
+{
+  "contract_version": "ivk-blueprint-1.0",
+  "raw_input": {
+    "contract_version": "ivk-intake-1.0",
+    "operation": "new",
+    "target_vc": null,
+    "name": "us_optic",
+    "seed": [
+      "NVDA",
+      "COHR",
+      "LITE",
+      "CRDO"
+    ],
+    "frame": "Sponsor → Value Chain → Bottleneck",
+    "thesis": "AI 데이터센터의 optical/CPO 확대가 광부품·DSP·레이저·패키징 병목과 수혜기업을 만든다.",
+    "questions": [
+      "핵심 병목은 어디인가?",
+      "직접 수혜기업과 근거는 무엇인가?",
+      "seed 밖으로 확장해야 할 핵심 연결기업은 누구인가?"
+    ],
+    "scope": [
+      "value_chain",
+      "products",
+      "processes",
+      "technologies",
+      "end_markets",
+      "financials",
+      "earnings_call",
+      "counter_evidence",
+      "link_expansion"
+    ],
+    "known_links": [],
+    "limitations": [
+      "Seed is a starting point, not the final value-chain boundary.",
+      "No candidate is auto-promoted to confirmed without primary-source evidence and review.",
+      "Existing STI earnings, inventory, and segment nodes must not be modified or deleted."
+    ],
+    "references": [
+      "slack://vsurf-code-reports/1787451507.780609"
+    ],
+    "options": {
+      "periods": 5,
+      "auto_expand": true,
+      "write_policy": "approval_required"
+    }
+  },
+  "normalized": {
+    "operation": "new",
+    "target_vc": null,
+    "identity": {
+      "name": "us_optic",
+      "slug": "us-optic"
+    },
+    "validated_seeds": [
+      {
+        "input": "NVDA",
+        "canonical_id": "NVDA",
+        "kind": "ticker_or_company_id",
+        "role": "starting_point"
+      },
+      {
+        "input": "COHR",
+        "canonical_id": "COHR",
+        "kind": "ticker_or_company_id",
+        "role": "starting_point"
+      },
+      {
+        "input": "LITE",
+        "canonical_id": "LITE",
+        "kind": "ticker_or_company_id",
+        "role": "starting_point"
+      },
+      {
+        "input": "CRDO",
+        "canonical_id": "CRDO",
+        "kind": "ticker_or_company_id",
+        "role": "starting_point"
+      }
+    ],
+    "primary_frame": "Sponsor→Value Chain→Bottleneck",
+    "frame_ref": {
+      "id": "sponsor_valuechain_bottleneck",
+      "version": "1.0.0",
+      "nickname": null,
+      "input": "Sponsor → Value Chain → Bottleneck"
+    },
+    "secondary_frame_candidates": [
+      "Value Chain",
+      "Bottleneck"
+    ],
+    "thesis": "AI 데이터센터의 optical/CPO 확대가 광부품·DSP·레이저·패키징 병목과 수혜기업을 만든다.",
+    "questions": [
+      "핵심 병목은 어디인가?",
+      "직접 수혜기업과 근거는 무엇인가?",
+      "seed 밖으로 확장해야 할 핵심 연결기업은 누구인가?"
+    ],
+    "scope": [
+      "value_chain",
+      "products",
+      "processes",
+      "technologies",
+      "end_markets",
+      "financials",
+      "earnings_call",
+      "counter_evidence",
+      "link_expansion"
+    ],
+    "known_links": [],
+    "limitations": [
+      "Seed is a starting point, not the final value-chain boundary.",
+      "No candidate is auto-promoted to confirmed without primary-source evidence and review.",
+      "Existing STI earnings, inventory, and segment nodes must not be modified or deleted."
+    ],
+    "references": [
+      "slack://vsurf-code-reports/1787451507.780609"
+    ],
+    "options": {
+      "periods": 5,
+      "auto_expand": true,
+      "write_policy": "approval_required"
+    }
+  },
+  "unresolved_seeds": [
+    {
+      "seed": "NVDA",
+      "reason": "no matching Company in live canonical read",
+      "disposition": "retain_as_starting_point"
+    },
+    {
+      "seed": "COHR",
+      "reason": "no matching Company in live canonical read",
+      "disposition": "retain_as_starting_point"
+    },
+    {
+      "seed": "LITE",
+      "reason": "no matching Company in live canonical read",
+      "disposition": "retain_as_starting_point"
+    },
+    {
+      "seed": "CRDO",
+      "reason": "no matching Company in live canonical read",
+      "disposition": "retain_as_starting_point"
+    }
+  ],
+  "excluded_seeds": [],
+  "existing_graph": {
+    "read_path": "neo4j-official.read_cypher",
+    "observed_at": "2026-08-23T02:51:08.730992+00:00",
+    "findings": [
+      {
+        "seed": "NVDA",
+        "company": null,
+        "value_chain": [],
+        "assertions": [],
+        "epistemic_status": "graph_observation",
+        "review_status": "pending"
+      },
+      {
+        "seed": "COHR",
+        "company": null,
+        "value_chain": [],
+        "assertions": [],
+        "epistemic_status": "graph_observation",
+        "review_status": "pending"
+      },
+      {
+        "seed": "LITE",
+        "company": null,
+        "value_chain": [],
+        "assertions": [],
+        "epistemic_status": "graph_observation",
+        "review_status": "pending"
+      },
+      {
+        "seed": "CRDO",
+        "company": null,
+        "value_chain": [],
+        "assertions": [],
+        "epistemic_status": "graph_observation",
+        "review_status": "pending"
+      }
+    ]
+  },
+  "initial_value_chain": {
+    "nodes": [],
+    "links": [],
+    "status": "hypothesis",
+    "review_status": "pending"
+  },
+  "candidate_slots": {
+    "drivers": [],
+    "bottlenecks": [],
+    "beneficiaries": []
+  },
+  "link_expansion_frontier": [],
+  "source_requirements": [
+    {
+      "question": "핵심 병목은 어디인가?",
+      "status": "required",
+      "evidence": []
+    },
+    {
+      "question": "직접 수혜기업과 근거는 무엇인가?",
+      "status": "required",
+      "evidence": []
+    },
+    {
+      "question": "seed 밖으로 확장해야 할 핵심 연결기업은 누구인가?",
+      "status": "required",
+      "evidence": []
+    }
+  ],
+  "epistemic_policy": {
+    "allowed_status": [
+      "fact",
+      "graph_observation",
+      "hypothesis",
+      "inference"
+    ],
+    "allowed_review_status": [
+      "accepted",
+      "deferred",
+      "pending",
+      "rejected"
+    ],
+    "auto_confirm": false
+  },
+  "review_status": "pending"
+}

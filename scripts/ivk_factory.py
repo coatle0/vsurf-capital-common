@@ -296,7 +296,11 @@ def build_source_plan(blueprint: dict[str, Any], selection: PackSelection) -> di
     plan = {
         "contract_version": "ivk-source-plan-1.0",
         "created_at": now_iso(),
-        "value_chain": normalized.get("identity"),
+        "value_chain": {
+            **normalized.get("identity", {}),
+            "operation": normalized.get("operation", "new"),
+            "target_vc": normalized.get("target_vc"),
+        },
         "blueprint_contract": blueprint["contract_version"],
         "pack_manifest": selection.manifest(),
         "pack_policy": {

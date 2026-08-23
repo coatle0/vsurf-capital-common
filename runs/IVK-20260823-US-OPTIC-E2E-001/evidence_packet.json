@@ -1,0 +1,255 @@
+{
+  "contract_version": "ivk-evidence-packet-0.1",
+  "run_id": "IVK-20260823-US-OPTIC-E2E-001",
+  "source_plan_contract": "ivk-source-plan-1.0",
+  "documents": [
+    {
+      "evidence_id": "ev:us_optic:NVDA:overview",
+      "ticker": "NVDA",
+      "company_id": "32307",
+      "company_name": "NVIDIA Corporation",
+      "exchange": "NasdaqGS",
+      "source_ref": "tikr.company_overview:NVDA",
+      "source_url": "https://www.nvidia.com",
+      "source_date": "2026-08-23",
+      "collected_at": "2026-08-23",
+      "status": "collected",
+      "facts": [
+        "NVIDIA Corporation operates as a data center scale AI infrastructure company.",
+        "It operates through Compute & Networking and Graphics segments.",
+        "Compute & Networking provides data center accelerated computing and networking platforms and AI solutions."
+      ],
+      "content_hash": "a9c7cb601f2b9da9678b7d64d0ce6a8023631fa473618448638656e46a585adf",
+      "epistemic_status": "source_fact",
+      "review_status": "pending"
+    },
+    {
+      "evidence_id": "ev:us_optic:NVDA:10k",
+      "ticker": "NVDA",
+      "company_id": "32307",
+      "company_name": "NVIDIA Corporation",
+      "exchange": "NasdaqGS",
+      "source_ref": "sec.10-K:0001045810-26-000021",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1045810/000104581026000021/nvda-20260125.htm",
+      "source_date": "2026-02-25",
+      "collected_at": "2026-08-23",
+      "status": "collected",
+      "facts": [
+        "NVIDIA is now a data center scale AI infrastructure company reshaping all industries.",
+        "Blackwell data-center-scale offerings co-design chips, networking, systems, software, and algorithms."
+      ],
+      "content_hash": "df6a5332945ed9a4adae0a3be3f1090735b189d07a711245cae6af4f51e72b06",
+      "epistemic_status": "source_fact",
+      "review_status": "pending"
+    },
+    {
+      "evidence_id": "ev:us_optic:NVDA:call",
+      "ticker": "NVDA",
+      "company_id": "32307",
+      "company_name": "NVIDIA Corporation",
+      "exchange": "NasdaqGS",
+      "source_ref": "tikr.earnings_call:NVDA:3736292",
+      "source_url": "tikr://transcript/NVDA/3736292",
+      "source_date": "2026-05-20",
+      "collected_at": "2026-08-23",
+      "status": "collected",
+      "facts": [
+        "Q1 FY2027 call: customers enabled rapid stand-up of AI compute capacity.",
+        "Colette Kress: NVIDIA is not immune to supply challenges while increasing total supply to $145 billion.",
+        "Outlook: Q2 revenue expected $91 billion +/- 2%, sequential growth driven primarily by Data Center."
+      ],
+      "content_hash": "af9b8cf37321d0cf9851fc5ef1b4e0f41d961fdbf221303673979fb2b625dccc",
+      "epistemic_status": "source_fact",
+      "review_status": "pending"
+    },
+    {
+      "evidence_id": "ev:us_optic:COHR:overview",
+      "ticker": "COHR",
+      "company_id": "309779",
+      "company_name": "Coherent Corp.",
+      "exchange": "NYSE",
+      "source_ref": "tikr.company_overview:COHR",
+      "source_url": "https://www.coherent.com",
+      "source_date": "2026-08-23",
+      "collected_at": "2026-08-23",
+      "status": "collected",
+      "facts": [
+        "Coherent develops lasers, transceivers, optical and optoelectronic devices, modules, and systems.",
+        "Datacenter and Communications segment offers transceivers, co-packaged optics, and optical circuit switches."
+      ],
+      "content_hash": "0f036117ca88433c331ad3a03a32971392ff0f41d7e8f9d61a61f3c8ac5c9324",
+      "epistemic_status": "source_fact",
+      "review_status": "pending"
+    },
+    {
+      "evidence_id": "ev:us_optic:COHR:10k",
+      "ticker": "COHR",
+      "company_id": "309779",
+      "company_name": "Coherent Corp.",
+      "exchange": "NYSE",
+      "source_ref": "sec.10-K:0000820318-26-000020",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/820318/000082031826000020/iivi-20260630.htm",
+      "source_date": "2026-08-14",
+      "collected_at": "2026-08-23",
+      "status": "collected",
+      "facts": [
+        "FY2026 10-K defines co-packaged optics (CPO), digital signal processor (DSP), and electron-absorption modulated laser (EML).",
+        "Coherent is a vertically integrated manufacturer of lasers, transceivers, and optical devices for datacenter and communications."
+      ],
+      "content_hash": "10f2312825577d6f041e9078e7da6a279fc703aae5649e74d7c67138ddf8d6f7",
+      "epistemic_status": "source_fact",
+      "review_status": "pending"
+    },
+    {
+      "evidence_id": "ev:us_optic:COHR:call",
+      "ticker": "COHR",
+      "company_id": "309779",
+      "company_name": "Coherent Corp.",
+      "exchange": "NYSE",
+      "source_ref": "tikr.earnings_call:COHR:3794531",
+      "source_url": "tikr://transcript/COHR/3794531",
+      "source_date": "2026-08-12",
+      "collected_at": "2026-08-23",
+      "status": "collected",
+      "facts": [
+        "FY2026 Q4 call: data center revenue +66% YoY and +24% sequential; indium phosphide internal output planned to double YoY by end of current quarter.",
+        "CPO expected to begin contributing to revenue growth in fiscal Q2, consistent with the planned production ramp.",
+        "6-inch InP lines in Texas and Sweden produce EMLs, CW lasers and photodiodes; Zurich 6-inch production planned 1H calendar 2027.",
+        "OCS estimated as more than $4 billion addressable market across DCI, scale-out and scale-up."
+      ],
+      "content_hash": "bfa1fdf75b02b22e9c95c61a4f8617186b4e7fd19d495be47b529ceb606e7dda",
+      "epistemic_status": "source_fact",
+      "review_status": "pending"
+    },
+    {
+      "evidence_id": "ev:us_optic:LITE:overview",
+      "ticker": "LITE",
+      "company_id": "272054403",
+      "company_name": "Lumentum Holdings Inc.",
+      "exchange": "NasdaqGS",
+      "source_ref": "tikr.company_overview:LITE",
+      "source_url": "https://www.lumentum.com",
+      "source_date": "2026-08-23",
+      "collected_at": "2026-08-23",
+      "status": "collected",
+      "facts": [
+        "Lumentum manufactures optical and photonic chips, components, modules, and subsystems for cloud data centers and AI/ML infrastructure."
+      ],
+      "content_hash": "ee0b5f129589973ccc5482d51d5f33fa3a534c74de9b272acc7350a2b62e5b96",
+      "epistemic_status": "source_fact",
+      "review_status": "pending"
+    },
+    {
+      "evidence_id": "ev:us_optic:LITE:10k",
+      "ticker": "LITE",
+      "company_id": "272054403",
+      "company_name": "Lumentum Holdings Inc.",
+      "exchange": "NasdaqGS",
+      "source_ref": "sec.10-K:0001628280-26-057358",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1633978/000162828026057358/lite-20260627.htm",
+      "source_date": "2026-08-17",
+      "collected_at": "2026-08-23",
+      "status": "collected",
+      "facts": [
+        "FY2026 10-K: products include semiconductor laser chips, optical modules, and optical circuit switches enabling high-capacity optical links for cloud, AI/ML, and DCI."
+      ],
+      "content_hash": "8c0886efbd0a20f55963d4e7f83379d5798563d0357692f57e1b1d306f57a162",
+      "epistemic_status": "source_fact",
+      "review_status": "pending"
+    },
+    {
+      "evidence_id": "ev:us_optic:LITE:call",
+      "ticker": "LITE",
+      "company_id": "272054403",
+      "company_name": "Lumentum Holdings Inc.",
+      "exchange": "NasdaqGS",
+      "source_ref": "tikr.earnings_call:LITE:3795173",
+      "source_url": "tikr://transcript/LITE/3795173",
+      "source_date": "2026-08-11",
+      "collected_at": "2026-08-23",
+      "status": "collected",
+      "facts": [
+        "FY2026 Q4 call: record 800G cloud transceiver shipments; production of next-generation modules initiated.",
+        "Lead CPO customer production plans remain on track; demand signal increased; ultra high-power laser chip ramp expected 2H calendar 2027.",
+        "Rest of customer base currently prioritizing near-packaged optics as an intermediate step to CPO; NPO described as additive TAM.",
+        "EML 200G devices accounted for over 25% of EML revenue; CW laser products expected to be margin-accretive."
+      ],
+      "content_hash": "c5debf65980e46e83f4a2ee5eebeec4d5c963d9d65825199c2d331aaa8cb9f33",
+      "epistemic_status": "source_fact",
+      "review_status": "pending"
+    },
+    {
+      "evidence_id": "ev:us_optic:CRDO:overview",
+      "ticker": "CRDO",
+      "company_id": "662522214",
+      "company_name": "Credo Technology Group Holding Ltd",
+      "exchange": "NasdaqGS",
+      "source_ref": "tikr.company_overview:CRDO",
+      "source_url": "https://credosemi.com",
+      "source_date": "2026-08-23",
+      "collected_at": "2026-08-23",
+      "status": "collected",
+      "facts": [
+        "Credo provides high-speed connectivity solutions including optical DSPs, retimers, AECs, and SerDes IP."
+      ],
+      "content_hash": "47e5f62541c751daed3163160cb3b7c3c9a337259e2b26906981652bf8a03aef",
+      "epistemic_status": "source_fact",
+      "review_status": "pending"
+    },
+    {
+      "evidence_id": "ev:us_optic:CRDO:10k",
+      "ticker": "CRDO",
+      "company_id": "662522214",
+      "company_name": "Credo Technology Group Holding Ltd",
+      "exchange": "NasdaqGS",
+      "source_ref": "sec.10-K:0001628280-26-043303",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1807794/000162828026043303/crdo-20260502.htm",
+      "source_date": "2026-06-15",
+      "collected_at": "2026-08-23",
+      "status": "collected",
+      "facts": [
+        "FY2026 10-K: high-speed copper and optical interconnect products deliver up to 1.6T for AI data infrastructure.",
+        "Portfolio includes ZeroFlap AECs and optical transceivers, retimers and DSPs for optical and copper Ethernet and PCIe."
+      ],
+      "content_hash": "20a6ad0a5c0bce0f34744a0af1fabd8d0d8ba67a4f5d3c78ac2889fb94841070",
+      "epistemic_status": "source_fact",
+      "review_status": "pending"
+    },
+    {
+      "evidence_id": "ev:us_optic:CRDO:call",
+      "ticker": "CRDO",
+      "company_id": "662522214",
+      "company_name": "Credo Technology Group Holding Ltd",
+      "exchange": "NasdaqGS",
+      "source_ref": "tikr.earnings_call:CRDO:3744443",
+      "source_url": "tikr://transcript/CRDO/3744443",
+      "source_date": "2026-06-01",
+      "collected_at": "2026-08-23",
+      "status": "collected",
+      "facts": [
+        "FY2026 Q4 call: Dust Photonics acquisition closed, adding silicon photonics PICs for 800G and 1.6T with a 3.2T roadmap.",
+        "Architecture enables simplified optical designs with fewer lasers, which can ease industry laser supply-chain limitations.",
+        "Dust SiPho roadmap provides a path to CPO and NPO; initial CPO/NPO revenue expected in fiscal 2028.",
+        "FY2027 optical DSPs, SiPho PICs and ZeroFlap optics each expected to contribute more than $100 million, totaling more than $600 million."
+      ],
+      "content_hash": "ee1aeb266786e0b2f073550079075c967bcf2b86ab22a9e79e93b5c6510fb647",
+      "epistemic_status": "source_fact",
+      "review_status": "pending"
+    }
+  ],
+  "coverage": {
+    "resolved_seeds": [
+      "COHR",
+      "CRDO",
+      "LITE",
+      "NVDA"
+    ],
+    "unresolved_seeds": [],
+    "questions": {
+      "핵심 병목은 어디인가?": "evidence-backed",
+      "직접 수혜기업과 근거는 무엇인가?": "evidence-backed",
+      "seed 밖으로 확장해야 할 핵심 연결기업은 누구인가?": "evidence-backed"
+    }
+  },
+  "auto_confirm": false
+}

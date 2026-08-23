@@ -1,0 +1,264 @@
+{
+  "contract_version": "ivk-source-plan-1.0",
+  "created_at": "2026-08-23T02:51:08.742620+00:00",
+  "value_chain": {
+    "name": "us_optic",
+    "slug": "us-optic",
+    "operation": "new",
+    "target_vc": null
+  },
+  "blueprint_contract": "ivk-blueprint-1.0",
+  "pack_manifest": {
+    "frame": "sponsor_valuechain_bottleneck@1.0.0",
+    "sector": "semiconductor_optical@1.0.0",
+    "regions": [
+      "us@1.0.0"
+    ]
+  },
+  "pack_policy": {
+    "mode": "reused",
+    "requested_sector": "semiconductor_optical",
+    "reusable_sector_pack": true,
+    "core_revision_required": false,
+    "review_status": "accepted_for_planning"
+  },
+  "evidence_policy": {
+    "primary_source_first": true,
+    "reuse_by_content_hash": true,
+    "auto_confirm": false,
+    "canonical_graph_read": "neo4j-official.read_cypher"
+  },
+  "tasks": [
+    {
+      "seed": "NVDA",
+      "task_type": "entity_resolution",
+      "priority": 1,
+      "topics": [
+        "identity",
+        "exchange",
+        "ticker"
+      ],
+      "source_adapters": [
+        "tikr",
+        "sec",
+        "company_ir",
+        "earnings_call"
+      ]
+    },
+    {
+      "seed": "NVDA",
+      "task_type": "evidence_collection",
+      "priority": 2,
+      "topics": [
+        "demand_driver",
+        "sponsor",
+        "system",
+        "process",
+        "component",
+        "bottleneck",
+        "beneficiary",
+        "company_profile",
+        "products",
+        "processes",
+        "technologies",
+        "end_markets",
+        "customers",
+        "capacity",
+        "quarterly_financials",
+        "inventory"
+      ],
+      "source_adapters": [
+        "tikr",
+        "sec",
+        "company_ir",
+        "earnings_call"
+      ]
+    },
+    {
+      "seed": "COHR",
+      "task_type": "entity_resolution",
+      "priority": 1,
+      "topics": [
+        "identity",
+        "exchange",
+        "ticker"
+      ],
+      "source_adapters": [
+        "tikr",
+        "sec",
+        "company_ir",
+        "earnings_call"
+      ]
+    },
+    {
+      "seed": "COHR",
+      "task_type": "evidence_collection",
+      "priority": 2,
+      "topics": [
+        "demand_driver",
+        "sponsor",
+        "system",
+        "process",
+        "component",
+        "bottleneck",
+        "beneficiary",
+        "company_profile",
+        "products",
+        "processes",
+        "technologies",
+        "end_markets",
+        "customers",
+        "capacity",
+        "quarterly_financials",
+        "inventory"
+      ],
+      "source_adapters": [
+        "tikr",
+        "sec",
+        "company_ir",
+        "earnings_call"
+      ]
+    },
+    {
+      "seed": "LITE",
+      "task_type": "entity_resolution",
+      "priority": 1,
+      "topics": [
+        "identity",
+        "exchange",
+        "ticker"
+      ],
+      "source_adapters": [
+        "tikr",
+        "sec",
+        "company_ir",
+        "earnings_call"
+      ]
+    },
+    {
+      "seed": "LITE",
+      "task_type": "evidence_collection",
+      "priority": 2,
+      "topics": [
+        "demand_driver",
+        "sponsor",
+        "system",
+        "process",
+        "component",
+        "bottleneck",
+        "beneficiary",
+        "company_profile",
+        "products",
+        "processes",
+        "technologies",
+        "end_markets",
+        "customers",
+        "capacity",
+        "quarterly_financials",
+        "inventory"
+      ],
+      "source_adapters": [
+        "tikr",
+        "sec",
+        "company_ir",
+        "earnings_call"
+      ]
+    },
+    {
+      "seed": "CRDO",
+      "task_type": "entity_resolution",
+      "priority": 1,
+      "topics": [
+        "identity",
+        "exchange",
+        "ticker"
+      ],
+      "source_adapters": [
+        "tikr",
+        "sec",
+        "company_ir",
+        "earnings_call"
+      ]
+    },
+    {
+      "seed": "CRDO",
+      "task_type": "evidence_collection",
+      "priority": 2,
+      "topics": [
+        "demand_driver",
+        "sponsor",
+        "system",
+        "process",
+        "component",
+        "bottleneck",
+        "beneficiary",
+        "company_profile",
+        "products",
+        "processes",
+        "technologies",
+        "end_markets",
+        "customers",
+        "capacity",
+        "quarterly_financials",
+        "inventory"
+      ],
+      "source_adapters": [
+        "tikr",
+        "sec",
+        "company_ir",
+        "earnings_call"
+      ]
+    },
+    {
+      "seed": null,
+      "task_type": "question_evidence",
+      "priority": 3,
+      "requirement_id": "question:1",
+      "question": "핵심 병목은 어디인가?",
+      "source_adapters": [
+        "tikr",
+        "sec",
+        "company_ir",
+        "earnings_call"
+      ]
+    },
+    {
+      "seed": null,
+      "task_type": "question_evidence",
+      "priority": 3,
+      "requirement_id": "question:2",
+      "question": "직접 수혜기업과 근거는 무엇인가?",
+      "source_adapters": [
+        "tikr",
+        "sec",
+        "company_ir",
+        "earnings_call"
+      ]
+    },
+    {
+      "seed": null,
+      "task_type": "question_evidence",
+      "priority": 3,
+      "requirement_id": "question:3",
+      "question": "seed 밖으로 확장해야 할 핵심 연결기업은 누구인가?",
+      "source_adapters": [
+        "tikr",
+        "sec",
+        "company_ir",
+        "earnings_call"
+      ]
+    }
+  ],
+  "token_budgets": {
+    "source_planning": 5000,
+    "evidence_extraction": 50000,
+    "synthesis": 15000,
+    "exception_review": 10000,
+    "final_report": 5000
+  },
+  "stop_conditions": [
+    "unsupported_bottleneck",
+    "no_primary_source"
+  ],
+  "status": "planned"
+}
