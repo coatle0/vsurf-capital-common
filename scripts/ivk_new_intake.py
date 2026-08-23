@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 from copy import deepcopy
 from datetime import datetime, timezone
 from pathlib import Path
@@ -167,11 +168,12 @@ def _seed_identity(value: str) -> dict[str, Any]:
         return {"canonical_id": f"{exchange}:{ticker}", "market": market, "exchange": exchange,
                 "ticker": ticker, "company_name": company_name, "provider": source_provider,
                 "provider_ids": provider_ids}
-    if " " in upper:
-        return {"canonical_id": upper, "market": None, "exchange": None, "ticker": None,
-                "company_name": company_name or upper, "provider": "resolver", "provider_ids": {}}
     if upper.isdigit():
         raise IntakeValidationError(f"numeric seed '{value}' requires KR:, JP:, or TW:")
+    if not re.fullmatch(r"[A-Z][A-Z0-9.\-]*", upper):
+        raise IntakeValidationError(
+            f"non-US seed '{value}' requires KR:, JP:, or TW: plus '|company name'"
+        )
     return {"canonical_id": upper, "market": "us", "exchange": None, "ticker": upper,
             "company_name": company_name, "provider": "tikr",
             "provider_ids": {"tikr": upper}}

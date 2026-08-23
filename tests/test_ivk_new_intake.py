@@ -52,6 +52,12 @@ class IVKNewIntakeTests(unittest.TestCase):
         with self.assertRaisesRegex(IntakeValidationError, "requires KR:, JP:, or TW:"):
             normalize_intake(raw)
 
+    def test_non_us_company_name_requires_country_prefix(self):
+        raw = dict(self.raw)
+        raw["seed"] = ["티에스이"]
+        with self.assertRaisesRegex(IntakeValidationError, "non-US seed"):
+            normalize_intake(raw)
+
     def test_market_field_is_not_part_of_intake_contract(self):
         raw = dict(self.raw)
         raw["market"] = "jp"
