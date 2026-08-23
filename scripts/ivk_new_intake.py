@@ -15,8 +15,9 @@ OPERATIONS = {"new", "add", "update", "expand"}
 V1_FIELDS = {
     "contract_version", "operation", "target_vc", "name", "seed", "frame",
     "thesis", "questions", "scope", "known_links", "limitations",
-    "references", "options",
+    "references", "options", "market",
 }
+V1_REQUIRED_FIELDS = V1_FIELDS - {"market"}
 OPTION_FIELDS = {
     "periods", "since", "max_depth", "max_candidates", "auto_expand",
     "write_policy",
@@ -30,6 +31,19 @@ FRAME_NICKNAMES = {
     "cluster": {"id": "matrix", "version": "1.0.0", "label": "Matrix"},
     "stream": {"id": "upstream_midstream_downstream", "version": "1.0.0", "label": "Upstream→Midstream→Downstream"},
 }
+MARKETS = {"mixed", "us", "kr", "jp", "tw"}
+MARKET_ALIASES = {
+    "mixed": "mixed", "us": "us", "usa": "us",
+    "kr": "kr", "korea": "kr", "krx": "kr",
+    "jp": "jp", "japan": "jp", "tse": "jp",
+    "tw": "tw", "taiwan": "tw", "twse": "tw",
+}
+PREFIX_MARKETS = {
+    "KR": ("kr", "KRX"), "KRX": ("kr", "KRX"),
+    "JP": ("jp", "TSE"), "TSE": ("jp", "TSE"),
+    "TW": ("tw", "TWSE"), "TWSE": ("tw", "TWSE"),
+}
+US_EXCHANGES = {"US", "NASDAQ", "NYSE", "AMEX"}
 
 
 class IntakeValidationError(ValueError):
@@ -53,7 +67,7 @@ def validate_intake(raw: Any) -> dict[str, Any]:
         missing = [field for field in LEGACY_REQUIRED if field not in raw]
         if missing:
             raise IntakeValidationError(f"missing required field(s): {', '.join(missing)}")
-        allowed = set(LEGACY_REQUIRED) | {"questions", "known_links", "limitations", "references"}
+        allowed = set(LEGACY_REQUIRED) | {"questions", "known_links", "limitations", "references", "market"}
         unknown = sorted(set(raw) - allowed)
         if unknown:
             raise IntakeValidationError(f"unknown field(s): {', '.join(unknown)}")
@@ -70,16 +84,18 @@ def validate_intake(raw: Any) -> dict[str, Any]:
             "known_links": raw.get("known_links", []),
             "limitations": raw.get("limitations", []),
             "references": raw.get("references", []),
+            "market": raw.get("market", "mixed"),
             "options": {"periods": 5, "auto_expand": False, "write_policy": "approval_required"},
         }
     else:
-        missing = sorted(V1_FIELDS - set(raw))
+        missing = sorted(V1_REQUIRED_FIELDS - set(raw))
         if missing:
             raise IntakeValidationError(f"missing required field(s): {', '.join(missing)}")
         unknown = sorted(set(raw) - V1_FIELDS)
         if unknown:
             raise IntakeValidationError(f"unknown field(s): {', '.join(unknown)}")
         value = deepcopy(raw)
+        value.setdefault("market", "mixed")
 
     if value["contract_version"] != "ivk-intake-1.0":
         raise IntakeValidationError("contract_version must be ivk-intake-1.0")
@@ -87,6 +103,11 @@ def validate_intake(raw: Any) -> dict[str, Any]:
     if operation not in OPERATIONS:
         raise IntakeValidationError(f"unsupported operation: {operation}")
     value["operation"] = operation
+    market_input = _nonempty_string(value["market"], "market").lower()
+    market = MARKET_ALIASES.get(market_input)
+    if market not in MARKETS:
+        raise IntakeValidationError("market must be mixed, us, kr, jp, or tw")
+    value["market"] = market
     _nonempty_string(value["thesis"], "thesis")
     for field in ("name", "frame", "target_vc"):
         if value[field] is not None:
@@ -109,7 +130,7 @@ def validate_intake(raw: Any) -> dict[str, Any]:
     if operation in {"add", "expand"}:
         _nonempty_string(value["frame"], "frame")
 
-    canonical = [_canonical_seed(item) for item in value["seed"]]
+    canonical = [_seed_identity(item, value["market"])["canonical_id"] for item in value["seed"]]
     duplicates = sorted({item for item in canonical if canonical.count(item) > 1})
     if duplicates:
         raise IntakeValidationError(f"duplicate seed(s): {', '.join(duplicates)}")
@@ -133,8 +154,42 @@ def validate_intake(raw: Any) -> dict[str, Any]:
 
 
 def _canonical_seed(value: str) -> str:
-    value = " ".join(value.strip().split())
-    return value.upper() if " " not in value else value
+    return _seed_identity(value, "mixed")["canonical_id"]
+
+
+def _seed_identity(value: str, default_market: str) -> dict[str, Any]:
+    normalized = " ".join(value.strip().split())
+    upper = normalized.upper() if " " not in normalized else normalized
+    if ":" in upper:
+        prefix, ticker = upper.split(":", 1)
+        if not ticker:
+            raise IntakeValidationError(f"seed has an empty ticker: {value}")
+        if prefix in US_EXCHANGES:
+            return {"canonical_id": ticker, "market": "us", "exchange": prefix if prefix != "US" else None,
+                    "ticker": ticker, "provider_ids": {"tikr": ticker}}
+        if prefix not in PREFIX_MARKETS:
+            raise IntakeValidationError(f"unsupported seed market prefix: {prefix}")
+        market, exchange = PREFIX_MARKETS[prefix]
+        provider = f"A{ticker}" if market == "kr" else ticker
+        return {"canonical_id": f"{exchange}:{ticker}", "market": market, "exchange": exchange,
+                "ticker": ticker, "provider_ids": {"tikr": provider}}
+    if " " in upper:
+        return {"canonical_id": upper, "market": None, "exchange": None, "ticker": None, "provider_ids": {}}
+    if default_market == "mixed":
+        if upper.isdigit():
+            raise IntakeValidationError(
+                f"numeric seed '{value}' requires KR:, JP:, or TW: when market=mixed"
+            )
+        market, exchange = "us", None
+    elif default_market == "us":
+        market, exchange = "us", None
+    else:
+        exchange = {"kr": "KRX", "jp": "TSE", "tw": "TWSE"}[default_market]
+        market = default_market
+    canonical = upper if market == "us" else f"{exchange}:{upper}"
+    provider = f"A{upper}" if market == "kr" else upper
+    return {"canonical_id": canonical, "market": market, "exchange": exchange, "ticker": upper,
+            "provider_ids": {"tikr": provider}}
 
 
 def _frame_key(value: str) -> str:
@@ -158,7 +213,7 @@ def _normalize_intake_legacy(raw: Any) -> dict[str, Any]:
     return {
         "identity": {"name": validated["name"].strip(), "slug": _slug(validated["name"])},
         "validated_seeds": [
-            {"input": item, "canonical_id": _canonical_seed(item), "kind": "ticker_or_company_id", "role": "starting_point"}
+            {"input": item, **_seed_identity(item, validated["market"]), "kind": "ticker_or_company_id", "role": "starting_point"}
             for item in validated["seed"]
         ],
         "primary_frame": validated["frame"].strip(),
@@ -179,10 +234,11 @@ def normalize_intake(raw: Any) -> dict[str, Any]:
     identity_name = validated["name"] or validated["target_vc"]
     return {
         "operation": validated["operation"],
+        "market": validated["market"],
         "target_vc": validated["target_vc"],
         "identity": {"name": identity_name.strip(), "slug": _slug(identity_name)},
         "validated_seeds": [
-            {"input": item, "canonical_id": _canonical_seed(item), "kind": "ticker_or_company_id", "role": "starting_point"}
+            {"input": item, **_seed_identity(item, validated["market"]), "kind": "ticker_or_company_id", "role": "starting_point"}
             for item in validated["seed"]
         ],
         "primary_frame": frame["label"] if frame else None,
@@ -205,8 +261,9 @@ def _slug(value: str) -> str:
 
 def existing_graph_query() -> str:
     return """UNWIND $seeds AS seed
+WITH seed, last(split(seed, ':')) AS ticker
 OPTIONAL MATCH (c:Company)
-WHERE toUpper(coalesce(c.ticker,'')) = seed OR toUpper(coalesce(c.id,'')) = seed
+WHERE toUpper(coalesce(c.ticker,'')) = ticker OR toUpper(coalesce(c.id,'')) = seed
    OR toUpper(coalesce(c.name_en,'')) = seed OR toUpper(coalesce(c.name,'')) = seed
 WITH seed, collect(DISTINCT c) AS companies
 UNWIND CASE WHEN size(companies)=0 THEN [null] ELSE companies END AS c

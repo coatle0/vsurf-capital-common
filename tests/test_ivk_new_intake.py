@@ -33,6 +33,30 @@ class IVKNewIntakeTests(unittest.TestCase):
         with self.assertRaisesRegex(IntakeValidationError, "duplicate seed"):
             normalize_intake(raw)
 
+    def test_mixed_market_normalizes_us_kr_jp_tw(self):
+        raw = dict(self.raw)
+        raw["market"] = "mixed"
+        raw["seed"] = ["NVDA", "FORM", "KR:131290", "JP:6855", "TW:6515"]
+        seeds = normalize_intake(raw)["validated_seeds"]
+        self.assertEqual(
+            ["NVDA", "FORM", "KRX:131290", "TSE:6855", "TWSE:6515"],
+            [seed["canonical_id"] for seed in seeds],
+        )
+        self.assertEqual("A131290", seeds[2]["provider_ids"]["tikr"])
+
+    def test_mixed_market_rejects_unprefixed_numeric_seed(self):
+        raw = dict(self.raw)
+        raw["seed"] = ["131290"]
+        with self.assertRaisesRegex(IntakeValidationError, "requires KR:, JP:, or TW:"):
+            normalize_intake(raw)
+
+    def test_single_market_applies_once_to_all_numeric_seeds(self):
+        raw = dict(self.raw)
+        raw["market"] = "jp"
+        raw["seed"] = ["6855", "6871"]
+        seeds = normalize_intake(raw)["validated_seeds"]
+        self.assertEqual(["TSE:6855", "TSE:6871"], [seed["canonical_id"] for seed in seeds])
+
     def test_empty_seed(self):
         raw = dict(self.raw); raw["seed"] = []
         with self.assertRaisesRegex(IntakeValidationError, "at least one"):

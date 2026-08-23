@@ -22,6 +22,7 @@
   "properties": {
     "contract_version": {"const": "ivk-intake-1.0"},
     "operation": {"enum": ["new", "add", "update", "expand"]},
+    "market": {"enum": ["mixed", "us", "kr", "jp", "tw"], "default": "mixed"},
     "target_vc": {"type": ["string", "null"]},
     "name": {"type": ["string", "null"]},
     "seed": {

@@ -48,6 +48,8 @@ Both proofs must use the same Run-ID. A receipt advances the run to `WRITE_CONFI
 
 The Intake JSON is the business request. The other JSON files are captured tool outputs:
 
+- `market` defaults to `mixed`: US tickers remain plain, and numeric mixed-market seeds use `KR:`, `JP:`, or `TW:`. Single-market files may set `market` once.
+
 - `graph-results`: canonical `neo4j-official.read-cypher` result
 - `documents`: TIKR, DART, GS, filings, earnings calls, or other source records with provenance
 - `structure`: evidence-linked candidate companies, products, processes, end markets, drivers, and assertions
