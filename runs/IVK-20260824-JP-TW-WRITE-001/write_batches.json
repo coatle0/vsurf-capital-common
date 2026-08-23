@@ -1,0 +1,90 @@
+[
+  {
+    "name": "value_chain",
+    "query": "MERGE (vc:ValueChain {id:$id}) SET vc.nickname=$nickname, vc.name=$name, vc.status=$status, vc.review_status=$review_status, vc.run_id=$run_id, vc.as_of=$as_of RETURN vc.id AS id, vc.nickname AS nickname",
+    "params": {
+      "id": "vc:jp_tw_write_validation",
+      "nickname": "jp_tw_write_validation",
+      "name": "JP TW Write Validation",
+      "status": "candidate",
+      "review_status": "pending",
+      "run_id": "IVK-20260824-JP-TW-WRITE-001",
+      "as_of": "2026-08-23"
+    }
+  },
+  {
+    "name": "companies",
+    "query": "UNWIND $rows AS row MERGE (c:Company {id:row.id}) SET c.security_id=row.security_id, c.ticker=row.ticker, c.name=row.name, c.name_en=coalesce(row.name_en,c.name_en), c.name_local=coalesce(row.name_local,c.name_local), c.country=coalesce(row.country,c.country), c.exchange=row.exchange, c.provider=row.provider, c.provider_id=row.provider_id, c.tikr_cid=CASE WHEN row.provider='tikr' THEN row.tikr_cid ELSE c.tikr_cid END, c.status=row.status, c.review_status=row.review_status, c.run_id=$run_id WITH c, row MATCH (vc:ValueChain {id:$vc_id}) MERGE (c)-[m:CANDIDATE_IN]->(vc) SET m.status='candidate', m.review_status='pending', m.evidence_id=row.evidence_id, m.run_id=$run_id RETURN c.ticker AS ticker, m.status AS membership_status",
+    "params": {
+      "rows": [
+        {
+          "id": "company:jem",
+          "security_id": "JP:6855",
+          "ticker": "6855",
+          "name": "Japan Electronic Materials",
+          "name_local": "日本電子材料株式会社",
+          "name_en": "Japan Electronic Materials Corporation",
+          "country": "JP",
+          "exchange": "TSE",
+          "provider": "company_ir",
+          "provider_id": "6855",
+          "tikr_cid": "6855",
+          "evidence_id": "ev:jp_tw_write_validation:6855:profile",
+          "status": "candidate",
+          "review_status": "pending"
+        },
+        {
+          "id": "company:winway",
+          "security_id": "TW:6515",
+          "ticker": "6515",
+          "name": "WinWay Technology",
+          "name_local": "穎崴科技股份有限公司",
+          "name_en": "WinWay Technology Co., Ltd.",
+          "country": "TW",
+          "exchange": "TWSE",
+          "provider": "company_ir",
+          "provider_id": "6515",
+          "tikr_cid": "6515",
+          "evidence_id": "ev:jp_tw_write_validation:6515:profile",
+          "status": "candidate",
+          "review_status": "pending"
+        }
+      ],
+      "vc_id": "vc:jp_tw_write_validation",
+      "run_id": "IVK-20260824-JP-TW-WRITE-001"
+    }
+  },
+  {
+    "name": "evidence",
+    "query": "UNWIND $rows AS row MERGE (e:Evidence {id:row.id}) SET e.source_ref=row.source_ref, e.source_url=row.source_url, e.source_date=row.source_date, e.content_hash=row.content_hash, e.collected_at=row.collected_at, e.source_type=row.source_type, e.publisher=row.publisher, e.status='pending', e.run_id=$run_id WITH e, row MATCH (c:Company {id:row.company_node_id}) MERGE (c)-[:SUPPORTED_BY {run_id:$run_id}]->(e) RETURN e.id AS id",
+    "params": {
+      "rows": [
+        {
+          "id": "ev:jp_tw_write_validation:6855:profile",
+          "ticker": "6855",
+          "company_node_id": "company:jem",
+          "source_ref": "company_ir.profile:jem",
+          "content_hash": "8ce1b022b3febd7ebfacbcf26d758911ca1713429ea411a66fd5d0dbf2b9c8ef",
+          "source_url": "https://www.jem-net.co.jp/en/profile/outline",
+          "source_date": "2026-08-24",
+          "collected_at": "2026-08-24",
+          "source_type": "company_profile",
+          "publisher": "Japan Electronic Materials Corporation"
+        },
+        {
+          "id": "ev:jp_tw_write_validation:6515:profile",
+          "ticker": "6515",
+          "company_node_id": "company:winway",
+          "source_ref": "company_ir.profile:winway",
+          "content_hash": "dcbe7863009f2599ba212fc7b55d58fce29e31673c689ff96fc37ba816cea0e5",
+          "source_url": "https://www.winwayglobal.com/about",
+          "source_date": "2026-08-24",
+          "collected_at": "2026-08-24",
+          "source_type": "company_profile",
+          "publisher": "WinWay Technology Co., Ltd."
+        }
+      ],
+      "run_id": "IVK-20260824-JP-TW-WRITE-001"
+    }
+  }
+]

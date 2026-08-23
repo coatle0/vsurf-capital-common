@@ -1,0 +1,22 @@
+[
+  {
+    "seed": "JP:6855",
+    "company": {
+      "id": "company:jem",
+      "ticker": "6855",
+      "name": "Japan Electronic Materials"
+    },
+    "value_chain": [],
+    "assertions": []
+  },
+  {
+    "seed": "TW:6515",
+    "company": {
+      "id": "company:winway",
+      "ticker": "6515",
+      "name": "WinWay Technology"
+    },
+    "value_chain": [],
+    "assertions": []
+  }
+]

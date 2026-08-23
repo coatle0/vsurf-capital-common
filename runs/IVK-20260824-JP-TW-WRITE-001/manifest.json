@@ -1,0 +1,57 @@
+{
+  "contract_version": "ivk-run-0.1",
+  "run_id": "IVK-20260824-JP-TW-WRITE-001",
+  "operation": "new",
+  "target_vc": null,
+  "value_chain": {
+    "name": "jp_tw_write_validation",
+    "slug": "jp-tw-write-validation"
+  },
+  "status": "VERIFIED",
+  "last_completed_stage": "verify",
+  "next_command": "done",
+  "blockers": [],
+  "artifacts": {
+    "submitted_input": "submitted_input.json",
+    "intake": "intake.json",
+    "normalized": "normalized.json",
+    "intake_sha256": "0f34b8c29a8348601791dcd13d2c72190d7c4e91319f4e882b6794aae4d24250",
+    "existing_graph": "existing_graph.json",
+    "blueprint": "blueprint.json",
+    "graph_snapshot_sha256": "a474af6060837ac94bc33b379aab607eca30a5ca31e4a6ca76a9e5deb4c68692",
+    "source_plan": "source_plan.json",
+    "source_collection": "source_collection.json",
+    "evidence": "evidence_packet.json",
+    "ke": "ke_packet.json",
+    "write_manifest": "write_manifest.json",
+    "review": "review.json",
+    "write_batches": "write_batches.json",
+    "write_receipt": "write_receipt.json",
+    "verify": "verify.json",
+    "readback": "readback.json"
+  },
+  "pack_selection": {
+    "sector": "semiconductor_optical",
+    "regions": [
+      "jp",
+      "tw"
+    ],
+    "registry": "registry\\ivk_factory_packs.json",
+    "manifest": {
+      "frame": "sponsor_valuechain_bottleneck@1.0.0",
+      "sector": "semiconductor_optical@1.0.0",
+      "regions": [
+        "jp@1.0.0",
+        "tw@1.0.0"
+      ]
+    }
+  },
+  "created_at": "2026-08-23T23:11:18.818824+00:00",
+  "updated_at": "2026-08-23T23:11:35.669970+00:00",
+  "build_summary": {
+    "input_operation": "new",
+    "terminal_status": "VERIFIED",
+    "live_write_proven": true,
+    "live_readback_proven": true
+  }
+}

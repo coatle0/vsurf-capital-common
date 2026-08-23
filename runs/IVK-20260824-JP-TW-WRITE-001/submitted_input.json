@@ -1,0 +1,33 @@
+{
+  "contract_version": "ivk-intake-1.0",
+  "operation": "new",
+  "target_vc": null,
+  "name": "jp_tw_write_validation",
+  "seed": [
+    "JP:6855|Japan Electronic Materials",
+    "TW:6515|WinWay Technology"
+  ],
+  "frame": "svb",
+  "thesis": "일본과 대만의 기존 Company 노드를 재사용하는 다국가 IVK write 경로를 검증한다.",
+  "questions": [
+    "기존 JEM과 WinWay Company ID를 유지하면서 후보 Value Chain에 연결되는가?"
+  ],
+  "scope": [
+    "value_chain",
+    "company_identity",
+    "provenance"
+  ],
+  "known_links": [],
+  "limitations": [
+    "본 파일럿은 식별자·지역 라우팅·write 멱등성 검증용이며 STI급 재무 커버리지를 주장하지 않는다."
+  ],
+  "references": [
+    "https://www.jem-net.co.jp/en/profile/outline",
+    "https://www.winwayglobal.com/about"
+  ],
+  "options": {
+    "periods": 5,
+    "auto_expand": false,
+    "write_policy": "approval_required"
+  }
+}

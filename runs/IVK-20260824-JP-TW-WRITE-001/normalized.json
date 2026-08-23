@@ -1,0 +1,68 @@
+{
+  "operation": "new",
+  "target_vc": null,
+  "identity": {
+    "name": "jp_tw_write_validation",
+    "slug": "jp-tw-write-validation"
+  },
+  "validated_seeds": [
+    {
+      "input": "JP:6855|Japan Electronic Materials",
+      "canonical_id": "JP:6855",
+      "market": "jp",
+      "exchange": null,
+      "ticker": "6855",
+      "company_name": "Japan Electronic Materials",
+      "provider": "tikr",
+      "provider_ids": {
+        "tikr": "6855"
+      },
+      "kind": "ticker_or_company_id",
+      "role": "starting_point"
+    },
+    {
+      "input": "TW:6515|WinWay Technology",
+      "canonical_id": "TW:6515",
+      "market": "tw",
+      "exchange": null,
+      "ticker": "6515",
+      "company_name": "WinWay Technology",
+      "provider": "tikr",
+      "provider_ids": {
+        "tikr": "6515"
+      },
+      "kind": "ticker_or_company_id",
+      "role": "starting_point"
+    }
+  ],
+  "primary_frame": "Sponsor→Value Chain→Bottleneck",
+  "frame_ref": {
+    "id": "sponsor_valuechain_bottleneck",
+    "version": "1.0.0",
+    "nickname": "svb",
+    "input": "svb"
+  },
+  "secondary_frame_candidates": [],
+  "thesis": "일본과 대만의 기존 Company 노드를 재사용하는 다국가 IVK write 경로를 검증한다.",
+  "questions": [
+    "기존 JEM과 WinWay Company ID를 유지하면서 후보 Value Chain에 연결되는가?"
+  ],
+  "scope": [
+    "value_chain",
+    "company_identity",
+    "provenance"
+  ],
+  "known_links": [],
+  "limitations": [
+    "본 파일럿은 식별자·지역 라우팅·write 멱등성 검증용이며 STI급 재무 커버리지를 주장하지 않는다."
+  ],
+  "references": [
+    "https://www.jem-net.co.jp/en/profile/outline",
+    "https://www.winwayglobal.com/about"
+  ],
+  "options": {
+    "periods": 5,
+    "auto_expand": false,
+    "write_policy": "approval_required"
+  }
+}

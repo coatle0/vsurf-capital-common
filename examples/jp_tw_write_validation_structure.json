@@ -1,0 +1,20 @@
+{
+  "value_chain": {
+    "id": "vc:jp_tw_write_validation",
+    "nickname": "jp_tw_write_validation",
+    "name": "JP TW Write Validation",
+    "status": "candidate",
+    "review_status": "pending"
+  },
+  "products": [],
+  "processes": [],
+  "end_markets": [],
+  "demand_drivers": [],
+  "assertions": [],
+  "link_expansion": [],
+  "question_closure": {
+    "기존 JEM과 WinWay Company ID를 유지하면서 후보 Value Chain에 연결되는가?": "evidence-backed"
+  },
+  "limitations": ["기존 노드 식별자 재사용, 지역 pack 추론 및 멱등성 검증에 한정한다."],
+  "approved_scope": "two existing Companies, one candidate ValueChain, and two official company-profile Evidence nodes"
+}

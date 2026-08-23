@@ -1,0 +1,72 @@
+{
+  "contract_version": "ivk-evidence-packet-0.1",
+  "run_id": "IVK-20260824-JP-TW-WRITE-001",
+  "source_plan_contract": "ivk-source-plan-1.0",
+  "documents": [
+    {
+      "evidence_id": "ev:jp_tw_write_validation:6855:profile",
+      "ticker": "6855",
+      "company_id": "6855",
+      "company_name": "Japan Electronic Materials",
+      "name_local": "日本電子材料株式会社",
+      "name_en": "Japan Electronic Materials Corporation",
+      "country": "JP",
+      "exchange": "TSE",
+      "provider": "company_ir",
+      "provider_id": "6855",
+      "security_id": "JP:6855",
+      "source_ref": "company_ir.profile:jem",
+      "source_url": "https://www.jem-net.co.jp/en/profile/outline",
+      "source_date": "2026-08-24",
+      "collected_at": "2026-08-24",
+      "source_type": "company_profile",
+      "publisher": "Japan Electronic Materials Corporation",
+      "facts": [
+        "Japan Electronic Materials manufactures cantilever and advanced probe cards and is listed on the Tokyo Stock Exchange under code 6855."
+      ],
+      "content_hash": "8ce1b022b3febd7ebfacbcf26d758911ca1713429ea411a66fd5d0dbf2b9c8ef",
+      "status": "collected",
+      "epistemic_status": "source_fact",
+      "review_status": "pending",
+      "company_node_id": "company:jem"
+    },
+    {
+      "evidence_id": "ev:jp_tw_write_validation:6515:profile",
+      "ticker": "6515",
+      "company_id": "6515",
+      "company_name": "WinWay Technology",
+      "name_local": "穎崴科技股份有限公司",
+      "name_en": "WinWay Technology Co., Ltd.",
+      "country": "TW",
+      "exchange": "TWSE",
+      "provider": "company_ir",
+      "provider_id": "6515",
+      "security_id": "TW:6515",
+      "source_ref": "company_ir.profile:winway",
+      "source_url": "https://www.winwayglobal.com/about",
+      "source_date": "2026-08-24",
+      "collected_at": "2026-08-24",
+      "source_type": "company_profile",
+      "publisher": "WinWay Technology Co., Ltd.",
+      "facts": [
+        "WinWay Technology is a Taiwan-listed semiconductor test-interface supplier serving wafer and package testing markets under code 6515."
+      ],
+      "content_hash": "dcbe7863009f2599ba212fc7b55d58fce29e31673c689ff96fc37ba816cea0e5",
+      "status": "collected",
+      "epistemic_status": "source_fact",
+      "review_status": "pending",
+      "company_node_id": "company:winway"
+    }
+  ],
+  "coverage": {
+    "resolved_seeds": [
+      "6515",
+      "6855"
+    ],
+    "unresolved_seeds": [],
+    "questions": {
+      "기존 JEM과 WinWay Company ID를 유지하면서 후보 Value Chain에 연결되는가?": "evidence-backed"
+    }
+  },
+  "auto_confirm": false
+}

@@ -1,0 +1,145 @@
+{
+  "contract_version": "ivk-source-plan-1.0",
+  "created_at": "2026-08-23T23:11:18.999617+00:00",
+  "value_chain": {
+    "name": "jp_tw_write_validation",
+    "slug": "jp-tw-write-validation",
+    "operation": "new",
+    "target_vc": null
+  },
+  "blueprint_contract": "ivk-blueprint-1.0",
+  "pack_manifest": {
+    "frame": "sponsor_valuechain_bottleneck@1.0.0",
+    "sector": "semiconductor_optical@1.0.0",
+    "regions": [
+      "jp@1.0.0",
+      "tw@1.0.0"
+    ]
+  },
+  "pack_policy": {
+    "mode": "reused",
+    "requested_sector": "semiconductor_optical",
+    "reusable_sector_pack": true,
+    "core_revision_required": false,
+    "review_status": "accepted_for_planning"
+  },
+  "evidence_policy": {
+    "primary_source_first": true,
+    "reuse_by_content_hash": true,
+    "auto_confirm": false,
+    "canonical_graph_read": "neo4j-official.read_cypher"
+  },
+  "tasks": [
+    {
+      "seed": "JP:6855",
+      "task_type": "evidence_collection",
+      "priority": 2,
+      "identity": {
+        "canonical_id": "JP:6855",
+        "ticker": "6855",
+        "company_name": "Japan Electronic Materials",
+        "market": "jp",
+        "exchange": null,
+        "provider": "tikr",
+        "provider_ids": {
+          "tikr": "6855"
+        },
+        "company_node_id": "company:jem"
+      },
+      "topics": [
+        "demand_driver",
+        "sponsor",
+        "system",
+        "process",
+        "component",
+        "bottleneck",
+        "beneficiary",
+        "company_profile",
+        "products",
+        "processes",
+        "technologies",
+        "end_markets",
+        "customers",
+        "capacity",
+        "quarterly_financials",
+        "inventory"
+      ],
+      "source_adapters": [
+        "tikr",
+        "jpx",
+        "company_ir",
+        "earnings_call"
+      ]
+    },
+    {
+      "seed": "TW:6515",
+      "task_type": "evidence_collection",
+      "priority": 2,
+      "identity": {
+        "canonical_id": "TW:6515",
+        "ticker": "6515",
+        "company_name": "WinWay Technology",
+        "market": "tw",
+        "exchange": null,
+        "provider": "tikr",
+        "provider_ids": {
+          "tikr": "6515"
+        },
+        "company_node_id": "company:winway"
+      },
+      "topics": [
+        "demand_driver",
+        "sponsor",
+        "system",
+        "process",
+        "component",
+        "bottleneck",
+        "beneficiary",
+        "company_profile",
+        "products",
+        "processes",
+        "technologies",
+        "end_markets",
+        "customers",
+        "capacity",
+        "quarterly_financials",
+        "inventory"
+      ],
+      "source_adapters": [
+        "tikr",
+        "twse_tpex",
+        "mops",
+        "company_ir",
+        "monthly_revenue"
+      ]
+    },
+    {
+      "seed": null,
+      "task_type": "question_evidence",
+      "priority": 3,
+      "requirement_id": "question:1",
+      "question": "기존 JEM과 WinWay Company ID를 유지하면서 후보 Value Chain에 연결되는가?",
+      "source_adapters": [
+        "tikr",
+        "jpx",
+        "company_ir",
+        "earnings_call",
+        "twse_tpex",
+        "mops",
+        "monthly_revenue"
+      ]
+    }
+  ],
+  "token_budgets": {
+    "source_planning": 5000,
+    "evidence_extraction": 50000,
+    "synthesis": 15000,
+    "exception_review": 10000,
+    "final_report": 5000
+  },
+  "stop_conditions": [
+    "unsupported_bottleneck",
+    "no_primary_source"
+  ],
+  "status": "planned"
+}

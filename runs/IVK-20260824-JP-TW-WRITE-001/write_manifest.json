@@ -1,0 +1,131 @@
+{
+  "contract_version": "ivk-neo4j-write-manifest-0.1",
+  "run_id": "IVK-20260824-JP-TW-WRITE-001",
+  "approved_scope": "two existing Companies, one candidate ValueChain, and two official company-profile Evidence nodes",
+  "neo4j_write_status": "write_confirmed",
+  "idempotent": true,
+  "auto_confirm": false,
+  "value_chain": {
+    "id": "vc:jp_tw_write_validation",
+    "nickname": "jp_tw_write_validation",
+    "name": "JP TW Write Validation",
+    "status": "candidate",
+    "review_status": "pending"
+  },
+  "companies": [
+    {
+      "id": "company:jem",
+      "security_id": "JP:6855",
+      "ticker": "6855",
+      "name": "Japan Electronic Materials",
+      "name_local": "日本電子材料株式会社",
+      "name_en": "Japan Electronic Materials Corporation",
+      "country": "JP",
+      "exchange": "TSE",
+      "provider": "company_ir",
+      "provider_id": "6855",
+      "tikr_cid": "6855",
+      "evidence_id": "ev:jp_tw_write_validation:6855:profile",
+      "status": "candidate",
+      "review_status": "pending"
+    },
+    {
+      "id": "company:winway",
+      "security_id": "TW:6515",
+      "ticker": "6515",
+      "name": "WinWay Technology",
+      "name_local": "穎崴科技股份有限公司",
+      "name_en": "WinWay Technology Co., Ltd.",
+      "country": "TW",
+      "exchange": "TWSE",
+      "provider": "company_ir",
+      "provider_id": "6515",
+      "tikr_cid": "6515",
+      "evidence_id": "ev:jp_tw_write_validation:6515:profile",
+      "status": "candidate",
+      "review_status": "pending"
+    }
+  ],
+  "products": [],
+  "processes": [],
+  "end_markets": [],
+  "demand_drivers": [],
+  "assertions": [],
+  "evidence": [
+    {
+      "id": "ev:jp_tw_write_validation:6855:profile",
+      "ticker": "6855",
+      "company_node_id": "company:jem",
+      "source_ref": "company_ir.profile:jem",
+      "content_hash": "8ce1b022b3febd7ebfacbcf26d758911ca1713429ea411a66fd5d0dbf2b9c8ef",
+      "source_url": "https://www.jem-net.co.jp/en/profile/outline",
+      "source_date": "2026-08-24",
+      "collected_at": "2026-08-24",
+      "source_type": "company_profile",
+      "publisher": "Japan Electronic Materials Corporation"
+    },
+    {
+      "id": "ev:jp_tw_write_validation:6515:profile",
+      "ticker": "6515",
+      "company_node_id": "company:winway",
+      "source_ref": "company_ir.profile:winway",
+      "content_hash": "dcbe7863009f2599ba212fc7b55d58fce29e31673c689ff96fc37ba816cea0e5",
+      "source_url": "https://www.winwayglobal.com/about",
+      "source_date": "2026-08-24",
+      "collected_at": "2026-08-24",
+      "source_type": "company_profile",
+      "publisher": "WinWay Technology Co., Ltd."
+    }
+  ],
+  "sti_protected_labels": [
+    "FinancialPeriod",
+    "InventorySnapshot",
+    "SegmentResult",
+    "BusinessSegment",
+    "MonthlyRevenue",
+    "ManagementCommentary"
+  ],
+  "write_receipt": {
+    "contract_version": "ivk-write-receipt-0.1",
+    "run_id": "IVK-20260824-JP-TW-WRITE-001",
+    "executed_at": "2026-08-23T23:11:35.388159+00:00",
+    "database": "neo4j",
+    "identity": "bolt://127.0.0.1:7687",
+    "tool": "ivk.neo4j-driver",
+    "batches": [
+      {
+        "name": "value_chain",
+        "ok": true,
+        "row_count": 1
+      },
+      {
+        "name": "companies",
+        "ok": true,
+        "row_count": 2
+      },
+      {
+        "name": "evidence",
+        "ok": true,
+        "row_count": 2
+      }
+    ],
+    "idempotency_replay": [
+      {
+        "name": "value_chain",
+        "ok": true,
+        "row_count": 1
+      },
+      {
+        "name": "companies",
+        "ok": true,
+        "row_count": 2
+      },
+      {
+        "name": "evidence",
+        "ok": true,
+        "row_count": 2
+      }
+    ],
+    "failed_batches": []
+  }
+}

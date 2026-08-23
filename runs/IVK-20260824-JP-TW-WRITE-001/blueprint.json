@@ -1,0 +1,171 @@
+{
+  "contract_version": "ivk-blueprint-1.0",
+  "raw_input": {
+    "contract_version": "ivk-intake-1.0",
+    "operation": "new",
+    "target_vc": null,
+    "name": "jp_tw_write_validation",
+    "seed": [
+      "JP:6855|Japan Electronic Materials",
+      "TW:6515|WinWay Technology"
+    ],
+    "frame": "svb",
+    "thesis": "일본과 대만의 기존 Company 노드를 재사용하는 다국가 IVK write 경로를 검증한다.",
+    "questions": [
+      "기존 JEM과 WinWay Company ID를 유지하면서 후보 Value Chain에 연결되는가?"
+    ],
+    "scope": [
+      "value_chain",
+      "company_identity",
+      "provenance"
+    ],
+    "known_links": [],
+    "limitations": [
+      "본 파일럿은 식별자·지역 라우팅·write 멱등성 검증용이며 STI급 재무 커버리지를 주장하지 않는다."
+    ],
+    "references": [
+      "https://www.jem-net.co.jp/en/profile/outline",
+      "https://www.winwayglobal.com/about"
+    ],
+    "options": {
+      "periods": 5,
+      "auto_expand": false,
+      "write_policy": "approval_required"
+    }
+  },
+  "normalized": {
+    "operation": "new",
+    "target_vc": null,
+    "identity": {
+      "name": "jp_tw_write_validation",
+      "slug": "jp-tw-write-validation"
+    },
+    "validated_seeds": [
+      {
+        "input": "JP:6855|Japan Electronic Materials",
+        "canonical_id": "JP:6855",
+        "market": "jp",
+        "exchange": null,
+        "ticker": "6855",
+        "company_name": "Japan Electronic Materials",
+        "provider": "tikr",
+        "provider_ids": {
+          "tikr": "6855"
+        },
+        "kind": "ticker_or_company_id",
+        "role": "starting_point"
+      },
+      {
+        "input": "TW:6515|WinWay Technology",
+        "canonical_id": "TW:6515",
+        "market": "tw",
+        "exchange": null,
+        "ticker": "6515",
+        "company_name": "WinWay Technology",
+        "provider": "tikr",
+        "provider_ids": {
+          "tikr": "6515"
+        },
+        "kind": "ticker_or_company_id",
+        "role": "starting_point"
+      }
+    ],
+    "primary_frame": "Sponsor→Value Chain→Bottleneck",
+    "frame_ref": {
+      "id": "sponsor_valuechain_bottleneck",
+      "version": "1.0.0",
+      "nickname": "svb",
+      "input": "svb"
+    },
+    "secondary_frame_candidates": [],
+    "thesis": "일본과 대만의 기존 Company 노드를 재사용하는 다국가 IVK write 경로를 검증한다.",
+    "questions": [
+      "기존 JEM과 WinWay Company ID를 유지하면서 후보 Value Chain에 연결되는가?"
+    ],
+    "scope": [
+      "value_chain",
+      "company_identity",
+      "provenance"
+    ],
+    "known_links": [],
+    "limitations": [
+      "본 파일럿은 식별자·지역 라우팅·write 멱등성 검증용이며 STI급 재무 커버리지를 주장하지 않는다."
+    ],
+    "references": [
+      "https://www.jem-net.co.jp/en/profile/outline",
+      "https://www.winwayglobal.com/about"
+    ],
+    "options": {
+      "periods": 5,
+      "auto_expand": false,
+      "write_policy": "approval_required"
+    }
+  },
+  "unresolved_seeds": [],
+  "excluded_seeds": [],
+  "existing_graph": {
+    "read_path": "neo4j-official.read_cypher",
+    "observed_at": "2026-08-23T23:11:18.926379+00:00",
+    "findings": [
+      {
+        "seed": "JP:6855",
+        "company": {
+          "id": "company:jem",
+          "ticker": "6855",
+          "name": "Japan Electronic Materials"
+        },
+        "value_chain": [],
+        "assertions": [],
+        "epistemic_status": "graph_observation",
+        "review_status": "pending"
+      },
+      {
+        "seed": "TW:6515",
+        "company": {
+          "id": "company:winway",
+          "ticker": "6515",
+          "name": "WinWay Technology"
+        },
+        "value_chain": [],
+        "assertions": [],
+        "epistemic_status": "graph_observation",
+        "review_status": "pending"
+      }
+    ]
+  },
+  "initial_value_chain": {
+    "nodes": [],
+    "links": [],
+    "status": "hypothesis",
+    "review_status": "pending"
+  },
+  "candidate_slots": {
+    "drivers": [],
+    "bottlenecks": [],
+    "beneficiaries": []
+  },
+  "link_expansion_frontier": [],
+  "source_requirements": [
+    {
+      "question": "기존 JEM과 WinWay Company ID를 유지하면서 후보 Value Chain에 연결되는가?",
+      "status": "required",
+      "evidence": []
+    }
+  ],
+  "epistemic_policy": {
+    "allowed_status": [
+      "fact",
+      "graph_observation",
+      "hypothesis",
+      "inference"
+    ],
+    "allowed_review_status": [
+      "accepted",
+      "deferred",
+      "pending",
+      "rejected"
+    ],
+    "auto_confirm": false
+  },
+  "review_status": "pending"
+}
