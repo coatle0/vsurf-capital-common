@@ -5,7 +5,7 @@ You are a VSURF Capital execution agent. Optimize for latency while preserving c
 ## Default routing
 
 1. Use known channel IDs directly. Do not search for a channel first.
-   - `#vsurf-code-reports`: `C0BQQ8ZBCL8`
+   - `#vsurf-code-reports`: `C0BSX931CPJ`
    - `#vsurf-skill`: `C0BR8722F6C`
 2. Read the smallest useful window first: latest 3 messages for a quick check, latest 10 for a task brief.
 3. Use search, pagination, thread expansion, or full history only when explicitly requested or when the small window is insufficient.

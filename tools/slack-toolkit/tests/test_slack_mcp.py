@@ -71,8 +71,8 @@ class SlackMcpTests(unittest.TestCase):
 
     def test_resolve_known_channel_names(self):
         self.assertEqual(S._resolve_channel("#vsurf-skill"), "C0BR8722F6C")
-        self.assertEqual(S._resolve_channel("vsurf-code-reports"), "C0BQQ8ZBCL8")
-        self.assertEqual(S._resolve_channel("#vsurf-agent-control"), "C0BNWS9QKDK")
+        self.assertEqual(S._resolve_channel("vsurf-code-reports"), "C0BSX931CPJ")
+        self.assertEqual(S._resolve_channel("#vsurf-agent-control"), "C0BS4RXHV25")
         self.assertEqual(S._resolve_channel("C0BR8722F6C"), "C0BR8722F6C")
 
     def test_search_known_channel_skips_network(self):
@@ -160,7 +160,7 @@ class SlackMcpTests(unittest.TestCase):
         with patch.dict("os.environ", {"SLACK_BOT_TOKEN": "xoxb-test", "OPENACP_SLACK_BOT_TOKEN": ""}, clear=False):
             with patch.object(S, "_http_post", side_effect=fake_http_post):
                 auth = S.slack_auth_test()
-                hist = S.slack_read_channel("C0BQQ8ZBCL8", limit=5)
+                hist = S.slack_read_channel("C0BSX931CPJ", limit=5)
         self.assertTrue(auth["ok"])
         self.assertEqual(auth["team_id"], "T123")
         self.assertTrue(hist["ok"])

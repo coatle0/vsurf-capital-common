@@ -31,8 +31,8 @@ Grok config는 `C:\autoai\slack-toolkit`이 아니라 이 git 경로를 가리�
 | 채널 | ID |
 |---|---|
 | `#vsurf-skill` | `C0BR8722F6C` |
-| `#vsurf-code-reports` | `C0BQQ8ZBCL8` |
-| `#vsurf-agent-control` | `C0BNWS9QKDK` |
+| `#vsurf-code-reports` | `C0BSX931CPJ` |
+| `#vsurf-agent-control` | `C0BS4RXHV25` |
 
 - 최신 메시지 확인: `slack_read_channel(channel=C0BR8722F6C, limit=1)` 한 번. 회신은 ts + 캡션 한 줄. `slack_post_markdown` 첨부는 캡션만 보인다. 검색·표 금지.
 - 첨부 본문: `slack_read_file(file_id=...)`. 기본은 메모리만. 디스크에 쓰지 마라. 텍스트/md만.

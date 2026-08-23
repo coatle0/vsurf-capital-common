@@ -19,7 +19,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import order_inbox
 from slack_api import api
 
-CHANNEL_ID = os.environ.get("VSURF_SLACK_CHANNEL_ID", "C0BNWS9QKDK")
+CHANNEL_ID = os.environ.get("VSURF_SLACK_CHANNEL_ID", "C0BS4RXHV25")
 POLL_SECONDS = float(os.environ.get("VSURF_SLACK_ACK_POLL_SECONDS", "2"))
 STATE_PATH = Path(os.environ.get("VSURF_SLACK_ACK_STATE", r"C:\lab\.openacp\slack_ack_state.json"))
 LOG_PATH = Path(r"C:\lab\vsurf_capital\common\logs\slack_ack_watcher.log")

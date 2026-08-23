@@ -39,8 +39,8 @@ _TEXT_FILETYPES = {"text", "markdown", "plain", "python", "javascript", "json", 
 _TOKEN_NAMES = ("SLACK_BOT_TOKEN", "OPENACP_SLACK_BOT_TOKEN")
 _KNOWN_CHANNEL_ROWS = (
     {"id": "C0BR8722F6C", "name": "vsurf-skill"},
-    {"id": "C0BQQ8ZBCL8", "name": "vsurf-code-reports"},
-    {"id": "C0BNWS9QKDK", "name": "vsurf-agent-control"},
+    {"id": "C0BSX931CPJ", "name": "vsurf-code-reports"},
+    {"id": "C0BS4RXHV25", "name": "vsurf-agent-control"},
 )
 KNOWN_CHANNELS: dict[str, dict] = {}
 for _row in _KNOWN_CHANNEL_ROWS:
@@ -607,7 +607,7 @@ def slack_list_conversations(
 
 @mcp.tool()
 def slack_search_channels(query: str, limit: int = 20) -> dict:
-    """Find channels by name. Known IDs: #vsurf-skill=C0BR8722F6C, #vsurf-code-reports=C0BQQ8ZBCL8, #vsurf-agent-control=C0BNWS9QKDK. Those names resolve locally; prefer slack_read_channel with the ID."""
+    """Find channels by name. Known IDs: #vsurf-skill=C0BR8722F6C, #vsurf-code-reports=C0BSX931CPJ, #vsurf-agent-control=C0BS4RXHV25. Those names resolve locally; prefer slack_read_channel with the ID."""
     return _wrap(_search_channels_body, query, limit)
 
 
@@ -619,7 +619,7 @@ def slack_read_channel(
     latest: str = "",
     cursor: str = "",
 ) -> dict:
-    """Read recent Slack messages. Use C0BR8722F6C (#vsurf-skill), C0BQQ8ZBCL8 (#vsurf-code-reports), or C0BNWS9QKDK (#vsurf-agent-control); those names also resolve. Default limit=3. Pass limit=1 for a latest-message check. Returns caption text plus attached file ids, not file bodies. Do not search channels first."""
+    """Read recent Slack messages. Use C0BR8722F6C (#vsurf-skill), C0BSX931CPJ (#vsurf-code-reports), or C0BS4RXHV25 (#vsurf-agent-control); those names also resolve. Default limit=3. Pass limit=1 for a latest-message check. Returns caption text plus attached file ids, not file bodies. Do not search channels first."""
     return _wrap(_read_channel_body, channel, limit, oldest, latest, cursor)
 
 

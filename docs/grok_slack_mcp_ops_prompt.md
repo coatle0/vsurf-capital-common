@@ -54,7 +54,7 @@ HEAD와 slack_mcp_server.py 에 아래가 있어야 한다:
 이름(#vsurf-skill 등)이 와도 서버가 로컬에서 ID로 해석한다. 그래도 ID를 우선한다.
 
   #vsurf-skill          C0BR8722F6C
-  #vsurf-code-reports   C0BQQ8ZBCL8
+  #vsurf-code-reports   C0BSX931CPJ
 
 ============================================================
 3. 최신 확인 — 도구 1회

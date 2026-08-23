@@ -46,7 +46,7 @@ User/Process CODEX_PC_ID 가 codex-pc2 인지 확인하라. 아니면 User 범�
 HEAD와 slack_mcp_server.py 에 아래가 있어야 한다:
 - slack_read_file
 - _http_get_authorized
-- C0BNWS9QKDK / vsurf-agent-control
+- C0BS4RXHV25 / vsurf-agent-control
 - slack_post_markdown
 - DEFAULT_HISTORY_LIMIT = 3
 없으면 pull이 옛 커밋이다. 여기서 멈추고 HEAD를 보고하라.
@@ -60,8 +60,8 @@ HEAD와 slack_mcp_server.py 에 아래가 있어야 한다:
 C:\lab\.grok\skills\slk-r\SKILL.md 에 아래가 있어야 한다:
 - name: slk-r
 - /slk-r skl  -> C0BR8722F6C
-- /slk-r rpt  -> C0BQQ8ZBCL8
-- /slk-r agt  -> C0BNWS9QKDK
+- /slk-r rpt  -> C0BSX931CPJ
+- /slk-r agt  -> C0BS4RXHV25
 - body 일 때만 slack_read_file, save_path 금지
 
 ============================================================
@@ -120,7 +120,7 @@ stdio MCP는 재시작 전까지 옛 프로세스를 쓴다. slack_read_file 이
 보고 표:
 - COMPUTERNAME / CODEX_PC_ID
 - git HEAD
-- slack_mcp_server.py 에 slack_read_file / C0BNWS9QKDK 존재
+- slack_mcp_server.py 에 slack_read_file / C0BS4RXHV25 존재
 - C:\lab\.grok\skills\slk-r\SKILL.md 존재
 - ~/.grok/config.toml slack args 경로 (git 경로인지)
 - OPENACP_SLACK_BOT_TOKEN <set>/<not set>
