@@ -1,0 +1,28 @@
+{
+  "documents": [
+    {
+      "evidence_id": "ev:fixture:AAA:overview",
+      "ticker": "AAA",
+      "company_id": "1",
+      "company_name": "Alpha Fixture Co",
+      "exchange": "TEST",
+      "source_ref": "tikr.company_overview:AAA",
+      "source_url": "https://example.test/aaa",
+      "source_date": "2026-08-23",
+      "collected_at": "2026-08-23",
+      "facts": ["Alpha makes the fixture widget."]
+    },
+    {
+      "evidence_id": "ev:fixture:BBB:overview",
+      "ticker": "BBB",
+      "company_id": "2",
+      "company_name": "Beta Fixture Co",
+      "exchange": "TEST",
+      "source_ref": "tikr.company_overview:BBB",
+      "source_url": "https://example.test/bbb",
+      "source_date": "2026-08-23",
+      "collected_at": "2026-08-23",
+      "facts": ["Beta operates the fixture process."]
+    }
+  ]
+}

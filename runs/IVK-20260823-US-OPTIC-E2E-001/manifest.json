@@ -7,9 +7,9 @@
     "name": "us_optic",
     "slug": "us-optic"
   },
-  "status": "PLANNED",
-  "last_completed_stage": "plan",
-  "next_command": "external source collection / Phase 2 quality run",
+  "status": "VERIFIED",
+  "last_completed_stage": "verify",
+  "next_command": "external neo4j-official.read_cypher read-back",
   "blockers": [],
   "artifacts": {
     "submitted_input": "submitted_input.json",
@@ -19,7 +19,16 @@
     "existing_graph": "existing_graph.json",
     "blueprint": "blueprint.json",
     "graph_snapshot_sha256": "e1073d1cb58b68c76b62125a3cdcca471e662dae67e60977b37dc8c80d801950",
-    "source_plan": "source_plan.json"
+    "source_plan": "source_plan.json",
+    "source_collection": "source_collection.json",
+    "evidence": "evidence_packet.json",
+    "ke": "ke_packet.json",
+    "write_manifest": "write_manifest.json",
+    "review": "review.json",
+    "write_batches": "write_batches.json",
+    "quality": "quality_benchmark.json",
+    "verify": "verify.json",
+    "financials": "financial_enrichment.json"
   },
   "pack_selection": {
     "sector": "semiconductor_optical",
@@ -36,5 +45,5 @@
     }
   },
   "created_at": "2026-08-23T02:51:08.706087+00:00",
-  "updated_at": "2026-08-23T02:51:08.756700+00:00"
+  "updated_at": "2026-08-23T04:08:15.748524+00:00"
 }

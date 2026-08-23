@@ -1,0 +1,13 @@
+{
+  "ok": true,
+  "run_id": "IVK-20260823-US-OPTIC-E2E-001",
+  "vc_id": "vc:us_optic",
+  "companies": 4,
+  "evidence": 12,
+  "confirmed_assertions": 0,
+  "expansion_decisions": [
+    "candidate_pending_source",
+    "weaken",
+    "reject"
+  ]
+}

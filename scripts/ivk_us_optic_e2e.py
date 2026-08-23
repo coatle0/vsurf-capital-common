@@ -399,9 +399,9 @@ def build_packets(plan: dict[str, Any], collection: dict[str, Any]) -> dict[str,
         {
             "candidate": "AVGO",
             "name": "Broadcom",
-            "decision": "strengthen",
-            "reason": "CPO/switch adjacency to NVDA AI systems and optical engines is the most connected seed-out name, but no TIKR collection was executed in this run so it is not written as a Company member.",
-            "source_recheck": "LITE/COHR CPO commentary plus public switch/CPO industry role; primary Broadcom 10-K not collected this run.",
+            "decision": "candidate_pending_source",
+            "reason": "CPO/switch adjacency is hypothesized, but no Broadcom 10-K or earnings-call document was collected, so the name stays pending source rather than strengthen.",
+            "source_recheck": "No primary Broadcom filing or call was collected in this run.",
         },
         {
             "candidate": "MRVL",
@@ -523,8 +523,13 @@ def validate_packets(packets: dict[str, dict[str, Any]]) -> None:
         raise UsOpticE2EError("duplicate evidence hashes")
     if set(evidence["coverage"]["questions"].values()) != {"evidence-backed"}:
         raise UsOpticE2EError("questions must be evidence-backed or blocked")
-    if not ke["link_expansion"] or {item["decision"] for item in ke["link_expansion"]} != {"strengthen", "weaken", "reject"}:
-        raise UsOpticE2EError("link expansion must include strengthen/weaken/reject")
+    allowed = {"strengthen", "weaken", "reject", "candidate_pending_source"}
+    if not ke["link_expansion"] or not {item["decision"] for item in ke["link_expansion"]} <= allowed:
+        raise UsOpticE2EError("link expansion decision is not allowed")
+    if "AVGO" in {item.get("candidate") for item in ke["link_expansion"]}:
+        avgo = next(item for item in ke["link_expansion"] if item.get("candidate") == "AVGO")
+        if avgo["decision"] == "strengthen":
+            raise UsOpticE2EError("AVGO cannot be strengthen without a primary source")
 
 
 def write_batches(manifest: dict[str, Any]) -> list[dict[str, Any]]:

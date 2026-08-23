@@ -146,7 +146,10 @@
       "confidence": 0.72,
       "counter_evidence": "NVIDIA states it is not immune to supply challenges, so demand does not automatically translate into unconstrained optical component shipments.",
       "status": "inference",
-      "review_status": "pending"
+      "review_status": "pending",
+      "supporting_evidence": "NVIDIA describes itself as a data-center-scale AI infrastructure company; Q1 FY2027 call cites rapid AI compute capacity stand-up and Data Center-led growth.",
+      "applicable_period": "FY2026-FY2027",
+      "falsifier": "NVIDIA states it is not immune to supply challenges, so demand does not automatically translate into unconstrained optical component shipments."
     },
     {
       "id": "ca:us_optic:bottleneck:inp-laser",
@@ -161,7 +164,10 @@
       "confidence": 0.68,
       "counter_evidence": "Coherent reports 6-inch yields already exceeding 3-inch lines and an on-track doubling, which may relieve rather than persist the bottleneck. Lumentum also reports NPO as an intermediate architecture that can absorb demand before CPO scale-up.",
       "status": "hypothesis",
-      "review_status": "pending"
+      "review_status": "pending",
+      "supporting_evidence": "Coherent is doubling internal 6-inch InP output and cites critical-component supply as a growth gate. Lumentum's CPO laser-chip ramp is timed to 2H calendar 2027. Credo says fewer lasers in SiPho designs can ease industry laser supply-chain limitations.",
+      "applicable_period": "FY2026-FY2027",
+      "falsifier": "Coherent reports 6-inch yields already exceeding 3-inch lines and an on-track doubling, which may relieve rather than persist the bottleneck. Lumentum also reports NPO as an intermediate architecture that can absorb demand before CPO scale-up."
     },
     {
       "id": "ca:us_optic:beneficiary:laser-suppliers",
@@ -176,15 +182,18 @@
       "confidence": 0.61,
       "counter_evidence": "CPO scale-up is not current-period revenue for Lumentum's broader customer base, which is prioritizing NPO. Credo CPO/NPO revenue is guided to fiscal 2028. No confirmed ranking of beneficiaries is licensed without review.",
       "status": "hypothesis",
-      "review_status": "pending"
+      "review_status": "pending",
+      "supporting_evidence": "Lumentum says lead CPO customer demand increased and ultra high-power laser chips ramp in 2H 2027; Coherent expects CPO revenue contribution in fiscal Q2 on a production ramp.",
+      "applicable_period": "FY2027-FY2028",
+      "falsifier": "CPO scale-up is not current-period revenue for Lumentum's broader customer base, which is prioritizing NPO. Credo CPO/NPO revenue is guided to fiscal 2028. No confirmed ranking of beneficiaries is licensed without review."
     }
   ],
   "link_expansion": [
     {
       "candidate": "AVGO",
       "name": "Broadcom",
-      "decision": "strengthen",
-      "reason": "CPO/switch adjacency to NVDA AI systems and optical engines is the most connected seed-out name, but no TIKR collection was executed in this run so it is not written as a Company member.",
+      "decision": "candidate_pending_source",
+      "reason": "Connected CPO/switch adjacency is hypothesized but no Broadcom 10-K or earnings-call document was collected, so the name stays pending source rather than strengthen.",
       "source_recheck": "LITE/COHR CPO commentary plus public switch/CPO industry role; primary Broadcom 10-K not collected this run."
     },
     {
@@ -202,6 +211,7 @@
       "source_recheck": "Order seed NVDA/COHR/LITE/CRDO vs intakes/new/us_optic.json AAOI membership."
     }
   ],
+  "financial_periods": [],
   "governance": {
     "auto_confirm": false,
     "requires_provenance": true,

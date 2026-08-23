@@ -1,5 +1,6 @@
 import json
 import sys
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -44,7 +45,7 @@ class UsOpticE2ETests(unittest.TestCase):
         self.assertFalse(blueprint["epistemic_policy"]["auto_confirm"])
 
     def test_packets_pass_quality_gates(self):
-        packets = emit_artifacts(self.plan, ROOT / "runs" / RUN_ID)
+        packets = emit_artifacts(self.plan, Path(tempfile.mkdtemp()))
         validate_packets(packets)
         ke = packets["ke"]
         self.assertEqual(VC_ID, ke["value_chain"]["id"])
@@ -54,7 +55,7 @@ class UsOpticE2ETests(unittest.TestCase):
         self.assertTrue(all(a["review_status"] == "pending" for a in ke["assertions"]))
         self.assertTrue(all(a["counter_evidence"] for a in ke["assertions"]))
         self.assertEqual(0, packets["review"]["confirmed_assertions"])
-        self.assertEqual({"strengthen", "weaken", "reject"}, {item["decision"] for item in ke["link_expansion"]})
+        self.assertEqual({"candidate_pending_source", "weaken", "reject"}, {item["decision"] for item in ke["link_expansion"]})
         self.assertEqual(18, packets["quality"]["us_optic_total"])
         self.assertEqual(23, packets["quality"]["sti_total"])
         dumped = json.dumps(ke).lower()
@@ -62,7 +63,7 @@ class UsOpticE2ETests(unittest.TestCase):
         self.assertNotIn("company:vrt", dumped)
 
     def test_write_batches_are_merge_only_and_skip_sti_labels(self):
-        packets = emit_artifacts(self.plan, ROOT / "runs" / RUN_ID)
+        packets = emit_artifacts(self.plan, Path(tempfile.mkdtemp()))
         batches = write_batches(packets["write_manifest"])
         joined = "\n".join(item["query"] for item in batches)
         self.assertIn("MERGE (vc:ValueChain {id:$id})", joined)
@@ -74,7 +75,7 @@ class UsOpticE2ETests(unittest.TestCase):
         self.assertTrue(all("MERGE" in item["query"] for item in batches))
 
     def test_negative_auto_accept_is_rejected(self):
-        packets = emit_artifacts(self.plan, ROOT / "runs" / RUN_ID)
+        packets = emit_artifacts(self.plan, Path(tempfile.mkdtemp()))
         packets["ke"]["assertions"][0]["review_status"] = "accepted"
         with self.assertRaisesRegex(UsOpticE2EError, "auto-accepted"):
             validate_packets(packets)

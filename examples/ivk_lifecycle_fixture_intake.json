@@ -1,0 +1,15 @@
+{
+  "contract_version": "ivk-intake-1.0",
+  "operation": "new",
+  "target_vc": null,
+  "name": "fixture_demo",
+  "seed": ["AAA", "BBB"],
+  "frame": "matrix",
+  "thesis": "Fixture demand may create a process bottleneck and a beneficiary.",
+  "questions": ["Where is the bottleneck?", "Who benefits?"],
+  "scope": ["value_chain", "counter_evidence", "link_expansion"],
+  "known_links": [],
+  "limitations": ["Synthetic fixture. No live write."],
+  "references": [],
+  "options": {"periods": 5, "auto_expand": false, "write_policy": "dry_run"}
+}

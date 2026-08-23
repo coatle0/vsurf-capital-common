@@ -20,6 +20,17 @@ from .kernel import (
     read_json,
     resume_run,
 )
+from .lifecycle import (
+    LifecycleError,
+    benchmark_stage,
+    collect_stage,
+    extract_reported_periods,
+    ke_stage,
+    normalize_document,
+    persist_stage,
+    validate_packets,
+    write_batches,
+)
 
 
 EXIT_INPUT = 2
@@ -99,6 +110,43 @@ def build_parser() -> argparse.ArgumentParser:
     resume = sub.add_parser("resume")
     resume.add_argument("--run-id", required=True)
     add_execution_arguments(resume, input_required=False)
+
+    collect = sub.add_parser("collect")
+    collect.add_argument("--run-id", required=True)
+    collect.add_argument("--runs-dir", type=Path, default=DEFAULT_RUNS)
+    collect.add_argument("--documents", type=Path, required=True)
+
+    ke = sub.add_parser("ke")
+    ke.add_argument("--run-id", required=True)
+    ke.add_argument("--runs-dir", type=Path, default=DEFAULT_RUNS)
+    ke.add_argument("--structure", type=Path)
+
+    review = sub.add_parser("review")
+    review.add_argument("--run-id", required=True)
+    review.add_argument("--runs-dir", type=Path, default=DEFAULT_RUNS)
+
+    write = sub.add_parser("write")
+    write.add_argument("--run-id", required=True)
+    write.add_argument("--runs-dir", type=Path, default=DEFAULT_RUNS)
+
+    verify = sub.add_parser("verify")
+    verify.add_argument("--run-id", required=True)
+    verify.add_argument("--runs-dir", type=Path, default=DEFAULT_RUNS)
+
+    bench = sub.add_parser("benchmark")
+    bench.add_argument("--run-id", required=True)
+    bench.add_argument("--runs-dir", type=Path, default=DEFAULT_RUNS)
+    bench.add_argument("--scores", type=Path, required=True)
+
+    enrich = sub.add_parser("enrich")
+    enrich.add_argument("--run-id", required=True)
+    enrich.add_argument("--runs-dir", type=Path, default=DEFAULT_RUNS)
+    enrich.add_argument("--financials", type=Path, action="append", required=True)
+    enrich.add_argument("--ticker", action="append", required=True)
+
+    repair = sub.add_parser("repair")
+    repair.add_argument("--run-id", required=True)
+    repair.add_argument("--runs-dir", type=Path, default=DEFAULT_RUNS)
     return parser
 
 
@@ -133,6 +181,89 @@ def dispatch(args: argparse.Namespace) -> dict[str, Any]:
             sector=args.sector,
             regions=args.region,
         )
+    root, manifest = load_manifest(args.runs_dir, args.run_id)
+    plan = read_json(root / manifest["artifacts"]["source_plan"])
+    if args.command == "collect":
+        raw = read_json(args.documents)
+        documents = raw["documents"] if isinstance(raw, dict) and "documents" in raw else raw
+        collection = collect_stage(plan, documents, run_id=args.run_id)
+        return persist_stage(args.runs_dir, args.run_id, "collect", {"source_collection": collection},
+                             next_command=f"python -m ivk ke --run-id {args.run_id}")
+    if args.command == "ke":
+        collection = read_json(root / manifest["artifacts"].get("source_collection", "source_collection.json"))
+        structure = read_json(args.structure) if args.structure else {}
+        packets = ke_stage(plan, collection, structure=structure)
+        packets["write_batches"] = write_batches(packets["write_manifest"])
+        return persist_stage(
+            args.runs_dir, args.run_id, "ke",
+            {**packets, "write_batches": packets["write_batches"]},
+            next_command=f"python -m ivk review --run-id {args.run_id}",
+        )
+    if args.command == "review":
+        packets = {
+            "evidence": read_json(root / "evidence_packet.json"),
+            "ke": read_json(root / "ke_packet.json"),
+            "write_manifest": read_json(root / "write_manifest.json"),
+            "review": read_json(root / "review.json"),
+        }
+        validate_packets(packets)
+        return persist_stage(args.runs_dir, args.run_id, "review", {"review": packets["review"]},
+                             next_command=f"python -m ivk write --run-id {args.run_id}")
+    if args.command == "write":
+        manifest_json = read_json(root / "write_manifest.json")
+        batches = write_batches(manifest_json)
+        manifest_json["neo4j_write_status"] = "batches_emitted_merge_only"
+        return persist_stage(
+            args.runs_dir, args.run_id, "write",
+            {"write_batches": batches, "write_manifest": manifest_json},
+            next_command=f"python -m ivk verify --run-id {args.run_id}",
+        )
+    if args.command == "verify":
+        packets = {
+            "evidence": read_json(root / "evidence_packet.json"),
+            "ke": read_json(root / "ke_packet.json"),
+            "write_manifest": read_json(root / "write_manifest.json"),
+            "review": read_json(root / "review.json"),
+        }
+        validate_packets(packets)
+        report = {
+            "ok": True,
+            "run_id": args.run_id,
+            "vc_id": packets["ke"]["value_chain"]["id"],
+            "companies": len(packets["ke"]["companies"]),
+            "evidence": len(packets["evidence"]["documents"]),
+            "confirmed_assertions": 0,
+            "expansion_decisions": [item["decision"] for item in packets["ke"]["link_expansion"]],
+        }
+        return persist_stage(args.runs_dir, args.run_id, "verify", {"verify": report},
+                             next_command="external neo4j-official.read_cypher read-back")
+    if args.command == "benchmark":
+        scores = read_json(args.scores)
+        axes = scores["axes"] if isinstance(scores, dict) else scores
+        quality = benchmark_stage(axes, run_id=args.run_id)
+        return persist_stage(args.runs_dir, args.run_id, "benchmark", {"quality": quality},
+                             next_command=f"python -m ivk verify --run-id {args.run_id}")
+    if args.command == "enrich":
+        if len(args.financials) != len(args.ticker):
+            raise LifecycleError("--financials and --ticker must be paired")
+        rows = []
+        for path, ticker in zip(args.financials, args.ticker, strict=True):
+            rows.extend(extract_reported_periods(read_json(path), ticker=ticker, limit=5))
+        payload = {
+            "contract_version": "ivk-financial-enrichment-0.1",
+            "run_id": args.run_id,
+            "periods": rows,
+            "segment_status": "blocked-with-reason",
+            "segment_reason": "TIKR asRptSegData payload was empty; no segment nodes written.",
+            "write_policy": "artifact_only_not_sti_financialperiod",
+        }
+        return persist_stage(args.runs_dir, args.run_id, "enrich", {"financials": payload},
+                             next_command=f"python -m ivk ke --run-id {args.run_id}")
+    if args.command == "repair":
+        collection = read_json(root / "source_collection.json")
+        collection["documents"] = [normalize_document(doc) for doc in collection["documents"]]
+        return persist_stage(args.runs_dir, args.run_id, "repair", {"source_collection": collection},
+                             next_command=f"python -m ivk ke --run-id {args.run_id}")
     raise KernelError(f"unsupported command: {args.command}")
 
 
@@ -141,7 +272,7 @@ def main() -> None:
         sys.stdout.reconfigure(encoding="utf-8")
     try:
         emit(dispatch(build_parser().parse_args()))
-    except (IntakeValidationError, FactoryValidationError) as exc:
+    except (IntakeValidationError, FactoryValidationError, LifecycleError) as exc:
         emit({"ok": False, "reason_code": "INPUT_VALIDATION", "message": str(exc)})
         raise SystemExit(EXIT_INPUT) from exc
     except KernelError as exc:

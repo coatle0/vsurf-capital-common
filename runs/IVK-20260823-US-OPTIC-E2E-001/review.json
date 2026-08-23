@@ -15,8 +15,8 @@
     {
       "candidate": "AVGO",
       "name": "Broadcom",
-      "decision": "strengthen",
-      "reason": "CPO/switch adjacency to NVDA AI systems and optical engines is the most connected seed-out name, but no TIKR collection was executed in this run so it is not written as a Company member.",
+      "decision": "candidate_pending_source",
+      "reason": "Connected CPO/switch adjacency is hypothesized but no Broadcom 10-K or earnings-call document was collected, so the name stays pending source rather than strengthen.",
       "source_recheck": "LITE/COHR CPO commentary plus public switch/CPO industry role; primary Broadcom 10-K not collected this run."
     },
     {
@@ -45,9 +45,8 @@
     "link_expansion_rechecked": true
   },
   "limitations": [
-    "No five-quarter segment/inventory time series was written for us_optic names.",
-    "AVGO was strengthened as an expansion frontier but not collected or written as a Company.",
-    "Causal records remain hypothesis/inference and pending; none are confirmed.",
-    "Existing PLANNED run IVK-20260823-US-OPTIC-001 used GS optic_idx seeds LITE/CRDO/COHR/AAOI and was not overwritten."
+    "TIKR financials payload is annual-dominant plus latest quarter; five-quarter series not present.",
+    "asRptSegData empty; segment nodes not written.",
+    "AVGO remains candidate_pending_source until a primary source is collected."
   ]
 }

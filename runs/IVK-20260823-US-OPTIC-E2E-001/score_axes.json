@@ -1,7 +1,4 @@
 {
-  "contract_version": "ivk-quality-benchmark-0.1",
-  "run_id": "IVK-20260823-US-OPTIC-E2E-001",
-  "rubric": "order-142-six-axis-0-4",
   "axes": [
     {
       "axis": "Source depth",
@@ -39,8 +36,5 @@
       "score": 3,
       "note": "candidate graph plus pending causal; STI time series untouched."
     }
-  ],
-  "sti_total": 23,
-  "score_total": 17,
-  "relative_pct": 73.9
+  ]
 }

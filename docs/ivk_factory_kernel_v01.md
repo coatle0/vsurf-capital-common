@@ -22,6 +22,21 @@ python -m ivk resume `
 
 `new`, `add`, `update`, and `expand` are operation-enforcing aliases of `run`. `init` validates and creates an immutable run snapshot. `plan` consumes captured `neo4j-official.read_cypher` rows. A run without those rows becomes `BLOCKED` with reason `MISSING_GRAPH_RESULTS`; `resume` continues from the stored pack selection.
 
+After `PLANNED`, VC-neutral lifecycle stages are:
+
+```powershell
+python -m ivk collect --run-id <id> --documents <collection.json>
+python -m ivk ke --run-id <id> --structure <structure.json>
+python -m ivk review --run-id <id>
+python -m ivk write --run-id <id>
+python -m ivk verify --run-id <id>
+python -m ivk enrich --run-id <id> --financials <tikr.json> --ticker <TICKER>
+python -m ivk benchmark --run-id <id> --scores <axes.json>
+python -m ivk repair --run-id <id>
+```
+
+`write` emits MERGE-only batches. It does not call Neo4j. Tickers, sector terms, and VC nicknames belong in Intake/Blueprint/Pack/artifact JSON, not in `ivk/lifecycle.py`.
+
 ## Canonical run artifacts
 
 ```text

@@ -1,0 +1,54 @@
+{
+  "value_chain": {
+    "id": "vc:fixture_demo",
+    "nickname": "fixture_demo",
+    "name": "fixture_demo",
+    "status": "candidate",
+    "review_status": "pending"
+  },
+  "products": [
+    {"id": "product:fixture:widget", "name": "Fixture widget", "producer": "AAA", "evidence_id": "ev:fixture:AAA:overview"}
+  ],
+  "processes": [
+    {"id": "process:fixture:assembly", "name": "Fixture assembly", "operator": "BBB", "evidence_id": "ev:fixture:BBB:overview"}
+  ],
+  "end_markets": [
+    {"id": "endmarket:fixture:test", "name": "Test end market", "evidence_id": "ev:fixture:AAA:overview"}
+  ],
+  "demand_drivers": [
+    {"id": "driver:fixture:demand", "name": "Fixture test demand", "evidence_id": "ev:fixture:AAA:overview"}
+  ],
+  "assertions": [
+    {
+      "id": "ca:fixture:bottleneck",
+      "kind": "Bottleneck",
+      "company_id": "company:BBB",
+      "period": "FY2026",
+      "applicable_period": "FY2026",
+      "affected_metric": "assembly_capacity",
+      "direction": "constrains_growth",
+      "lag": "0-2q",
+      "source": "tikr.company_overview:BBB",
+      "evidence": "Beta operates the fixture process.",
+      "supporting_evidence": "Beta operates the fixture process.",
+      "counter_evidence": "Single overview sentence is insufficient to confirm a bottleneck.",
+      "falsifier": "A filing showing unused assembly capacity would weaken this claim.",
+      "confidence": 0.2,
+      "status": "hypothesis",
+      "review_status": "pending"
+    }
+  ],
+  "link_expansion": [
+    {
+      "candidate": "CCC",
+      "name": "Gamma Fixture",
+      "decision": "candidate_pending_source",
+      "reason": "Named only in the fixture; no primary source collected."
+    }
+  ],
+  "question_closure": {
+    "Where is the bottleneck?": "evidence-backed",
+    "Who benefits?": "blocked-with-reason"
+  },
+  "limitations": ["Synthetic fixture; live Neo4j write forbidden."]
+}

@@ -1,10 +1,4 @@
 {
-  "contract_version": "ivk-neo4j-write-manifest-0.1",
-  "run_id": "IVK-20260823-US-OPTIC-E2E-001",
-  "approved_scope": "candidate ValueChain, companies, evidence, structure membership, pending causal records",
-  "neo4j_write_status": "batches_emitted_merge_only",
-  "idempotent": true,
-  "auto_confirm": false,
   "value_chain": {
     "id": "vc:us_optic",
     "nickname": "us_optic",
@@ -192,146 +186,37 @@
       "falsifier": "CPO scale-up is not current-period revenue for Lumentum's broader customer base, which is prioritizing NPO. Credo CPO/NPO revenue is guided to fiscal 2028. No confirmed ranking of beneficiaries is licensed without review."
     }
   ],
-  "evidence": [
+  "link_expansion": [
     {
-      "id": "ev:us_optic:NVDA:overview",
-      "ticker": "NVDA",
-      "source_ref": "tikr.company_overview:NVDA",
-      "content_hash": "a9c7cb601f2b9da9678b7d64d0ce6a8023631fa473618448638656e46a585adf",
-      "source_url": "https://www.nvidia.com",
-      "source_date": "2026-08-23",
-      "collected_at": "2026-08-23",
-      "source_type": "company_overview",
-      "publisher": "tikr"
+      "candidate": "AVGO",
+      "name": "Broadcom",
+      "decision": "candidate_pending_source",
+      "reason": "Connected CPO/switch adjacency is hypothesized but no Broadcom 10-K or earnings-call document was collected, so the name stays pending source rather than strengthen.",
+      "source_recheck": "LITE/COHR CPO commentary plus public switch/CPO industry role; primary Broadcom 10-K not collected this run."
     },
     {
-      "id": "ev:us_optic:NVDA:10k",
-      "ticker": "NVDA",
-      "source_ref": "sec.10-K:0001045810-26-000021",
-      "content_hash": "df6a5332945ed9a4adae0a3be3f1090735b189d07a711245cae6af4f51e72b06",
-      "source_url": "https://www.sec.gov/Archives/edgar/data/1045810/000104581026000021/nvda-20260125.htm",
-      "source_date": "2026-02-25",
-      "collected_at": "2026-08-23",
-      "source_type": "10-K",
-      "publisher": "sec"
+      "candidate": "MRVL",
+      "name": "Marvell Technology",
+      "decision": "weaken",
+      "reason": "Optical DSP competitor to CRDO; relevant for comparison, not evidenced as a required us_optic member from seed-primary sources.",
+      "source_recheck": "CRDO FY2026 call discusses optical DSP design wins without naming Marvell as a required chain node."
     },
     {
-      "id": "ev:us_optic:NVDA:call",
-      "ticker": "NVDA",
-      "source_ref": "tikr.earnings_call:NVDA:3736292",
-      "content_hash": "af9b8cf37321d0cf9851fc5ef1b4e0f41d961fdbf221303673979fb2b625dccc",
-      "source_url": "tikr://transcript/NVDA/3736292",
-      "source_date": "2026-05-20",
-      "collected_at": "2026-08-23",
-      "source_type": "earnings_call",
-      "publisher": "tikr"
-    },
-    {
-      "id": "ev:us_optic:COHR:overview",
-      "ticker": "COHR",
-      "source_ref": "tikr.company_overview:COHR",
-      "content_hash": "0f036117ca88433c331ad3a03a32971392ff0f41d7e8f9d61a61f3c8ac5c9324",
-      "source_url": "https://www.coherent.com",
-      "source_date": "2026-08-23",
-      "collected_at": "2026-08-23",
-      "source_type": "company_overview",
-      "publisher": "tikr"
-    },
-    {
-      "id": "ev:us_optic:COHR:10k",
-      "ticker": "COHR",
-      "source_ref": "sec.10-K:0000820318-26-000020",
-      "content_hash": "10f2312825577d6f041e9078e7da6a279fc703aae5649e74d7c67138ddf8d6f7",
-      "source_url": "https://www.sec.gov/Archives/edgar/data/820318/000082031826000020/iivi-20260630.htm",
-      "source_date": "2026-08-14",
-      "collected_at": "2026-08-23",
-      "source_type": "10-K",
-      "publisher": "sec"
-    },
-    {
-      "id": "ev:us_optic:COHR:call",
-      "ticker": "COHR",
-      "source_ref": "tikr.earnings_call:COHR:3794531",
-      "content_hash": "bfa1fdf75b02b22e9c95c61a4f8617186b4e7fd19d495be47b529ceb606e7dda",
-      "source_url": "tikr://transcript/COHR/3794531",
-      "source_date": "2026-08-12",
-      "collected_at": "2026-08-23",
-      "source_type": "earnings_call",
-      "publisher": "tikr"
-    },
-    {
-      "id": "ev:us_optic:LITE:overview",
-      "ticker": "LITE",
-      "source_ref": "tikr.company_overview:LITE",
-      "content_hash": "ee0b5f129589973ccc5482d51d5f33fa3a534c74de9b272acc7350a2b62e5b96",
-      "source_url": "https://www.lumentum.com",
-      "source_date": "2026-08-23",
-      "collected_at": "2026-08-23",
-      "source_type": "company_overview",
-      "publisher": "tikr"
-    },
-    {
-      "id": "ev:us_optic:LITE:10k",
-      "ticker": "LITE",
-      "source_ref": "sec.10-K:0001628280-26-057358",
-      "content_hash": "8c0886efbd0a20f55963d4e7f83379d5798563d0357692f57e1b1d306f57a162",
-      "source_url": "https://www.sec.gov/Archives/edgar/data/1633978/000162828026057358/lite-20260627.htm",
-      "source_date": "2026-08-17",
-      "collected_at": "2026-08-23",
-      "source_type": "10-K",
-      "publisher": "sec"
-    },
-    {
-      "id": "ev:us_optic:LITE:call",
-      "ticker": "LITE",
-      "source_ref": "tikr.earnings_call:LITE:3795173",
-      "content_hash": "c5debf65980e46e83f4a2ee5eebeec4d5c963d9d65825199c2d331aaa8cb9f33",
-      "source_url": "tikr://transcript/LITE/3795173",
-      "source_date": "2026-08-11",
-      "collected_at": "2026-08-23",
-      "source_type": "earnings_call",
-      "publisher": "tikr"
-    },
-    {
-      "id": "ev:us_optic:CRDO:overview",
-      "ticker": "CRDO",
-      "source_ref": "tikr.company_overview:CRDO",
-      "content_hash": "47e5f62541c751daed3163160cb3b7c3c9a337259e2b26906981652bf8a03aef",
-      "source_url": "https://credosemi.com",
-      "source_date": "2026-08-23",
-      "collected_at": "2026-08-23",
-      "source_type": "company_overview",
-      "publisher": "tikr"
-    },
-    {
-      "id": "ev:us_optic:CRDO:10k",
-      "ticker": "CRDO",
-      "source_ref": "sec.10-K:0001628280-26-043303",
-      "content_hash": "20a6ad0a5c0bce0f34744a0af1fabd8d0d8ba67a4f5d3c78ac2889fb94841070",
-      "source_url": "https://www.sec.gov/Archives/edgar/data/1807794/000162828026043303/crdo-20260502.htm",
-      "source_date": "2026-06-15",
-      "collected_at": "2026-08-23",
-      "source_type": "10-K",
-      "publisher": "sec"
-    },
-    {
-      "id": "ev:us_optic:CRDO:call",
-      "ticker": "CRDO",
-      "source_ref": "tikr.earnings_call:CRDO:3744443",
-      "content_hash": "ee1aeb266786e0b2f073550079075c967bcf2b86ab22a9e79e93b5c6510fb647",
-      "source_url": "tikr://transcript/CRDO/3744443",
-      "source_date": "2026-06-01",
-      "collected_at": "2026-08-23",
-      "source_type": "earnings_call",
-      "publisher": "tikr"
+      "candidate": "AAOI",
+      "name": "Applied Optoelectronics",
+      "decision": "reject",
+      "reason": "Present in GS optic_idx generated intake (LITE/CRDO/COHR/AAOI) but absent from this ORDER seed list and not corroborated by the collected NVDA/COHR/LITE/CRDO primary sources as a required bottleneck/beneficiary node.",
+      "source_recheck": "Order seed NVDA/COHR/LITE/CRDO vs intakes/new/us_optic.json AAOI membership."
     }
   ],
-  "sti_protected_labels": [
-    "FinancialPeriod",
-    "InventorySnapshot",
-    "SegmentResult",
-    "BusinessSegment",
-    "MonthlyRevenue",
-    "ManagementCommentary"
+  "question_closure": {
+    "핵심 병목은 어디인가?": "evidence-backed",
+    "직접 수혜기업과 근거는 무엇인가?": "evidence-backed",
+    "seed 밖으로 확장해야 할 핵심 연결기업은 누구인가?": "evidence-backed"
+  },
+  "limitations": [
+    "TIKR financials payload is annual-dominant plus latest quarter; five-quarter series not present.",
+    "asRptSegData empty; segment nodes not written.",
+    "AVGO remains candidate_pending_source until a primary source is collected."
   ]
 }
