@@ -110,6 +110,17 @@ def ke_stage(
         for doc in docs
     ]
     overlay = structure or {}
+    identity_by_ticker = {}
+    for task in plan.get("tasks", []):
+        identity = task.get("identity") or {}
+        if identity.get("ticker"):
+            identity_by_ticker[identity["ticker"]] = identity
+    for doc in evidence_docs:
+        identity = identity_by_ticker.get(doc.get("ticker"), {})
+        doc["company_node_id"] = identity.get("company_node_id") or (
+            f"company:{identity.get('market')}:{doc['ticker']}" if identity.get("market") not in {None, "us"}
+            else f"company:{doc['ticker']}"
+        )
     identity_docs = [doc for doc in docs if doc.get("source_type") == "company_overview"] or docs
     seen: set[str] = set()
     companies = overlay.get("companies") or []
@@ -119,19 +130,22 @@ def ke_stage(
             if ticker in seen:
                 continue
             seen.add(ticker)
-            country = doc.get("country")
-            security_id = doc.get("security_id") or (
-                f"{country}:{ticker}" if country in {"KR", "JP", "TW"} else ticker
+            identity = identity_by_ticker.get(ticker, {})
+            country = doc.get("country") or (identity.get("market") or "").upper() or None
+            security_id = doc.get("security_id") or identity.get("canonical_id") or ticker
+            company_node_id = identity.get("company_node_id") or (
+                f"company:{identity.get('market')}:{ticker}" if identity.get("market") not in {None, "us"}
+                else f"company:{ticker}"
             )
             companies.append({
-                "id": f"company:{ticker}",
+                "id": company_node_id,
                 "security_id": security_id,
                 "ticker": ticker,
-                "name": doc["company_name"],
+                "name": doc.get("company_name") or identity.get("company_name"),
                 "name_local": doc.get("name_local"),
                 "name_en": doc.get("name_en"),
                 "country": country,
-                "exchange": doc["exchange"],
+                "exchange": doc.get("exchange") or identity.get("exchange"),
                 "provider": doc.get("provider") or ("dart" if country == "KR" else "tikr"),
                 "provider_id": str(doc.get("provider_id") or doc["company_id"]),
                 "tikr_cid": str(doc["company_id"]),
@@ -206,6 +220,7 @@ def ke_stage(
             {
                 "id": d["evidence_id"],
                 "ticker": d["ticker"],
+                "company_node_id": d["company_node_id"],
                 "source_ref": d["source_ref"],
                 "content_hash": d["content_hash"],
                 "source_url": d["source_url"],
@@ -316,7 +331,7 @@ def write_batches(manifest: dict[str, Any]) -> list[dict[str, Any]]:
                 "e.source_date=row.source_date, e.content_hash=row.content_hash, "
                 "e.collected_at=row.collected_at, e.source_type=row.source_type, "
                 "e.publisher=row.publisher, e.status='pending', e.run_id=$run_id "
-                "WITH e, row MATCH (c:Company {id:'company:'+row.ticker}) "
+                "WITH e, row MATCH (c:Company {id:row.company_node_id}) "
                 "MERGE (c)-[:SUPPORTED_BY {run_id:$run_id}]->(e) "
                 "RETURN e.id AS id"
             ),
@@ -327,8 +342,9 @@ def write_batches(manifest: dict[str, Any]) -> list[dict[str, Any]]:
             "query": (
                 "UNWIND $rows AS row MERGE (p:Product {id:row.id}) "
                 "SET p.name=row.name, p.status='candidate', p.run_id=$run_id "
-                "WITH p, row MATCH (c:Company {id:'company:'+row.producer}) "
-                "MATCH (vc:ValueChain {id:$vc_id}) "
+                "WITH p, row MATCH (vc:ValueChain {id:$vc_id}) "
+                "MATCH (c:Company)-[:CANDIDATE_IN]->(vc) "
+                "WHERE c.ticker=row.producer OR c.id=row.producer "
                 "MERGE (c)-[r:PRODUCES]->(p) "
                 "SET r.status='candidate', r.as_of=$as_of, r.run_id=$run_id "
                 "MERGE (p)-[m:CANDIDATE_IN]->(vc) "
@@ -342,8 +358,9 @@ def write_batches(manifest: dict[str, Any]) -> list[dict[str, Any]]:
             "query": (
                 "UNWIND $rows AS row MERGE (p:Process {id:row.id}) "
                 "SET p.name=row.name, p.status='candidate', p.run_id=$run_id "
-                "WITH p, row MATCH (c:Company {id:'company:'+row.operator}) "
-                "MATCH (vc:ValueChain {id:$vc_id}) "
+                "WITH p, row MATCH (vc:ValueChain {id:$vc_id}) "
+                "MATCH (c:Company)-[:CANDIDATE_IN]->(vc) "
+                "WHERE c.ticker=row.operator OR c.id=row.operator "
                 "MERGE (c)-[r:OPERATES_IN]->(p) "
                 "SET r.status='candidate', r.as_of=$as_of, r.run_id=$run_id "
                 "MERGE (p)-[m:CANDIDATE_IN]->(vc) "

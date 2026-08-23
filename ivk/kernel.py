@@ -164,7 +164,12 @@ def plan_run(
     if not frame:
         raise KernelError("planning requires a frame; update intake must provide one in Kernel v0.1")
     registry = PackRegistry(registry_path)
-    selection = registry.select(frame=frame, sector=sector, regions=regions)
+    selected_regions = regions or list(dict.fromkeys(
+        seed.get("market") or "us" for seed in blueprint["normalized"].get("validated_seeds", [])
+    ))
+    if not selected_regions:
+        raise KernelError("planning could not infer a region from normalized seeds")
+    selection = registry.select(frame=frame, sector=sector, regions=selected_regions)
     source_plan = build_source_plan(blueprint, selection)
     write_json_atomic(root / "source_plan.json", source_plan)
     manifest["status"] = "PLANNED"
@@ -172,7 +177,7 @@ def plan_run(
     manifest["next_command"] = "external source collection / Phase 2 quality run"
     manifest["pack_selection"] = {
         "sector": sector,
-        "regions": regions,
+        "regions": selected_regions,
         "registry": str(registry_path),
         "manifest": selection.manifest(),
     }

@@ -26,6 +26,8 @@ python -m ivk build ... --execute-neo4j
 
 The command uses the shared `neo4j-official` Python environment, reads credentials from process/user environment variables, executes every batch, replays the batches to test idempotency, performs live read-back, creates `write_receipt.json` and `readback.json`, and reaches `VERIFIED`. It never prints the password.
 
+`--region` is optional. When omitted, IVK derives the required region packs from each normalized seed (`US`, `KR`, `JP`, `TW`) and composes a mixed-market Source Plan. Supplying region flags that omit a seed market is rejected. Korean company tasks use DART without TIKR; Japanese tasks add JPX fiscal-period handling; Taiwanese tasks add TWSE/TPEX identity resolution and monthly-revenue tracking.
+
 The default shared interpreter is:
 
 ```text

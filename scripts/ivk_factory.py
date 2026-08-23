@@ -270,16 +270,29 @@ def build_source_plan(blueprint: dict[str, Any], selection: PackSelection) -> di
         *selection.sector.get("required_topics", []),
     ]))
     adapters = []
+    region_adapters = {}
     for region in selection.regions:
         adapters.extend(region.get("source_adapters", []))
+        region_adapters[region["id"]] = list(region.get("source_adapters", []))
     adapters = list(dict.fromkeys(adapters))
+    seed_markets = {seed.get("market") or "us" for seed in seeds}
+    missing_region_packs = sorted(seed_markets - set(region_adapters))
+    if missing_region_packs:
+        raise FactoryValidationError(
+            f"region pack selection missing seed market(s): {', '.join(missing_region_packs)}"
+        )
     tasks = []
+    existing_ids = {
+        item.get("seed"): (item.get("company") or {}).get("id")
+        for item in blueprint.get("existing_graph", {}).get("findings", [])
+    }
     for seed in seeds:
         canonical = seed["canonical_id"]
-        seed_adapters = ["dart"] if seed.get("market") == "kr" else adapters
+        seed_adapters = region_adapters[seed.get("market") or "us"]
         identity = {key: seed.get(key) for key in (
             "canonical_id", "ticker", "company_name", "market", "exchange", "provider", "provider_ids"
         )}
+        identity["company_node_id"] = existing_ids.get(canonical)
         if canonical in unresolved:
             tasks.append({"seed": canonical, "task_type": "entity_resolution", "priority": 1,
                           "identity": identity, "topics": ["identity", "exchange", "ticker", "company_name"],

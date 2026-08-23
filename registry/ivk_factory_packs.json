@@ -5,7 +5,10 @@
     {"path": "../packs/frames/matrix.json"},
     {"path": "../packs/frames/stream.json"},
     {"path": "../packs/sectors/semiconductor_optical.json"},
-    {"path": "../packs/regions/us.json"}
+    {"path": "../packs/regions/us.json"},
+    {"path": "../packs/regions/kr.json"},
+    {"path": "../packs/regions/jp.json"},
+    {"path": "../packs/regions/tw.json"}
   ],
   "compatibility": {
     "sector_frames": {

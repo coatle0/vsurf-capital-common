@@ -60,6 +60,29 @@ class IVKLifecycleTests(unittest.TestCase):
         with self.assertRaisesRegex(LifecycleError, "missing field"):
             collect_stage(plan, bad, run_id="RUN-FIXTURE-001")
 
+    def test_existing_company_id_is_reused_for_company_and_evidence(self):
+        _, plan = self._plan()
+        plan["tasks"] = [{
+            "seed": "KR:131290", "task_type": "evidence_collection", "priority": 2,
+            "identity": {
+                "canonical_id": "KR:131290", "ticker": "131290", "company_name": "티에스이",
+                "market": "kr", "exchange": None, "provider": "dart",
+                "provider_ids": {"dart": "131290"}, "company_node_id": "company:tse",
+            },
+            "topics": ["identity"], "source_adapters": ["dart", "company_ir"],
+        }]
+        docs = [{
+            "evidence_id": "ev:test:tse:overview", "ticker": "131290", "company_id": "00372226",
+            "company_name": "티에스이", "country": "KR", "exchange": "KOSDAQ", "provider": "dart",
+            "source_ref": "dart.company_overview:131290", "source_url": "https://dart.fss.or.kr/",
+            "source_date": "2026-08-23", "collected_at": "2026-08-23", "facts": ["identity"],
+        }]
+        collection = collect_stage(plan, docs, run_id="RUN-FIXTURE-001")
+        packets = ke_stage(plan, collection)
+        self.assertEqual("company:tse", packets["ke"]["companies"][0]["id"])
+        self.assertEqual("KR:131290", packets["ke"]["companies"][0]["security_id"])
+        self.assertEqual("company:tse", packets["write_manifest"]["evidence"][0]["company_node_id"])
+
     def test_avgo_style_pending_source_is_allowed(self):
         _, plan = self._plan()
         collection = collect_stage(plan, self.docs["documents"], run_id="RUN-FIXTURE-001")
@@ -98,6 +121,25 @@ class IVKLifecycleTests(unittest.TestCase):
         text = (verify.stdout + verify.stderr).lower()
         self.assertTrue("readback" in text or "write_confirmed" in text, text)
         self.assertEqual("BATCH_READY", read_json(root / "manifest.json")["status"])
+
+    def test_cli_new_infers_korean_region_without_region_flag(self):
+        graph = Path(self.temp.name) / "kr_graph.json"
+        graph.write_text(json.dumps([
+            {"seed": "KR:131970", "company": None, "value_chain": [], "assertions": []},
+            {"seed": "KR:183300", "company": None, "value_chain": [], "assertions": []},
+            {"seed": "KR:059090", "company": None, "value_chain": [], "assertions": []},
+            {"seed": "KR:330860", "company": None, "value_chain": [], "assertions": []},
+            {"seed": "KR:131290", "company": {"id": "company:tse", "ticker": "131290", "name": "티에스이"}, "value_chain": [], "assertions": []},
+        ], ensure_ascii=False), encoding="utf-8")
+        result = self._cli(
+            "new", "--input", str(ROOT / "intakes/new/kr_후공정.json"),
+            "--run-id", "RUN-KR-INFER-001", "--runs-dir", str(self.runs),
+            "--graph-results", str(graph), "--sector", "semiconductor_backend",
+        )
+        self.assertEqual(0, result.returncode, result.stderr + result.stdout)
+        manifest = read_json(self.runs / "RUN-KR-INFER-001/manifest.json")
+        self.assertEqual(["kr"], manifest["pack_selection"]["regions"])
+        self.assertEqual("PLANNED", manifest["status"])
 
     def test_write_without_receipt_is_not_written(self):
         root = self._fixture_to_batches()

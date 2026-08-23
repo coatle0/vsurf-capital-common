@@ -44,6 +44,11 @@ DEFAULT_RUNS = Path("runs")
 DEFAULT_REGISTRY = Path("registry/ivk_factory_packs.json")
 
 
+def infer_regions(normalized: dict[str, Any]) -> list[str]:
+    """Derive region packs from normalized seeds; Intake has no market field."""
+    return list(dict.fromkeys(seed.get("market") or "us" for seed in normalized.get("validated_seeds", [])))
+
+
 def emit(value: Any) -> None:
     print(json.dumps(value, ensure_ascii=False, indent=2))
 
@@ -62,6 +67,7 @@ def add_execution_arguments(parser: argparse.ArgumentParser, *, input_required: 
 def run_from_input(args: argparse.Namespace, expected_operation: str | None = None) -> dict[str, Any]:
     submitted = read_json(args.input)
     canonical = validate_intake(submitted)
+    selected_regions = args.region or infer_regions(normalize_intake(canonical))
     if expected_operation and canonical["operation"] != expected_operation:
         raise IntakeValidationError(
             f"command {expected_operation} requires operation={expected_operation}, got {canonical['operation']}"
@@ -73,18 +79,18 @@ def run_from_input(args: argparse.Namespace, expected_operation: str | None = No
             args.runs_dir,
             run_id,
             sector=args.sector,
-            regions=args.region,
+            regions=selected_regions,
             registry=args.registry,
         )
-    if not args.sector or not args.region:
-        raise IntakeValidationError("planning requires --sector and at least one --region")
+    if not args.sector or not selected_regions:
+        raise IntakeValidationError("planning requires --sector and at least one inferred region")
     return plan_run(
         args.runs_dir,
         run_id,
         graph_results=args.graph_results,
         registry_path=args.registry,
         sector=args.sector,
-        regions=args.region,
+        regions=selected_regions,
     )
 
 
@@ -207,24 +213,24 @@ def dispatch(args: argparse.Namespace) -> dict[str, Any]:
     if args.command == "init":
         return initialize_run(args.input, args.runs_dir, args.run_id)
     if args.command == "plan":
-        if not args.graph_results or not args.sector or not args.region:
-            raise IntakeValidationError("plan requires --graph-results, --sector, and --region")
+        if not args.graph_results or not args.sector:
+            raise IntakeValidationError("plan requires --graph-results and --sector")
+        root, manifest = load_manifest(args.runs_dir, args.run_id)
+        selected_regions = args.region or infer_regions(read_json(root / manifest["artifacts"]["normalized"]))
         return plan_run(
             args.runs_dir,
             args.run_id,
             graph_results=args.graph_results,
             registry_path=args.registry,
             sector=args.sector,
-            regions=args.region,
+            regions=selected_regions,
         )
     if args.command in {"run", "new", "add", "update", "expand"}:
         expected = None if args.command == "run" else args.command
         return run_from_input(args, expected)
     if args.command == "build":
-        if not args.graph_results or not args.sector or not args.region:
-            raise IntakeValidationError(
-                "build requires --graph-results, --sector, and at least one --region"
-            )
+        if not args.graph_results or not args.sector:
+            raise IntakeValidationError("build requires --graph-results and --sector")
         if args.readback and not args.receipt:
             raise LifecycleError("build --readback requires --receipt")
         if args.execute_neo4j and (args.receipt or args.readback):
@@ -234,6 +240,7 @@ def dispatch(args: argparse.Namespace) -> dict[str, Any]:
 
         submitted = read_json(args.input)
         canonical = validate_intake(submitted)
+        selected_regions = args.region or infer_regions(normalize_intake(canonical))
         manifest = initialize_run(args.input, args.runs_dir, args.run_id)
         run_id = manifest["run_id"]
         manifest = plan_run(
@@ -242,7 +249,7 @@ def dispatch(args: argparse.Namespace) -> dict[str, Any]:
             graph_results=args.graph_results,
             registry_path=args.registry,
             sector=args.sector,
-            regions=args.region,
+            regions=selected_regions,
         )
         root, manifest = load_manifest(args.runs_dir, run_id)
         plan = read_json(root / manifest["artifacts"]["source_plan"])

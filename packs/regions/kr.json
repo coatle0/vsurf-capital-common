@@ -1,0 +1,9 @@
+{
+  "kind": "region",
+  "id": "kr",
+  "version": "1.0.0",
+  "aliases": ["KR", "Korea", "South Korea"],
+  "source_adapters": ["dart", "company_ir"],
+  "period_policy": "dart_cumulative_to_standalone_preserve_derivation",
+  "currency": "KRW"
+}

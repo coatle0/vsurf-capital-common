@@ -1,0 +1,9 @@
+{
+  "kind": "region",
+  "id": "tw",
+  "version": "1.0.0",
+  "aliases": ["TW", "Taiwan"],
+  "source_adapters": ["tikr", "twse_tpex", "mops", "company_ir", "monthly_revenue"],
+  "period_policy": "quarterly_plus_monthly_revenue",
+  "currency": "TWD"
+}

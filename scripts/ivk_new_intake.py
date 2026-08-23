@@ -32,9 +32,9 @@ FRAME_NICKNAMES = {
     "stream": {"id": "upstream_midstream_downstream", "version": "1.0.0", "label": "Upstream→Midstream→Downstream"},
 }
 PREFIX_MARKETS = {
-    "KR": ("kr", "KRX"), "KRX": ("kr", "KRX"),
-    "JP": ("jp", "TSE"), "TSE": ("jp", "TSE"),
-    "TW": ("tw", "TWSE"), "TWSE": ("tw", "TWSE"),
+    "KR": ("kr", None), "KRX": ("kr", "KRX"),
+    "JP": ("jp", None), "TSE": ("jp", "TSE"),
+    "TW": ("tw", None), "TWSE": ("tw", "TWSE"), "TPEX": ("tw", "TPEX"),
 }
 US_EXCHANGES = {"US", "NASDAQ", "NYSE", "AMEX"}
 
@@ -165,7 +165,7 @@ def _seed_identity(value: str) -> dict[str, Any]:
         provider = f"A{ticker}" if market == "kr" else ticker
         source_provider = "dart" if market == "kr" else "tikr"
         provider_ids = {source_provider: ticker if market == "kr" else provider}
-        return {"canonical_id": f"{exchange}:{ticker}", "market": market, "exchange": exchange,
+        return {"canonical_id": f"{market.upper()}:{ticker}", "market": market, "exchange": exchange,
                 "ticker": ticker, "company_name": company_name, "provider": source_provider,
                 "provider_ids": provider_ids}
     if upper.isdigit():

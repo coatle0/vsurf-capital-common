@@ -44,19 +44,57 @@ class IVKFactoryPhaseATests(unittest.TestCase):
     def test_korean_seed_routes_only_to_dart_and_keeps_name(self):
         blueprint = deepcopy(self.blueprint)
         blueprint["normalized"]["validated_seeds"] = [{
-            "canonical_id": "KRX:131290", "ticker": "131290", "company_name": "티에스이",
-            "market": "kr", "exchange": "KRX", "provider": "dart",
+            "canonical_id": "KR:131290", "ticker": "131290", "company_name": "티에스이",
+            "market": "kr", "exchange": None, "provider": "dart",
             "provider_ids": {"dart": "131290"},
         }]
-        blueprint["unresolved_seeds"] = [{"seed": "KRX:131290"}]
+        blueprint["unresolved_seeds"] = [{"seed": "KR:131290"}]
         selection = self.registry.select(
-            frame=self.blueprint["normalized"]["primary_frame"], sector="semiconductor_optical", regions=["us"]
+            frame=self.blueprint["normalized"]["primary_frame"], sector="semiconductor_optical", regions=["kr"]
         )
         plan = build_source_plan(blueprint, selection)
-        seed_tasks = [item for item in plan["tasks"] if item.get("seed") == "KRX:131290"]
+        seed_tasks = [item for item in plan["tasks"] if item.get("seed") == "KR:131290"]
         self.assertTrue(seed_tasks)
-        self.assertTrue(all(item["source_adapters"] == ["dart"] for item in seed_tasks))
+        self.assertTrue(all("dart" in item["source_adapters"] for item in seed_tasks))
+        self.assertTrue(all("tikr" not in item["source_adapters"] for item in seed_tasks))
         self.assertTrue(all(item["identity"]["company_name"] == "티에스이" for item in seed_tasks))
+
+    def test_existing_graph_company_id_is_carried_into_source_plan(self):
+        blueprint = deepcopy(self.blueprint)
+        blueprint["normalized"]["validated_seeds"] = [{
+            "canonical_id": "KR:131290", "ticker": "131290", "company_name": "티에스이",
+            "market": "kr", "exchange": None, "provider": "dart", "provider_ids": {"dart": "131290"},
+        }]
+        blueprint["existing_graph"]["findings"] = [{
+            "seed": "KR:131290", "company": {"id": "company:tse", "ticker": "131290", "name": "티에스이"},
+            "value_chain": [], "assertions": [],
+        }]
+        blueprint["unresolved_seeds"] = []
+        selection = self.registry.select(
+            frame=self.blueprint["normalized"]["primary_frame"], sector="semiconductor_optical", regions=["kr"]
+        )
+        plan = build_source_plan(blueprint, selection)
+        company_tasks = [item for item in plan["tasks"] if item.get("seed") == "KR:131290"]
+        self.assertTrue(company_tasks)
+        self.assertTrue(all(item["identity"]["company_node_id"] == "company:tse" for item in company_tasks))
+
+    def test_mixed_markets_use_their_own_region_adapters(self):
+        blueprint = deepcopy(self.blueprint)
+        blueprint["normalized"]["validated_seeds"] = [
+            {"canonical_id": "NVDA", "ticker": "NVDA", "company_name": None, "market": "us", "exchange": None, "provider": "tikr", "provider_ids": {"tikr": "NVDA"}},
+            {"canonical_id": "JP:6855", "ticker": "6855", "company_name": "JEM", "market": "jp", "exchange": None, "provider": "tikr", "provider_ids": {"tikr": "6855"}},
+            {"canonical_id": "TW:6223", "ticker": "6223", "company_name": "MPI", "market": "tw", "exchange": None, "provider": "tikr", "provider_ids": {"tikr": "6223"}},
+        ]
+        blueprint["unresolved_seeds"] = [{"seed": item["canonical_id"]} for item in blueprint["normalized"]["validated_seeds"]]
+        selection = self.registry.select(
+            frame=self.blueprint["normalized"]["primary_frame"], sector="semiconductor_optical", regions=["us", "jp", "tw"]
+        )
+        plan = build_source_plan(blueprint, selection)
+        adapters = {item["seed"]: item["source_adapters"] for item in plan["tasks"] if item.get("seed")}
+        self.assertIn("sec", adapters["NVDA"])
+        self.assertIn("jpx", adapters["JP:6855"])
+        self.assertIn("twse_tpex", adapters["TW:6223"])
+        self.assertIn("monthly_revenue", adapters["TW:6223"])
 
     def test_evidence_store_deduplicates_and_reuses_extraction(self):
         with tempfile.TemporaryDirectory() as tmp:

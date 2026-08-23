@@ -1,0 +1,9 @@
+{
+  "kind": "region",
+  "id": "jp",
+  "version": "1.0.0",
+  "aliases": ["JP", "Japan"],
+  "source_adapters": ["tikr", "jpx", "company_ir", "earnings_call"],
+  "period_policy": "fiscal_year_to_calendar_quarter_preserve_both",
+  "currency": "JPY"
+}

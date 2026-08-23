@@ -38,7 +38,7 @@ class IVKNewIntakeTests(unittest.TestCase):
         raw["seed"] = ["NVDA", "FORM", "KR:131290|티에스이", "JP:6855|Japan Electronic Materials", "TW:6515|WinWay Technology"]
         seeds = normalize_intake(raw)["validated_seeds"]
         self.assertEqual(
-            ["NVDA", "FORM", "KRX:131290", "TSE:6855", "TWSE:6515"],
+            ["NVDA", "FORM", "KR:131290", "JP:6855", "TW:6515"],
             [seed["canonical_id"] for seed in seeds],
         )
         self.assertEqual("131290", seeds[2]["provider_ids"]["dart"])
