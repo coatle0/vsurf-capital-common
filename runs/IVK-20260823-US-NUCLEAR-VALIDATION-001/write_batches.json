@@ -1,0 +1,205 @@
+[
+  {
+    "name": "value_chain",
+    "query": "MERGE (vc:ValueChain {id:$id}) SET vc.nickname=$nickname, vc.name=$name, vc.status=$status, vc.review_status=$review_status, vc.run_id=$run_id, vc.as_of=$as_of RETURN vc.id AS id, vc.nickname AS nickname",
+    "params": {
+      "id": "vc:us_nuclear",
+      "nickname": "us_nuclear",
+      "name": "US Nuclear Value Chain",
+      "status": "candidate",
+      "review_status": "pending",
+      "run_id": "IVK-20260823-US-NUCLEAR-VALIDATION-001",
+      "as_of": "2026-08-23"
+    }
+  },
+  {
+    "name": "companies",
+    "query": "UNWIND $rows AS row MERGE (c:Company {id:row.id}) SET c.ticker=row.ticker, c.name=row.name, c.name_en=row.name, c.exchange=row.exchange, c.tikr_cid=row.tikr_cid, c.status=row.status, c.review_status=row.review_status, c.run_id=$run_id WITH c, row MATCH (vc:ValueChain {id:$vc_id}) MERGE (c)-[m:CANDIDATE_IN]->(vc) SET m.status='candidate', m.review_status='pending', m.evidence_id=row.evidence_id, m.run_id=$run_id RETURN c.ticker AS ticker, m.status AS membership_status",
+    "params": {
+      "rows": [
+        {
+          "id": "company:OKLO",
+          "ticker": "OKLO",
+          "name": "Oklo Inc.",
+          "exchange": "NYSE",
+          "tikr_cid": "544611249",
+          "evidence_id": "ev:us_nuclear:OKLO:overview",
+          "status": "candidate",
+          "review_status": "pending"
+        },
+        {
+          "id": "company:SMR",
+          "ticker": "SMR",
+          "name": "NuScale Power Corporation",
+          "exchange": "NYSE",
+          "tikr_cid": "49439457",
+          "evidence_id": "ev:us_nuclear:SMR:overview",
+          "status": "candidate",
+          "review_status": "pending"
+        },
+        {
+          "id": "company:LEU",
+          "ticker": "LEU",
+          "name": "Centrus Energy Corp.",
+          "exchange": "NYSE",
+          "tikr_cid": "36096",
+          "evidence_id": "ev:us_nuclear:LEU:overview",
+          "status": "candidate",
+          "review_status": "pending"
+        },
+        {
+          "id": "company:UEC",
+          "ticker": "UEC",
+          "name": "Uranium Energy Corp.",
+          "exchange": "NYSEAM",
+          "tikr_cid": "23428489",
+          "evidence_id": "ev:us_nuclear:UEC:overview",
+          "status": "candidate",
+          "review_status": "pending"
+        }
+      ],
+      "vc_id": "vc:us_nuclear",
+      "run_id": "IVK-20260823-US-NUCLEAR-VALIDATION-001"
+    }
+  },
+  {
+    "name": "evidence",
+    "query": "UNWIND $rows AS row MERGE (e:Evidence {id:row.id}) SET e.source_ref=row.source_ref, e.source_url=row.source_url, e.source_date=row.source_date, e.content_hash=row.content_hash, e.collected_at=row.collected_at, e.source_type=row.source_type, e.publisher=row.publisher, e.status='pending', e.run_id=$run_id WITH e, row MATCH (c:Company {id:'company:'+row.ticker}) MERGE (c)-[:SUPPORTED_BY {run_id:$run_id}]->(e) RETURN e.id AS id",
+    "params": {
+      "rows": [
+        {
+          "id": "ev:us_nuclear:OKLO:overview",
+          "ticker": "OKLO",
+          "source_ref": "tikr.company_overview:OKLO",
+          "content_hash": "2c19e6081e8b41c2c0033dd3c4e84315124ffbc98b472d82ac5d568351eb262a",
+          "source_url": "https://www.oklo.com",
+          "source_date": "2026-08-23",
+          "collected_at": "2026-08-23",
+          "source_type": "company_overview",
+          "publisher": "tikr"
+        },
+        {
+          "id": "ev:us_nuclear:SMR:overview",
+          "ticker": "SMR",
+          "source_ref": "tikr.company_overview:SMR",
+          "content_hash": "22b5939d1636e789b8fa9c726fce142162d84803234d942aa615a4c478418793",
+          "source_url": "https://www.nuscalepower.com",
+          "source_date": "2026-08-23",
+          "collected_at": "2026-08-23",
+          "source_type": "company_overview",
+          "publisher": "tikr"
+        },
+        {
+          "id": "ev:us_nuclear:LEU:overview",
+          "ticker": "LEU",
+          "source_ref": "tikr.company_overview:LEU",
+          "content_hash": "76a4afaa3cf481b43992509e62ed1f7309ac4b11d6a91f27160e29465694f546",
+          "source_url": "https://www.centrusenergy.com",
+          "source_date": "2026-08-23",
+          "collected_at": "2026-08-23",
+          "source_type": "company_overview",
+          "publisher": "tikr"
+        },
+        {
+          "id": "ev:us_nuclear:UEC:overview",
+          "ticker": "UEC",
+          "source_ref": "tikr.company_overview:UEC",
+          "content_hash": "71008af028ac00f100d2930db360e62a29bb75fe9f88703e978b12a7681edb19",
+          "source_url": "https://www.uraniumenergy.com",
+          "source_date": "2026-08-23",
+          "collected_at": "2026-08-23",
+          "source_type": "company_overview",
+          "publisher": "tikr"
+        }
+      ],
+      "run_id": "IVK-20260823-US-NUCLEAR-VALIDATION-001"
+    }
+  },
+  {
+    "name": "products",
+    "query": "UNWIND $rows AS row MERGE (p:Product {id:row.id}) SET p.name=row.name, p.status='candidate', p.run_id=$run_id WITH p, row MATCH (c:Company {id:'company:'+row.producer}) MATCH (vc:ValueChain {id:$vc_id}) MERGE (c)-[r:PRODUCES]->(p) SET r.status='candidate', r.as_of=$as_of, r.run_id=$run_id MERGE (p)-[m:CANDIDATE_IN]->(vc) SET m.status='candidate', m.review_status='pending', m.run_id=$run_id RETURN p.id AS id",
+    "params": {
+      "rows": [
+        {
+          "id": "product:us_nuclear:aurora-powerhouse",
+          "name": "Aurora Powerhouse",
+          "producer": "OKLO",
+          "evidence_id": "ev:us_nuclear:OKLO:overview"
+        },
+        {
+          "id": "product:us_nuclear:nuscale-power-module",
+          "name": "NuScale Power Module",
+          "producer": "SMR",
+          "evidence_id": "ev:us_nuclear:SMR:overview"
+        },
+        {
+          "id": "product:us_nuclear:enriched-uranium",
+          "name": "Enriched uranium products",
+          "producer": "LEU",
+          "evidence_id": "ev:us_nuclear:LEU:overview"
+        },
+        {
+          "id": "product:us_nuclear:uranium-concentrates",
+          "name": "Uranium concentrates",
+          "producer": "UEC",
+          "evidence_id": "ev:us_nuclear:UEC:overview"
+        }
+      ],
+      "run_id": "IVK-20260823-US-NUCLEAR-VALIDATION-001",
+      "as_of": "2026-08-23",
+      "vc_id": "vc:us_nuclear"
+    }
+  },
+  {
+    "name": "processes",
+    "query": "UNWIND $rows AS row MERGE (p:Process {id:row.id}) SET p.name=row.name, p.status='candidate', p.run_id=$run_id WITH p, row MATCH (c:Company {id:'company:'+row.operator}) MATCH (vc:ValueChain {id:$vc_id}) MERGE (c)-[r:OPERATES_IN]->(p) SET r.status='candidate', r.as_of=$as_of, r.run_id=$run_id MERGE (p)-[m:CANDIDATE_IN]->(vc) SET m.status='candidate', m.review_status='pending', m.run_id=$run_id RETURN p.id AS id",
+    "params": {
+      "rows": [
+        {
+          "id": "process:us_nuclear:fuel-recycling-fabrication",
+          "name": "Nuclear fuel recycling and fabrication",
+          "operator": "OKLO",
+          "evidence_id": "ev:us_nuclear:OKLO:overview"
+        },
+        {
+          "id": "process:us_nuclear:reactor-licensing-operations",
+          "name": "Reactor licensing and operations support",
+          "operator": "SMR",
+          "evidence_id": "ev:us_nuclear:SMR:overview"
+        },
+        {
+          "id": "process:us_nuclear:uranium-enrichment-services",
+          "name": "Uranium enrichment and technical services",
+          "operator": "LEU",
+          "evidence_id": "ev:us_nuclear:LEU:overview"
+        },
+        {
+          "id": "process:us_nuclear:uranium-extraction-processing",
+          "name": "Uranium extraction and processing",
+          "operator": "UEC",
+          "evidence_id": "ev:us_nuclear:UEC:overview"
+        }
+      ],
+      "run_id": "IVK-20260823-US-NUCLEAR-VALIDATION-001",
+      "as_of": "2026-08-23",
+      "vc_id": "vc:us_nuclear"
+    }
+  },
+  {
+    "name": "end_markets_drivers",
+    "query": "UNWIND $markets AS mrow MERGE (em:EndMarket {id:mrow.id}) SET em.name=mrow.name, em.status='candidate', em.run_id=$run_id WITH em MATCH (vc:ValueChain {id:$vc_id}) MERGE (em)-[:CANDIDATE_IN {status:'candidate', review_status:'pending', run_id:$run_id}]->(vc) WITH collect(em) AS _ UNWIND $drivers AS drow MERGE (d:DemandDriver {id:drow.id}) SET d.name=drow.name, d.status='candidate', d.run_id=$run_id, d.as_of=$as_of WITH d MATCH (vc:ValueChain {id:$vc_id}) MERGE (d)-[:CANDIDATE_IN {status:'candidate', review_status:'pending', run_id:$run_id}]->(vc) RETURN d.id AS id",
+    "params": {
+      "markets": [
+        {
+          "id": "endmarket:us_nuclear:nuclear-power",
+          "name": "Nuclear power generation",
+          "evidence_id": "ev:us_nuclear:SMR:overview"
+        }
+      ],
+      "drivers": [],
+      "run_id": "IVK-20260823-US-NUCLEAR-VALIDATION-001",
+      "as_of": "2026-08-23",
+      "vc_id": "vc:us_nuclear"
+    }
+  }
+]

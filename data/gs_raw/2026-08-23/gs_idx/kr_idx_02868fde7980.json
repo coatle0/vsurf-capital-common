@@ -1,0 +1,11 @@
+{
+  "contract": "gs-raw-snapshot-1.0",
+  "sheet": "kr_idx",
+  "fn": "gs_idx",
+  "as_of": "2026-08-23",
+  "extracted_at": "2026-08-23T10:28:03+09:00",
+  "rows": 98,
+  "cols": 3,
+  "sha256": "02868fde7980fa729f01320faa756255d6645b1fa3510f892e2a28fecd256dfb",
+  "csv_path": "C:\\lab\\vsurf_capital\\common\\data\\gs_raw\\2026-08-23\\gs_idx\\kr_idx_02868fde7980.csv"
+}

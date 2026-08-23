@@ -1,0 +1,32 @@
+{
+  "value_chain": {
+    "id": "vc:us_nuclear",
+    "nickname": "us_nuclear",
+    "name": "US Nuclear Value Chain",
+    "status": "candidate",
+    "review_status": "pending"
+  },
+  "products": [
+    {"id": "product:us_nuclear:aurora-powerhouse", "name": "Aurora Powerhouse", "producer": "OKLO", "evidence_id": "ev:us_nuclear:OKLO:overview"},
+    {"id": "product:us_nuclear:nuscale-power-module", "name": "NuScale Power Module", "producer": "SMR", "evidence_id": "ev:us_nuclear:SMR:overview"},
+    {"id": "product:us_nuclear:enriched-uranium", "name": "Enriched uranium products", "producer": "LEU", "evidence_id": "ev:us_nuclear:LEU:overview"},
+    {"id": "product:us_nuclear:uranium-concentrates", "name": "Uranium concentrates", "producer": "UEC", "evidence_id": "ev:us_nuclear:UEC:overview"}
+  ],
+  "processes": [
+    {"id": "process:us_nuclear:fuel-recycling-fabrication", "name": "Nuclear fuel recycling and fabrication", "operator": "OKLO", "evidence_id": "ev:us_nuclear:OKLO:overview"},
+    {"id": "process:us_nuclear:reactor-licensing-operations", "name": "Reactor licensing and operations support", "operator": "SMR", "evidence_id": "ev:us_nuclear:SMR:overview"},
+    {"id": "process:us_nuclear:uranium-enrichment-services", "name": "Uranium enrichment and technical services", "operator": "LEU", "evidence_id": "ev:us_nuclear:LEU:overview"},
+    {"id": "process:us_nuclear:uranium-extraction-processing", "name": "Uranium extraction and processing", "operator": "UEC", "evidence_id": "ev:us_nuclear:UEC:overview"}
+  ],
+  "end_markets": [
+    {"id": "endmarket:us_nuclear:nuclear-power", "name": "Nuclear power generation", "evidence_id": "ev:us_nuclear:SMR:overview"}
+  ],
+  "demand_drivers": [],
+  "assertions": [],
+  "link_expansion": [],
+  "question_closure": {
+    "What role does each seed company play in the nuclear value chain?": "evidence-backed",
+    "Which bottlenecks and beneficiaries are supported by collected evidence?": "blocked-with-reason"
+  },
+  "limitations": ["Company overviews establish identity and disclosed business scope only; no bottleneck or beneficiary assertion is confirmed."]
+}

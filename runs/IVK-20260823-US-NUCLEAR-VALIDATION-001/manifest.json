@@ -1,0 +1,49 @@
+{
+  "contract_version": "ivk-run-0.1",
+  "run_id": "IVK-20260823-US-NUCLEAR-VALIDATION-001",
+  "operation": "new",
+  "target_vc": null,
+  "value_chain": {
+    "name": "us_nuclear",
+    "slug": "us-nuclear"
+  },
+  "status": "VERIFIED",
+  "last_completed_stage": "verify",
+  "next_command": "done",
+  "blockers": [],
+  "artifacts": {
+    "submitted_input": "submitted_input.json",
+    "intake": "intake.json",
+    "normalized": "normalized.json",
+    "intake_sha256": "ebfc1ba40228df90db15d2ed738fab102c0e37cec463c4ad91ec6b12b3652783",
+    "existing_graph": "existing_graph.json",
+    "blueprint": "blueprint.json",
+    "graph_snapshot_sha256": "a60c611ef0dee61e65e23fbb4cb4039c5a433930e4182fcf15d6fd00cf781195",
+    "source_plan": "source_plan.json",
+    "source_collection": "source_collection.json",
+    "evidence": "evidence_packet.json",
+    "ke": "ke_packet.json",
+    "write_manifest": "write_manifest.json",
+    "review": "review.json",
+    "write_batches": "write_batches.json",
+    "write_receipt": "write_receipt.json",
+    "verify": "verify.json",
+    "readback": "readback.json"
+  },
+  "pack_selection": {
+    "sector": "nuclear",
+    "regions": [
+      "us"
+    ],
+    "registry": "registry\\ivk_factory_packs.json",
+    "manifest": {
+      "frame": "matrix@1.0.0",
+      "sector": "bootstrap_nuclear@0.0.0",
+      "regions": [
+        "us@1.0.0"
+      ]
+    }
+  },
+  "created_at": "2026-08-23T05:19:58.001937+00:00",
+  "updated_at": "2026-08-23T05:24:28.859576+00:00"
+}

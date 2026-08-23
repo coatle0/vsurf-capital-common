@@ -1,0 +1,11 @@
+{
+  "contract": "gs-raw-snapshot-1.0",
+  "sheet": "us_idx",
+  "fn": "gs_idx",
+  "as_of": "2026-08-23",
+  "extracted_at": "2026-08-23T10:23:46+09:00",
+  "rows": 129,
+  "cols": 3,
+  "sha256": "690fa2bf28dbf681559cbf1a6e628b762a0043db5c87d8b0c52ae8bba00b6305",
+  "csv_path": "C:\\lab\\vsurf_capital\\common\\data\\gs_raw\\2026-08-23\\gs_idx\\us_idx_690fa2bf28db.csv"
+}

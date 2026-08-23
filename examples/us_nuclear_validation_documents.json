@@ -1,0 +1,52 @@
+{
+  "documents": [
+    {
+      "evidence_id": "ev:us_nuclear:OKLO:overview",
+      "ticker": "OKLO",
+      "company_id": "544611249",
+      "company_name": "Oklo Inc.",
+      "exchange": "NYSE",
+      "source_ref": "tikr.company_overview:OKLO",
+      "source_url": "https://www.oklo.com",
+      "source_date": "2026-08-23",
+      "collected_at": "2026-08-23",
+      "facts": ["Oklo develops fission power plants, including the Aurora Powerhouse, and is commercializing nuclear-fuel recycling and fabrication technology."]
+    },
+    {
+      "evidence_id": "ev:us_nuclear:SMR:overview",
+      "ticker": "SMR",
+      "company_id": "49439457",
+      "company_name": "NuScale Power Corporation",
+      "exchange": "NYSE",
+      "source_ref": "tikr.company_overview:SMR",
+      "source_url": "https://www.nuscalepower.com",
+      "source_date": "2026-08-23",
+      "collected_at": "2026-08-23",
+      "facts": ["NuScale provides small modular reactor technology, licensing support, commissioning, training, operations support, and nuclear-fuel management services."]
+    },
+    {
+      "evidence_id": "ev:us_nuclear:LEU:overview",
+      "ticker": "LEU",
+      "company_id": "36096",
+      "company_name": "Centrus Energy Corp.",
+      "exchange": "NYSE",
+      "source_ref": "tikr.company_overview:LEU",
+      "source_url": "https://www.centrusenergy.com",
+      "source_date": "2026-08-23",
+      "collected_at": "2026-08-23",
+      "facts": ["Centrus supplies nuclear-fuel components, enriched-uranium products, separative work units, and technical and manufacturing services."]
+    },
+    {
+      "evidence_id": "ev:us_nuclear:UEC:overview",
+      "ticker": "UEC",
+      "company_id": "23428489",
+      "company_name": "Uranium Energy Corp.",
+      "exchange": "NYSEAM",
+      "source_ref": "tikr.company_overview:UEC",
+      "source_url": "https://www.uraniumenergy.com",
+      "source_date": "2026-08-23",
+      "collected_at": "2026-08-23",
+      "facts": ["Uranium Energy engages in uranium exploration, pre-extraction, extraction, and processing in the United States, Canada, and Paraguay."]
+    }
+  ]
+}

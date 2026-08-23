@@ -1,0 +1,27 @@
+{
+  "contract_version": "ivk-review-0.1",
+  "run_id": "IVK-20260823-US-NUCLEAR-VALIDATION-001",
+  "path_status": "REVIEW_READY",
+  "source_documents": 4,
+  "companies": 4,
+  "confirmed_assertions": 0,
+  "pending_assertions": 0,
+  "question_closure": {
+    "What role does each seed company play in the nuclear value chain?": "evidence-backed",
+    "Which bottlenecks and beneficiaries are supported by collected evidence?": "blocked-with-reason"
+  },
+  "link_expansion": [],
+  "quality_gates": {
+    "all_nodes_have_provenance": true,
+    "auto_confirm": false,
+    "unsupported_assertions": 0,
+    "write_scope_limited": true,
+    "questions_closed": true,
+    "causal_record_present": false,
+    "counter_evidence_present": true,
+    "link_expansion_rechecked": false
+  },
+  "limitations": [
+    "Company overviews establish identity and disclosed business scope only; no bottleneck or beneficiary assertion is confirmed."
+  ]
+}

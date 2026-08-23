@@ -1,0 +1,37 @@
+{
+  "contract_version": "ivk-intake-1.0",
+  "operation": "new",
+  "target_vc": null,
+  "name": "REPLACE_WITH_VALUE_CHAIN_NAME",
+  "seed": [
+    "REPLACE_WITH_TICKER_OR_COMPANY_ID"
+  ],
+  "frame": "matrix",
+  "thesis": "REPLACE_WITH_INVESTMENT_THESIS",
+  "questions": [
+    "What are the primary earnings drivers in this value chain?",
+    "Where are the principal bottlenecks?",
+    "Which companies are the likely direct and indirect beneficiaries?",
+    "Which adjacent links should be investigated next?"
+  ],
+  "scope": [
+    "value_chain",
+    "financials",
+    "segment_results",
+    "inventory",
+    "capex",
+    "earnings_call",
+    "link_expansion"
+  ],
+  "known_links": [],
+  "limitations": [
+    "Seeds are starting points rather than the final value-chain boundary.",
+    "Candidates must not be promoted to confirmed without supporting evidence and review."
+  ],
+  "references": [],
+  "options": {
+    "periods": 5,
+    "auto_expand": false,
+    "write_policy": "approval_required"
+  }
+}

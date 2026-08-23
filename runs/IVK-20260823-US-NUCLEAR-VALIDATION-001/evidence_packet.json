@@ -1,0 +1,101 @@
+{
+  "contract_version": "ivk-evidence-packet-0.1",
+  "run_id": "IVK-20260823-US-NUCLEAR-VALIDATION-001",
+  "source_plan_contract": "ivk-source-plan-1.0",
+  "documents": [
+    {
+      "evidence_id": "ev:us_nuclear:OKLO:overview",
+      "ticker": "OKLO",
+      "company_id": "544611249",
+      "company_name": "Oklo Inc.",
+      "exchange": "NYSE",
+      "source_ref": "tikr.company_overview:OKLO",
+      "source_url": "https://www.oklo.com",
+      "source_date": "2026-08-23",
+      "collected_at": "2026-08-23",
+      "facts": [
+        "Oklo develops fission power plants, including the Aurora Powerhouse, and is commercializing nuclear-fuel recycling and fabrication technology."
+      ],
+      "source_type": "company_overview",
+      "publisher": "tikr",
+      "content_hash": "2c19e6081e8b41c2c0033dd3c4e84315124ffbc98b472d82ac5d568351eb262a",
+      "status": "collected",
+      "epistemic_status": "source_fact",
+      "review_status": "pending"
+    },
+    {
+      "evidence_id": "ev:us_nuclear:SMR:overview",
+      "ticker": "SMR",
+      "company_id": "49439457",
+      "company_name": "NuScale Power Corporation",
+      "exchange": "NYSE",
+      "source_ref": "tikr.company_overview:SMR",
+      "source_url": "https://www.nuscalepower.com",
+      "source_date": "2026-08-23",
+      "collected_at": "2026-08-23",
+      "facts": [
+        "NuScale provides small modular reactor technology, licensing support, commissioning, training, operations support, and nuclear-fuel management services."
+      ],
+      "source_type": "company_overview",
+      "publisher": "tikr",
+      "content_hash": "22b5939d1636e789b8fa9c726fce142162d84803234d942aa615a4c478418793",
+      "status": "collected",
+      "epistemic_status": "source_fact",
+      "review_status": "pending"
+    },
+    {
+      "evidence_id": "ev:us_nuclear:LEU:overview",
+      "ticker": "LEU",
+      "company_id": "36096",
+      "company_name": "Centrus Energy Corp.",
+      "exchange": "NYSE",
+      "source_ref": "tikr.company_overview:LEU",
+      "source_url": "https://www.centrusenergy.com",
+      "source_date": "2026-08-23",
+      "collected_at": "2026-08-23",
+      "facts": [
+        "Centrus supplies nuclear-fuel components, enriched-uranium products, separative work units, and technical and manufacturing services."
+      ],
+      "source_type": "company_overview",
+      "publisher": "tikr",
+      "content_hash": "76a4afaa3cf481b43992509e62ed1f7309ac4b11d6a91f27160e29465694f546",
+      "status": "collected",
+      "epistemic_status": "source_fact",
+      "review_status": "pending"
+    },
+    {
+      "evidence_id": "ev:us_nuclear:UEC:overview",
+      "ticker": "UEC",
+      "company_id": "23428489",
+      "company_name": "Uranium Energy Corp.",
+      "exchange": "NYSEAM",
+      "source_ref": "tikr.company_overview:UEC",
+      "source_url": "https://www.uraniumenergy.com",
+      "source_date": "2026-08-23",
+      "collected_at": "2026-08-23",
+      "facts": [
+        "Uranium Energy engages in uranium exploration, pre-extraction, extraction, and processing in the United States, Canada, and Paraguay."
+      ],
+      "source_type": "company_overview",
+      "publisher": "tikr",
+      "content_hash": "71008af028ac00f100d2930db360e62a29bb75fe9f88703e978b12a7681edb19",
+      "status": "collected",
+      "epistemic_status": "source_fact",
+      "review_status": "pending"
+    }
+  ],
+  "coverage": {
+    "resolved_seeds": [
+      "LEU",
+      "OKLO",
+      "SMR",
+      "UEC"
+    ],
+    "unresolved_seeds": [],
+    "questions": {
+      "What role does each seed company play in the nuclear value chain?": "evidence-backed",
+      "Which bottlenecks and beneficiaries are supported by collected evidence?": "blocked-with-reason"
+    }
+  },
+  "auto_confirm": false
+}

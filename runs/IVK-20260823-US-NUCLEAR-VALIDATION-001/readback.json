@@ -1,0 +1,39 @@
+{
+  "contract_version": "ivk-readback-0.1",
+  "run_id": "IVK-20260823-US-NUCLEAR-VALIDATION-001",
+  "ok": true,
+  "observed_at": "2026-08-23T00:00:00+09:00",
+  "database": "neo4j",
+  "identity": "bolt://127.0.0.1:7687",
+  "tool": "neo4j-official.read-cypher",
+  "value_chain": {
+    "id": "vc:us_nuclear",
+    "count": 1,
+    "nickname": "us_nuclear"
+  },
+  "members": 13,
+  "member_counts": {
+    "Company": 4,
+    "Product": 4,
+    "Process": 4,
+    "EndMarket": 1,
+    "DemandDriver": 0
+  },
+  "evidence": 4,
+  "evidence_complete": 4,
+  "confirmed_assertions": 0,
+  "duplicate_ids": 0,
+  "idempotency_replay": "PASS",
+  "existing_graph_guards": {
+    "us_optic_candidate_members": 16,
+    "powersemi_nodes": 0,
+    "sti_timeseries_counts": {
+      "FinancialPeriod": 55,
+      "InventorySnapshot": 56,
+      "SegmentResult": 148,
+      "BusinessSegment": 33,
+      "MonthlyRevenue": 18,
+      "ManagementCommentary": 6
+    }
+  }
+}

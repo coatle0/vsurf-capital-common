@@ -1,0 +1,36 @@
+{
+  "contract_version": "ivk-write-receipt-0.1",
+  "run_id": "IVK-20260823-US-NUCLEAR-VALIDATION-001",
+  "executed_at": "2026-08-23T00:00:00+09:00",
+  "database": "neo4j",
+  "identity": "bolt://127.0.0.1:7687",
+  "tool": "neo4j-official.write-cypher",
+  "approved_manifest": "write_manifest.json",
+  "batches": [
+    {
+      "name": "value_chain",
+      "ok": true
+    },
+    {
+      "name": "companies",
+      "ok": true
+    },
+    {
+      "name": "evidence",
+      "ok": true
+    },
+    {
+      "name": "products",
+      "ok": true
+    },
+    {
+      "name": "processes",
+      "ok": true
+    },
+    {
+      "name": "end_markets_drivers",
+      "ok": true
+    }
+  ],
+  "failed_batches": []
+}

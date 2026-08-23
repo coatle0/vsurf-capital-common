@@ -1,0 +1,66 @@
+{
+  "operation": "new",
+  "target_vc": null,
+  "identity": {
+    "name": "us_nuclear",
+    "slug": "us-nuclear"
+  },
+  "validated_seeds": [
+    {
+      "input": "OKLO",
+      "canonical_id": "OKLO",
+      "kind": "ticker_or_company_id",
+      "role": "starting_point"
+    },
+    {
+      "input": "SMR",
+      "canonical_id": "SMR",
+      "kind": "ticker_or_company_id",
+      "role": "starting_point"
+    },
+    {
+      "input": "LEU",
+      "canonical_id": "LEU",
+      "kind": "ticker_or_company_id",
+      "role": "starting_point"
+    },
+    {
+      "input": "UEC",
+      "canonical_id": "UEC",
+      "kind": "ticker_or_company_id",
+      "role": "starting_point"
+    }
+  ],
+  "primary_frame": "Matrix",
+  "frame_ref": {
+    "id": "matrix",
+    "version": "1.0.0",
+    "nickname": "matrix",
+    "input": "matrix"
+  },
+  "secondary_frame_candidates": [],
+  "thesis": "Advanced nuclear deployment may connect reactor developers with nuclear-fuel and uranium suppliers.",
+  "questions": [
+    "What role does each seed company play in the nuclear value chain?",
+    "Which bottlenecks and beneficiaries are supported by collected evidence?"
+  ],
+  "scope": [
+    "value_chain",
+    "products",
+    "processes",
+    "end_markets",
+    "counter_evidence"
+  ],
+  "known_links": [],
+  "limitations": [
+    "This validation run uses TIKR company overviews for identity and business-scope evidence only."
+  ],
+  "references": [
+    "gs://signals/us_idx/nuclear_idx"
+  ],
+  "options": {
+    "periods": 5,
+    "auto_expand": false,
+    "write_policy": "approval_required"
+  }
+}

@@ -1,0 +1,208 @@
+{
+  "contract_version": "ivk-source-plan-1.0",
+  "created_at": "2026-08-23T05:19:58.495827+00:00",
+  "value_chain": {
+    "name": "us_nuclear",
+    "slug": "us-nuclear",
+    "operation": "new",
+    "target_vc": null
+  },
+  "blueprint_contract": "ivk-blueprint-1.0",
+  "pack_manifest": {
+    "frame": "matrix@1.0.0",
+    "sector": "bootstrap_nuclear@0.0.0",
+    "regions": [
+      "us@1.0.0"
+    ]
+  },
+  "pack_policy": {
+    "mode": "bootstrap",
+    "requested_sector": "nuclear",
+    "reusable_sector_pack": false,
+    "core_revision_required": false,
+    "review_status": "bootstrap_pending"
+  },
+  "evidence_policy": {
+    "primary_source_first": true,
+    "reuse_by_content_hash": true,
+    "auto_confirm": false,
+    "canonical_graph_read": "neo4j-official.read_cypher"
+  },
+  "tasks": [
+    {
+      "seed": "OKLO",
+      "task_type": "entity_resolution",
+      "priority": 1,
+      "topics": [
+        "identity",
+        "exchange",
+        "ticker"
+      ],
+      "source_adapters": [
+        "tikr",
+        "sec",
+        "company_ir",
+        "earnings_call"
+      ]
+    },
+    {
+      "seed": "OKLO",
+      "task_type": "evidence_collection",
+      "priority": 2,
+      "topics": [
+        "cluster_members",
+        "clustering_basis",
+        "comparison_axes",
+        "shared_driver",
+        "differentiators"
+      ],
+      "source_adapters": [
+        "tikr",
+        "sec",
+        "company_ir",
+        "earnings_call"
+      ]
+    },
+    {
+      "seed": "SMR",
+      "task_type": "entity_resolution",
+      "priority": 1,
+      "topics": [
+        "identity",
+        "exchange",
+        "ticker"
+      ],
+      "source_adapters": [
+        "tikr",
+        "sec",
+        "company_ir",
+        "earnings_call"
+      ]
+    },
+    {
+      "seed": "SMR",
+      "task_type": "evidence_collection",
+      "priority": 2,
+      "topics": [
+        "cluster_members",
+        "clustering_basis",
+        "comparison_axes",
+        "shared_driver",
+        "differentiators"
+      ],
+      "source_adapters": [
+        "tikr",
+        "sec",
+        "company_ir",
+        "earnings_call"
+      ]
+    },
+    {
+      "seed": "LEU",
+      "task_type": "entity_resolution",
+      "priority": 1,
+      "topics": [
+        "identity",
+        "exchange",
+        "ticker"
+      ],
+      "source_adapters": [
+        "tikr",
+        "sec",
+        "company_ir",
+        "earnings_call"
+      ]
+    },
+    {
+      "seed": "LEU",
+      "task_type": "evidence_collection",
+      "priority": 2,
+      "topics": [
+        "cluster_members",
+        "clustering_basis",
+        "comparison_axes",
+        "shared_driver",
+        "differentiators"
+      ],
+      "source_adapters": [
+        "tikr",
+        "sec",
+        "company_ir",
+        "earnings_call"
+      ]
+    },
+    {
+      "seed": "UEC",
+      "task_type": "entity_resolution",
+      "priority": 1,
+      "topics": [
+        "identity",
+        "exchange",
+        "ticker"
+      ],
+      "source_adapters": [
+        "tikr",
+        "sec",
+        "company_ir",
+        "earnings_call"
+      ]
+    },
+    {
+      "seed": "UEC",
+      "task_type": "evidence_collection",
+      "priority": 2,
+      "topics": [
+        "cluster_members",
+        "clustering_basis",
+        "comparison_axes",
+        "shared_driver",
+        "differentiators"
+      ],
+      "source_adapters": [
+        "tikr",
+        "sec",
+        "company_ir",
+        "earnings_call"
+      ]
+    },
+    {
+      "seed": null,
+      "task_type": "question_evidence",
+      "priority": 3,
+      "requirement_id": "question:1",
+      "question": "What role does each seed company play in the nuclear value chain?",
+      "source_adapters": [
+        "tikr",
+        "sec",
+        "company_ir",
+        "earnings_call"
+      ]
+    },
+    {
+      "seed": null,
+      "task_type": "question_evidence",
+      "priority": 3,
+      "requirement_id": "question:2",
+      "question": "Which bottlenecks and beneficiaries are supported by collected evidence?",
+      "source_adapters": [
+        "tikr",
+        "sec",
+        "company_ir",
+        "earnings_call"
+      ]
+    }
+  ],
+  "token_budgets": {
+    "source_planning": 5000,
+    "evidence_extraction": 50000,
+    "synthesis": 15000,
+    "exception_review": 10000,
+    "final_report": 5000
+  },
+  "stop_conditions": [
+    "cluster_members_undefined",
+    "comparison_axis_undefined",
+    "no_primary_source"
+  ],
+  "status": "planned"
+}

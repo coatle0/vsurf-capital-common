@@ -1,0 +1,208 @@
+{
+  "contract_version": "ivk-neo4j-write-manifest-0.1",
+  "run_id": "IVK-20260823-US-NUCLEAR-VALIDATION-001",
+  "approved_scope": "candidate ValueChain, companies, evidence, structure membership, pending causal records",
+  "neo4j_write_status": "write_confirmed",
+  "idempotent": true,
+  "auto_confirm": false,
+  "value_chain": {
+    "id": "vc:us_nuclear",
+    "nickname": "us_nuclear",
+    "name": "US Nuclear Value Chain",
+    "status": "candidate",
+    "review_status": "pending"
+  },
+  "companies": [
+    {
+      "id": "company:OKLO",
+      "ticker": "OKLO",
+      "name": "Oklo Inc.",
+      "exchange": "NYSE",
+      "tikr_cid": "544611249",
+      "evidence_id": "ev:us_nuclear:OKLO:overview",
+      "status": "candidate",
+      "review_status": "pending"
+    },
+    {
+      "id": "company:SMR",
+      "ticker": "SMR",
+      "name": "NuScale Power Corporation",
+      "exchange": "NYSE",
+      "tikr_cid": "49439457",
+      "evidence_id": "ev:us_nuclear:SMR:overview",
+      "status": "candidate",
+      "review_status": "pending"
+    },
+    {
+      "id": "company:LEU",
+      "ticker": "LEU",
+      "name": "Centrus Energy Corp.",
+      "exchange": "NYSE",
+      "tikr_cid": "36096",
+      "evidence_id": "ev:us_nuclear:LEU:overview",
+      "status": "candidate",
+      "review_status": "pending"
+    },
+    {
+      "id": "company:UEC",
+      "ticker": "UEC",
+      "name": "Uranium Energy Corp.",
+      "exchange": "NYSEAM",
+      "tikr_cid": "23428489",
+      "evidence_id": "ev:us_nuclear:UEC:overview",
+      "status": "candidate",
+      "review_status": "pending"
+    }
+  ],
+  "products": [
+    {
+      "id": "product:us_nuclear:aurora-powerhouse",
+      "name": "Aurora Powerhouse",
+      "producer": "OKLO",
+      "evidence_id": "ev:us_nuclear:OKLO:overview"
+    },
+    {
+      "id": "product:us_nuclear:nuscale-power-module",
+      "name": "NuScale Power Module",
+      "producer": "SMR",
+      "evidence_id": "ev:us_nuclear:SMR:overview"
+    },
+    {
+      "id": "product:us_nuclear:enriched-uranium",
+      "name": "Enriched uranium products",
+      "producer": "LEU",
+      "evidence_id": "ev:us_nuclear:LEU:overview"
+    },
+    {
+      "id": "product:us_nuclear:uranium-concentrates",
+      "name": "Uranium concentrates",
+      "producer": "UEC",
+      "evidence_id": "ev:us_nuclear:UEC:overview"
+    }
+  ],
+  "processes": [
+    {
+      "id": "process:us_nuclear:fuel-recycling-fabrication",
+      "name": "Nuclear fuel recycling and fabrication",
+      "operator": "OKLO",
+      "evidence_id": "ev:us_nuclear:OKLO:overview"
+    },
+    {
+      "id": "process:us_nuclear:reactor-licensing-operations",
+      "name": "Reactor licensing and operations support",
+      "operator": "SMR",
+      "evidence_id": "ev:us_nuclear:SMR:overview"
+    },
+    {
+      "id": "process:us_nuclear:uranium-enrichment-services",
+      "name": "Uranium enrichment and technical services",
+      "operator": "LEU",
+      "evidence_id": "ev:us_nuclear:LEU:overview"
+    },
+    {
+      "id": "process:us_nuclear:uranium-extraction-processing",
+      "name": "Uranium extraction and processing",
+      "operator": "UEC",
+      "evidence_id": "ev:us_nuclear:UEC:overview"
+    }
+  ],
+  "end_markets": [
+    {
+      "id": "endmarket:us_nuclear:nuclear-power",
+      "name": "Nuclear power generation",
+      "evidence_id": "ev:us_nuclear:SMR:overview"
+    }
+  ],
+  "demand_drivers": [],
+  "assertions": [],
+  "evidence": [
+    {
+      "id": "ev:us_nuclear:OKLO:overview",
+      "ticker": "OKLO",
+      "source_ref": "tikr.company_overview:OKLO",
+      "content_hash": "2c19e6081e8b41c2c0033dd3c4e84315124ffbc98b472d82ac5d568351eb262a",
+      "source_url": "https://www.oklo.com",
+      "source_date": "2026-08-23",
+      "collected_at": "2026-08-23",
+      "source_type": "company_overview",
+      "publisher": "tikr"
+    },
+    {
+      "id": "ev:us_nuclear:SMR:overview",
+      "ticker": "SMR",
+      "source_ref": "tikr.company_overview:SMR",
+      "content_hash": "22b5939d1636e789b8fa9c726fce142162d84803234d942aa615a4c478418793",
+      "source_url": "https://www.nuscalepower.com",
+      "source_date": "2026-08-23",
+      "collected_at": "2026-08-23",
+      "source_type": "company_overview",
+      "publisher": "tikr"
+    },
+    {
+      "id": "ev:us_nuclear:LEU:overview",
+      "ticker": "LEU",
+      "source_ref": "tikr.company_overview:LEU",
+      "content_hash": "76a4afaa3cf481b43992509e62ed1f7309ac4b11d6a91f27160e29465694f546",
+      "source_url": "https://www.centrusenergy.com",
+      "source_date": "2026-08-23",
+      "collected_at": "2026-08-23",
+      "source_type": "company_overview",
+      "publisher": "tikr"
+    },
+    {
+      "id": "ev:us_nuclear:UEC:overview",
+      "ticker": "UEC",
+      "source_ref": "tikr.company_overview:UEC",
+      "content_hash": "71008af028ac00f100d2930db360e62a29bb75fe9f88703e978b12a7681edb19",
+      "source_url": "https://www.uraniumenergy.com",
+      "source_date": "2026-08-23",
+      "collected_at": "2026-08-23",
+      "source_type": "company_overview",
+      "publisher": "tikr"
+    }
+  ],
+  "sti_protected_labels": [
+    "FinancialPeriod",
+    "InventorySnapshot",
+    "SegmentResult",
+    "BusinessSegment",
+    "MonthlyRevenue",
+    "ManagementCommentary"
+  ],
+  "write_receipt": {
+    "contract_version": "ivk-write-receipt-0.1",
+    "run_id": "IVK-20260823-US-NUCLEAR-VALIDATION-001",
+    "executed_at": "2026-08-23T00:00:00+09:00",
+    "database": "neo4j",
+    "identity": "bolt://127.0.0.1:7687",
+    "tool": "neo4j-official.write-cypher",
+    "approved_manifest": "write_manifest.json",
+    "batches": [
+      {
+        "name": "value_chain",
+        "ok": true
+      },
+      {
+        "name": "companies",
+        "ok": true
+      },
+      {
+        "name": "evidence",
+        "ok": true
+      },
+      {
+        "name": "products",
+        "ok": true
+      },
+      {
+        "name": "processes",
+        "ok": true
+      },
+      {
+        "name": "end_markets_drivers",
+        "ok": true
+      }
+    ],
+    "failed_batches": []
+  }
+}

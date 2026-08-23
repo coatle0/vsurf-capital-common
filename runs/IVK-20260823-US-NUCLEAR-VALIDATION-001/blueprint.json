@@ -1,0 +1,199 @@
+{
+  "contract_version": "ivk-blueprint-1.0",
+  "raw_input": {
+    "contract_version": "ivk-intake-1.0",
+    "operation": "new",
+    "target_vc": null,
+    "name": "us_nuclear",
+    "seed": [
+      "OKLO",
+      "SMR",
+      "LEU",
+      "UEC"
+    ],
+    "frame": "matrix",
+    "thesis": "Advanced nuclear deployment may connect reactor developers with nuclear-fuel and uranium suppliers.",
+    "questions": [
+      "What role does each seed company play in the nuclear value chain?",
+      "Which bottlenecks and beneficiaries are supported by collected evidence?"
+    ],
+    "scope": [
+      "value_chain",
+      "products",
+      "processes",
+      "end_markets",
+      "counter_evidence"
+    ],
+    "known_links": [],
+    "limitations": [
+      "This validation run uses TIKR company overviews for identity and business-scope evidence only."
+    ],
+    "references": [
+      "gs://signals/us_idx/nuclear_idx"
+    ],
+    "options": {
+      "periods": 5,
+      "auto_expand": false,
+      "write_policy": "approval_required"
+    }
+  },
+  "normalized": {
+    "operation": "new",
+    "target_vc": null,
+    "identity": {
+      "name": "us_nuclear",
+      "slug": "us-nuclear"
+    },
+    "validated_seeds": [
+      {
+        "input": "OKLO",
+        "canonical_id": "OKLO",
+        "kind": "ticker_or_company_id",
+        "role": "starting_point"
+      },
+      {
+        "input": "SMR",
+        "canonical_id": "SMR",
+        "kind": "ticker_or_company_id",
+        "role": "starting_point"
+      },
+      {
+        "input": "LEU",
+        "canonical_id": "LEU",
+        "kind": "ticker_or_company_id",
+        "role": "starting_point"
+      },
+      {
+        "input": "UEC",
+        "canonical_id": "UEC",
+        "kind": "ticker_or_company_id",
+        "role": "starting_point"
+      }
+    ],
+    "primary_frame": "Matrix",
+    "frame_ref": {
+      "id": "matrix",
+      "version": "1.0.0",
+      "nickname": "matrix",
+      "input": "matrix"
+    },
+    "secondary_frame_candidates": [],
+    "thesis": "Advanced nuclear deployment may connect reactor developers with nuclear-fuel and uranium suppliers.",
+    "questions": [
+      "What role does each seed company play in the nuclear value chain?",
+      "Which bottlenecks and beneficiaries are supported by collected evidence?"
+    ],
+    "scope": [
+      "value_chain",
+      "products",
+      "processes",
+      "end_markets",
+      "counter_evidence"
+    ],
+    "known_links": [],
+    "limitations": [
+      "This validation run uses TIKR company overviews for identity and business-scope evidence only."
+    ],
+    "references": [
+      "gs://signals/us_idx/nuclear_idx"
+    ],
+    "options": {
+      "periods": 5,
+      "auto_expand": false,
+      "write_policy": "approval_required"
+    }
+  },
+  "unresolved_seeds": [
+    {
+      "seed": "OKLO",
+      "reason": "no matching Company in live canonical read",
+      "disposition": "retain_as_starting_point"
+    },
+    {
+      "seed": "SMR",
+      "reason": "no matching Company in live canonical read",
+      "disposition": "retain_as_starting_point"
+    },
+    {
+      "seed": "LEU",
+      "reason": "no matching Company in live canonical read",
+      "disposition": "retain_as_starting_point"
+    },
+    {
+      "seed": "UEC",
+      "reason": "no matching Company in live canonical read",
+      "disposition": "retain_as_starting_point"
+    }
+  ],
+  "excluded_seeds": [],
+  "existing_graph": {
+    "read_path": "neo4j-official.read_cypher",
+    "observed_at": "2026-08-23T05:19:58.360097+00:00",
+    "findings": [
+      {
+        "seed": "OKLO",
+        "company": null,
+        "epistemic_status": "graph_observation",
+        "review_status": "pending"
+      },
+      {
+        "seed": "SMR",
+        "company": null,
+        "epistemic_status": "graph_observation",
+        "review_status": "pending"
+      },
+      {
+        "seed": "LEU",
+        "company": null,
+        "epistemic_status": "graph_observation",
+        "review_status": "pending"
+      },
+      {
+        "seed": "UEC",
+        "company": null,
+        "epistemic_status": "graph_observation",
+        "review_status": "pending"
+      }
+    ]
+  },
+  "initial_value_chain": {
+    "nodes": [],
+    "links": [],
+    "status": "hypothesis",
+    "review_status": "pending"
+  },
+  "candidate_slots": {
+    "drivers": [],
+    "bottlenecks": [],
+    "beneficiaries": []
+  },
+  "link_expansion_frontier": [],
+  "source_requirements": [
+    {
+      "question": "What role does each seed company play in the nuclear value chain?",
+      "status": "required",
+      "evidence": []
+    },
+    {
+      "question": "Which bottlenecks and beneficiaries are supported by collected evidence?",
+      "status": "required",
+      "evidence": []
+    }
+  ],
+  "epistemic_policy": {
+    "allowed_status": [
+      "fact",
+      "graph_observation",
+      "hypothesis",
+      "inference"
+    ],
+    "allowed_review_status": [
+      "accepted",
+      "deferred",
+      "pending",
+      "rejected"
+    ],
+    "auto_confirm": false
+  },
+  "review_status": "pending"
+}

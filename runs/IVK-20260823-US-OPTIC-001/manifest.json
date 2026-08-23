@@ -1,0 +1,40 @@
+{
+  "contract_version": "ivk-run-0.1",
+  "run_id": "IVK-20260823-US-OPTIC-001",
+  "operation": "new",
+  "target_vc": null,
+  "value_chain": {
+    "name": "US optic Ecosystem",
+    "slug": "us-optic-ecosystem"
+  },
+  "status": "PLANNED",
+  "last_completed_stage": "plan",
+  "next_command": "external source collection / Phase 2 quality run",
+  "blockers": [],
+  "artifacts": {
+    "submitted_input": "submitted_input.json",
+    "intake": "intake.json",
+    "normalized": "normalized.json",
+    "intake_sha256": "0a085c00abfc81e067dceb3c9bf2facb8d3092272feb42d2a5710651e46e80cc",
+    "existing_graph": "existing_graph.json",
+    "blueprint": "blueprint.json",
+    "graph_snapshot_sha256": "da963b175e9fd73f5cd999a085372839253bbaf70ea3c4a1a8b7a8cd2dd7b6a4",
+    "source_plan": "source_plan.json"
+  },
+  "pack_selection": {
+    "sector": "optical_communications",
+    "regions": [
+      "us"
+    ],
+    "registry": "registry\\ivk_factory_packs.json",
+    "manifest": {
+      "frame": "matrix@1.0.0",
+      "sector": "bootstrap_optical_communications@0.0.0",
+      "regions": [
+        "us@1.0.0"
+      ]
+    }
+  },
+  "created_at": "2026-08-23T01:51:32.655216+00:00",
+  "updated_at": "2026-08-23T01:51:36.432475+00:00"
+}
