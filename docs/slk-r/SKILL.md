@@ -13,7 +13,7 @@ Call `slack_read_channel` once. Pick the ID locally. Do not search channels.
 |---|---|---|
 | 없음, skl | `#vsurf-skill` | `C0BR8722F6C` |
 | rpt | `#vsurf-code-reports` | `C0BSX931CPJ` |
-| agt | `#vsurf-agent-control` | `C0BS4RXHV25` |
+| agt, agnt | `#vsurf-agent-control` | `C0BS4RXHV25` |
 
 Unknown name → stop. Do not call `slack_search_channels`.
 
