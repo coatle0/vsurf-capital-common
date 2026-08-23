@@ -147,6 +147,60 @@ class IVKLifecycleTests(unittest.TestCase):
         self.assertNotEqual(0, result.returncode)
         self.assertIn("rejected", (result.stdout + result.stderr).lower())
 
+    def test_build_runs_deterministic_pipeline_to_batch_ready(self):
+        result = self._cli(
+            "build",
+            "--input", str(self.intake),
+            "--run-id", "RUN-BUILD-001",
+            "--runs-dir", str(self.runs),
+            "--graph-results", str(self.graph),
+            "--documents", str(ROOT / "examples/ivk_lifecycle_fixture_documents.json"),
+            "--structure", str(ROOT / "examples/ivk_lifecycle_fixture_structure.json"),
+            "--sector", "generic_test",
+            "--region", "us",
+        )
+        self.assertEqual(0, result.returncode, result.stderr + result.stdout)
+        manifest = read_json(self.runs / "RUN-BUILD-001/manifest.json")
+        self.assertEqual("BATCH_READY", manifest["status"])
+        self.assertEqual("BATCH_READY", manifest["build_summary"]["terminal_status"])
+        self.assertFalse(manifest["build_summary"]["live_write_proven"])
+        self.assertTrue((self.runs / "RUN-BUILD-001/write_batches.json").exists())
+
+    def test_build_rejects_readback_without_receipt(self):
+        fake_readback = Path(self.temp.name) / "readback.json"
+        fake_readback.write_text(json.dumps({"ok": True}), encoding="utf-8")
+        result = self._cli(
+            "build",
+            "--input", str(self.intake),
+            "--run-id", "RUN-BUILD-INVALID",
+            "--runs-dir", str(self.runs),
+            "--graph-results", str(self.graph),
+            "--documents", str(ROOT / "examples/ivk_lifecycle_fixture_documents.json"),
+            "--sector", "generic_test",
+            "--region", "us",
+            "--readback", str(fake_readback),
+        )
+        self.assertNotEqual(0, result.returncode)
+        self.assertIn("requires --receipt", result.stdout)
+
+    def test_build_rejects_missing_neo4j_executor_before_write(self):
+        result = self._cli(
+            "build",
+            "--input", str(self.intake),
+            "--run-id", "RUN-BUILD-NO-EXECUTOR",
+            "--runs-dir", str(self.runs),
+            "--graph-results", str(self.graph),
+            "--documents", str(ROOT / "examples/ivk_lifecycle_fixture_documents.json"),
+            "--sector", "generic_test",
+            "--region", "us",
+            "--execute-neo4j",
+            "--neo4j-python", str(Path(self.temp.name) / "missing-python.exe"),
+        )
+        self.assertNotEqual(0, result.returncode)
+        self.assertIn("interpreter not found", result.stdout)
+        manifest = read_json(self.runs / "RUN-BUILD-NO-EXECUTOR/manifest.json")
+        self.assertEqual("BATCH_READY", manifest["status"])
+
 
 if __name__ == "__main__":
     unittest.main()

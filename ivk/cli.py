@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import subprocess
 import sys
 from pathlib import Path
 from typing import Any
@@ -19,6 +20,7 @@ from .kernel import (
     plan_run,
     read_json,
     resume_run,
+    save_manifest,
 )
 from .lifecycle import (
     LifecycleError,
@@ -106,6 +108,35 @@ def build_parser() -> argparse.ArgumentParser:
         command_parser = sub.add_parser(command)
         add_execution_arguments(command_parser, input_required=True)
 
+    build = sub.add_parser(
+        "build",
+        help="Run Intake -> Plan -> Collection -> KE -> Review -> write batches in one command.",
+    )
+    add_execution_arguments(build, input_required=True)
+    build.add_argument("--documents", type=Path, required=True)
+    build.add_argument("--structure", type=Path)
+    build.add_argument(
+        "--receipt",
+        type=Path,
+        help="Optional live Neo4j write receipt; advances BATCH_READY to WRITE_CONFIRMED.",
+    )
+    build.add_argument(
+        "--readback",
+        type=Path,
+        help="Optional live Neo4j read-back; requires --receipt and advances to VERIFIED.",
+    )
+    build.add_argument(
+        "--execute-neo4j",
+        action="store_true",
+        help="Execute emitted batches, replay idempotency, and verify live Neo4j automatically.",
+    )
+    build.add_argument(
+        "--neo4j-python",
+        type=Path,
+        default=Path(r"C:\lab\knowgraph\vendor\neo4j-mcp\.venv\Scripts\python.exe"),
+        help="Python interpreter containing the official neo4j driver.",
+    )
+
     status = sub.add_parser("status")
     status.add_argument("--run-id", required=True)
     status.add_argument("--runs-dir", type=Path, default=DEFAULT_RUNS)
@@ -189,6 +220,151 @@ def dispatch(args: argparse.Namespace) -> dict[str, Any]:
     if args.command in {"run", "new", "add", "update", "expand"}:
         expected = None if args.command == "run" else args.command
         return run_from_input(args, expected)
+    if args.command == "build":
+        if not args.graph_results or not args.sector or not args.region:
+            raise IntakeValidationError(
+                "build requires --graph-results, --sector, and at least one --region"
+            )
+        if args.readback and not args.receipt:
+            raise LifecycleError("build --readback requires --receipt")
+        if args.execute_neo4j and (args.receipt or args.readback):
+            raise LifecycleError(
+                "build --execute-neo4j cannot be combined with external --receipt/--readback"
+            )
+
+        submitted = read_json(args.input)
+        canonical = validate_intake(submitted)
+        manifest = initialize_run(args.input, args.runs_dir, args.run_id)
+        run_id = manifest["run_id"]
+        manifest = plan_run(
+            args.runs_dir,
+            run_id,
+            graph_results=args.graph_results,
+            registry_path=args.registry,
+            sector=args.sector,
+            regions=args.region,
+        )
+        root, manifest = load_manifest(args.runs_dir, run_id)
+        plan = read_json(root / manifest["artifacts"]["source_plan"])
+
+        raw = read_json(args.documents)
+        documents = raw["documents"] if isinstance(raw, dict) and "documents" in raw else raw
+        collection = collect_stage(plan, documents, run_id=run_id)
+        manifest = persist_stage(
+            args.runs_dir,
+            run_id,
+            "ingest-sources",
+            {"source_collection": collection},
+            next_command=f"python -m ivk ke --run-id {run_id}",
+        )
+
+        structure = read_json(args.structure) if args.structure else {}
+        packets = ke_stage(plan, collection, structure=structure)
+        packets["write_batches"] = write_batches(packets["write_manifest"])
+        manifest = persist_stage(
+            args.runs_dir,
+            run_id,
+            "ke",
+            {**packets, "write_batches": packets["write_batches"]},
+            next_command=f"python -m ivk review --run-id {run_id}",
+        )
+        validate_packets(packets)
+        review_packet = packets["review"]
+        review_packet["path_status"] = "REVIEW_READY"
+        manifest = persist_stage(
+            args.runs_dir,
+            run_id,
+            "review",
+            {"review": review_packet},
+            next_command=f"python -m ivk emit-write-batches --run-id {run_id}",
+        )
+
+        write_manifest = packets["write_manifest"]
+        batches = write_batches(write_manifest)
+        write_manifest["neo4j_write_status"] = "batches_emitted_not_written"
+        manifest = persist_stage(
+            args.runs_dir,
+            run_id,
+            "emit-write-batches",
+            {"write_batches": batches, "write_manifest": write_manifest},
+            next_command=f"python -m ivk confirm-write --run-id {run_id} --receipt <write_receipt.json>",
+        )
+
+        if args.execute_neo4j:
+            if not args.neo4j_python.is_file():
+                raise LifecycleError(f"Neo4j Python interpreter not found: {args.neo4j_python}")
+            receipt_path = root / "write_receipt.json"
+            readback_path = root / "readback.json"
+            executor = Path(__file__).resolve().parents[1] / "scripts" / "ivk_neo4j_executor.py"
+            completed = subprocess.run(
+                [
+                    str(args.neo4j_python),
+                    str(executor),
+                    "--batches", str(root / "write_batches.json"),
+                    "--receipt", str(receipt_path),
+                    "--readback", str(readback_path),
+                    "--run-id", run_id,
+                    "--vc-id", packets["ke"]["value_chain"]["id"],
+                ],
+                capture_output=True,
+                text=True,
+                encoding="utf-8",
+                check=False,
+            )
+            if completed.returncode != 0:
+                message = (completed.stderr or completed.stdout or "unknown executor error").strip()
+                raise LifecycleError(f"live Neo4j execution failed: {message}")
+            args.receipt = receipt_path
+            args.readback = readback_path
+
+        if args.receipt:
+            receipt = read_json(args.receipt)
+            validate_write_receipt(
+                receipt,
+                run_id=run_id,
+                expected_batches=[item["name"] for item in batches],
+            )
+            write_manifest["neo4j_write_status"] = "write_confirmed"
+            write_manifest["write_receipt"] = receipt
+            manifest = persist_stage(
+                args.runs_dir,
+                run_id,
+                "confirm-write",
+                {"write_receipt": receipt, "write_manifest": write_manifest},
+                next_command=f"python -m ivk verify --run-id {run_id} --readback <readback.json>",
+            )
+
+        if args.readback:
+            readback = read_json(args.readback)
+            validate_readback(
+                readback,
+                run_id=run_id,
+                vc_id=packets["ke"]["value_chain"]["id"],
+            )
+            report = {
+                "ok": True,
+                "run_id": run_id,
+                "proof": "live_readback",
+                "readback": readback,
+                "write_receipt": read_json(root / "write_receipt.json"),
+            }
+            manifest = persist_stage(
+                args.runs_dir,
+                run_id,
+                "verify",
+                {"verify": report, "readback": readback},
+                next_command="done",
+            )
+
+        manifest["build_summary"] = {
+            "input_operation": canonical["operation"],
+            "terminal_status": manifest["status"],
+            "live_write_proven": bool(args.receipt),
+            "live_readback_proven": bool(args.readback),
+        }
+        root, _ = load_manifest(args.runs_dir, run_id)
+        save_manifest(root, manifest)
+        return manifest
     if args.command == "status":
         return load_manifest(args.runs_dir, args.run_id)[1]
     if args.command == "resume":
