@@ -1,0 +1,62 @@
+[
+  {
+    "name": "value_chain",
+    "query": "MERGE (vc:ValueChain {id:$id}) SET vc.nickname=$nickname, vc.name=$name, vc.status=$status, vc.review_status=$review_status, vc.run_id=$run_id, vc.as_of=$as_of RETURN vc.id AS id, vc.nickname AS nickname",
+    "params": {
+      "id": "vc:kr_tse_write_validation",
+      "nickname": "kr_tse_write_validation",
+      "name": "KR TSE Write Validation",
+      "status": "candidate",
+      "review_status": "pending",
+      "run_id": "IVK-20260824-KR-TSE-WRITE-001",
+      "as_of": "2026-08-23"
+    }
+  },
+  {
+    "name": "companies",
+    "query": "UNWIND $rows AS row MERGE (c:Company {id:row.id}) SET c.security_id=row.security_id, c.ticker=row.ticker, c.name=row.name, c.name_en=coalesce(row.name_en,c.name_en), c.name_local=coalesce(row.name_local,c.name_local), c.country=coalesce(row.country,c.country), c.exchange=row.exchange, c.provider=row.provider, c.provider_id=row.provider_id, c.tikr_cid=CASE WHEN row.provider='tikr' THEN row.tikr_cid ELSE c.tikr_cid END, c.status=row.status, c.review_status=row.review_status, c.run_id=$run_id WITH c, row MATCH (vc:ValueChain {id:$vc_id}) MERGE (c)-[m:CANDIDATE_IN]->(vc) SET m.status='candidate', m.review_status='pending', m.evidence_id=row.evidence_id, m.run_id=$run_id RETURN c.ticker AS ticker, m.status AS membership_status",
+    "params": {
+      "rows": [
+        {
+          "id": "company:tse",
+          "security_id": "KR:131290",
+          "ticker": "131290",
+          "name": "티에스이",
+          "name_local": "티에스이",
+          "name_en": null,
+          "country": "KR",
+          "exchange": "KOSDAQ",
+          "provider": "dart",
+          "provider_id": "00132757",
+          "tikr_cid": "00132757",
+          "evidence_id": "ev:kr_tse_write_validation:131290:2026q1",
+          "status": "candidate",
+          "review_status": "pending"
+        }
+      ],
+      "vc_id": "vc:kr_tse_write_validation",
+      "run_id": "IVK-20260824-KR-TSE-WRITE-001"
+    }
+  },
+  {
+    "name": "evidence",
+    "query": "UNWIND $rows AS row MERGE (e:Evidence {id:row.id}) SET e.source_ref=row.source_ref, e.source_url=row.source_url, e.source_date=row.source_date, e.content_hash=row.content_hash, e.collected_at=row.collected_at, e.source_type=row.source_type, e.publisher=row.publisher, e.status='pending', e.run_id=$run_id WITH e, row MATCH (c:Company {id:row.company_node_id}) MERGE (c)-[:SUPPORTED_BY {run_id:$run_id}]->(e) RETURN e.id AS id",
+    "params": {
+      "rows": [
+        {
+          "id": "ev:kr_tse_write_validation:131290:2026q1",
+          "ticker": "131290",
+          "company_node_id": "company:tse",
+          "source_ref": "dart.quarterly_report:20260515001493",
+          "content_hash": "04f2b0766dcc17bd021d057567327c6e29b3d2f4159c85da468272e2c0253610",
+          "source_url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260515001493",
+          "source_date": "2026-05-15",
+          "collected_at": "2026-08-24",
+          "source_type": "quarterly_report",
+          "publisher": "dart"
+        }
+      ],
+      "run_id": "IVK-20260824-KR-TSE-WRITE-001"
+    }
+  }
+]

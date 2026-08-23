@@ -1,0 +1,34 @@
+[
+  {
+    "seed": "KR:131290",
+    "company": {
+      "id": "company:tse",
+      "ticker": "131290",
+      "name": "티에스이"
+    },
+    "value_chain": [
+      {
+        "relationship": "EXPOSED_TO",
+        "entity_type": "EndMarket",
+        "id": "market:dram",
+        "name": "DRAM / HBM",
+        "status": "supplemental"
+      },
+      {
+        "relationship": "OPERATES_IN",
+        "entity_type": "Process",
+        "id": "stage:wafer_test",
+        "name": "Wafer Test Cell",
+        "status": "reported"
+      },
+      {
+        "relationship": "PRODUCES",
+        "entity_type": "Product",
+        "id": "product:probe_card",
+        "name": "Probe Card",
+        "status": "reported"
+      }
+    ],
+    "assertions": []
+  }
+]

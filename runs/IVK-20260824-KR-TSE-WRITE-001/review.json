@@ -1,0 +1,26 @@
+{
+  "contract_version": "ivk-review-0.1",
+  "run_id": "IVK-20260824-KR-TSE-WRITE-001",
+  "path_status": "REVIEW_READY",
+  "source_documents": 1,
+  "companies": 1,
+  "confirmed_assertions": 0,
+  "pending_assertions": 0,
+  "question_closure": {
+    "기존 티에스이 Company ID를 유지하면서 후보 Value Chain에 연결되는가?": "evidence-backed"
+  },
+  "link_expansion": [],
+  "quality_gates": {
+    "all_nodes_have_provenance": true,
+    "auto_confirm": false,
+    "unsupported_assertions": 0,
+    "write_scope_limited": true,
+    "questions_closed": true,
+    "causal_record_present": false,
+    "counter_evidence_present": true,
+    "link_expansion_rechecked": false
+  },
+  "limitations": [
+    "식별자 재사용과 멱등성 검증에 한정한다."
+  ]
+}

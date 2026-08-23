@@ -1,0 +1,32 @@
+{
+  "contract_version": "ivk-source-collection-0.1",
+  "run_id": "IVK-20260824-KR-TSE-WRITE-001",
+  "collected_at": "2026-08-23",
+  "value_chain_id": "vc:kr_tse_write_validation",
+  "documents": [
+    {
+      "evidence_id": "ev:kr_tse_write_validation:131290:2026q1",
+      "ticker": "131290",
+      "company_id": "00132757",
+      "company_name": "티에스이",
+      "name_local": "티에스이",
+      "country": "KR",
+      "exchange": "KOSDAQ",
+      "provider": "dart",
+      "provider_id": "00132757",
+      "security_id": "KR:131290",
+      "source_ref": "dart.quarterly_report:20260515001493",
+      "source_url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260515001493",
+      "source_date": "2026-05-15",
+      "collected_at": "2026-08-24",
+      "source_type": "quarterly_report",
+      "publisher": "dart",
+      "facts": [
+        "티에스이는 반도체 검사 관련 제품과 사업을 공시한 한국 상장기업이다."
+      ],
+      "content_hash": "04f2b0766dcc17bd021d057567327c6e29b3d2f4159c85da468272e2c0253610",
+      "status": "collected"
+    }
+  ],
+  "auto_confirm": false
+}

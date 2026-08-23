@@ -1,0 +1,164 @@
+{
+  "contract_version": "ivk-blueprint-1.0",
+  "raw_input": {
+    "contract_version": "ivk-intake-1.0",
+    "operation": "new",
+    "target_vc": null,
+    "name": "kr_tse_write_validation",
+    "seed": [
+      "KR:131290|티에스이"
+    ],
+    "frame": "svb",
+    "thesis": "티에스이의 기존 Company 노드를 재사용하는 다국가 IVK write 경로를 검증한다.",
+    "questions": [
+      "기존 티에스이 Company ID를 유지하면서 후보 Value Chain에 연결되는가?"
+    ],
+    "scope": [
+      "value_chain",
+      "company_identity",
+      "provenance"
+    ],
+    "known_links": [],
+    "limitations": [
+      "본 파일럿은 식별자와 write 멱등성 검증용이며 STI급 재무 커버리지를 주장하지 않는다."
+    ],
+    "references": [
+      "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260515001493"
+    ],
+    "options": {
+      "periods": 5,
+      "auto_expand": false,
+      "write_policy": "approval_required"
+    }
+  },
+  "normalized": {
+    "operation": "new",
+    "target_vc": null,
+    "identity": {
+      "name": "kr_tse_write_validation",
+      "slug": "kr-tse-write-validation"
+    },
+    "validated_seeds": [
+      {
+        "input": "KR:131290|티에스이",
+        "canonical_id": "KR:131290",
+        "market": "kr",
+        "exchange": null,
+        "ticker": "131290",
+        "company_name": "티에스이",
+        "provider": "dart",
+        "provider_ids": {
+          "dart": "131290"
+        },
+        "kind": "ticker_or_company_id",
+        "role": "starting_point"
+      }
+    ],
+    "primary_frame": "Sponsor→Value Chain→Bottleneck",
+    "frame_ref": {
+      "id": "sponsor_valuechain_bottleneck",
+      "version": "1.0.0",
+      "nickname": "svb",
+      "input": "svb"
+    },
+    "secondary_frame_candidates": [],
+    "thesis": "티에스이의 기존 Company 노드를 재사용하는 다국가 IVK write 경로를 검증한다.",
+    "questions": [
+      "기존 티에스이 Company ID를 유지하면서 후보 Value Chain에 연결되는가?"
+    ],
+    "scope": [
+      "value_chain",
+      "company_identity",
+      "provenance"
+    ],
+    "known_links": [],
+    "limitations": [
+      "본 파일럿은 식별자와 write 멱등성 검증용이며 STI급 재무 커버리지를 주장하지 않는다."
+    ],
+    "references": [
+      "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260515001493"
+    ],
+    "options": {
+      "periods": 5,
+      "auto_expand": false,
+      "write_policy": "approval_required"
+    }
+  },
+  "unresolved_seeds": [],
+  "excluded_seeds": [],
+  "existing_graph": {
+    "read_path": "neo4j-official.read_cypher",
+    "observed_at": "2026-08-23T22:59:58.943838+00:00",
+    "findings": [
+      {
+        "seed": "KR:131290",
+        "company": {
+          "id": "company:tse",
+          "ticker": "131290",
+          "name": "티에스이"
+        },
+        "value_chain": [
+          {
+            "relationship": "EXPOSED_TO",
+            "entity_type": "EndMarket",
+            "id": "market:dram",
+            "name": "DRAM / HBM",
+            "status": "supplemental"
+          },
+          {
+            "relationship": "OPERATES_IN",
+            "entity_type": "Process",
+            "id": "stage:wafer_test",
+            "name": "Wafer Test Cell",
+            "status": "reported"
+          },
+          {
+            "relationship": "PRODUCES",
+            "entity_type": "Product",
+            "id": "product:probe_card",
+            "name": "Probe Card",
+            "status": "reported"
+          }
+        ],
+        "assertions": [],
+        "epistemic_status": "graph_observation",
+        "review_status": "pending"
+      }
+    ]
+  },
+  "initial_value_chain": {
+    "nodes": [],
+    "links": [],
+    "status": "hypothesis",
+    "review_status": "pending"
+  },
+  "candidate_slots": {
+    "drivers": [],
+    "bottlenecks": [],
+    "beneficiaries": []
+  },
+  "link_expansion_frontier": [],
+  "source_requirements": [
+    {
+      "question": "기존 티에스이 Company ID를 유지하면서 후보 Value Chain에 연결되는가?",
+      "status": "required",
+      "evidence": []
+    }
+  ],
+  "epistemic_policy": {
+    "allowed_status": [
+      "fact",
+      "graph_observation",
+      "hypothesis",
+      "inference"
+    ],
+    "allowed_review_status": [
+      "accepted",
+      "deferred",
+      "pending",
+      "rejected"
+    ],
+    "auto_confirm": false
+  },
+  "review_status": "pending"
+}

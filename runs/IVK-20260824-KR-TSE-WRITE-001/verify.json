@@ -1,0 +1,68 @@
+{
+  "ok": true,
+  "run_id": "IVK-20260824-KR-TSE-WRITE-001",
+  "proof": "live_readback",
+  "readback": {
+    "contract_version": "ivk-readback-0.1",
+    "run_id": "IVK-20260824-KR-TSE-WRITE-001",
+    "ok": true,
+    "observed_at": "2026-08-23T23:00:03.996074+00:00",
+    "database": "neo4j",
+    "identity": "bolt://127.0.0.1:7687",
+    "tool": "ivk.neo4j-driver",
+    "value_chain": {
+      "id": "vc:kr_tse_write_validation",
+      "count": 1,
+      "nickname": "kr_tse_write_validation"
+    },
+    "members": 1,
+    "evidence": 1,
+    "evidence_complete": 1,
+    "confirmed_assertions": 0,
+    "duplicate_ids": 0,
+    "idempotency_replay": "PASS"
+  },
+  "write_receipt": {
+    "contract_version": "ivk-write-receipt-0.1",
+    "run_id": "IVK-20260824-KR-TSE-WRITE-001",
+    "executed_at": "2026-08-23T23:00:03.996074+00:00",
+    "database": "neo4j",
+    "identity": "bolt://127.0.0.1:7687",
+    "tool": "ivk.neo4j-driver",
+    "batches": [
+      {
+        "name": "value_chain",
+        "ok": true,
+        "row_count": 1
+      },
+      {
+        "name": "companies",
+        "ok": true,
+        "row_count": 1
+      },
+      {
+        "name": "evidence",
+        "ok": true,
+        "row_count": 1
+      }
+    ],
+    "idempotency_replay": [
+      {
+        "name": "value_chain",
+        "ok": true,
+        "row_count": 1
+      },
+      {
+        "name": "companies",
+        "ok": true,
+        "row_count": 1
+      },
+      {
+        "name": "evidence",
+        "ok": true,
+        "row_count": 1
+      }
+    ],
+    "failed_batches": []
+  }
+}
