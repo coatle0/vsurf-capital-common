@@ -276,11 +276,16 @@ def build_source_plan(blueprint: dict[str, Any], selection: PackSelection) -> di
     tasks = []
     for seed in seeds:
         canonical = seed["canonical_id"]
+        seed_adapters = ["dart"] if seed.get("market") == "kr" else adapters
+        identity = {key: seed.get(key) for key in (
+            "canonical_id", "ticker", "company_name", "market", "exchange", "provider", "provider_ids"
+        )}
         if canonical in unresolved:
             tasks.append({"seed": canonical, "task_type": "entity_resolution", "priority": 1,
-                          "topics": ["identity", "exchange", "ticker"], "source_adapters": adapters})
+                          "identity": identity, "topics": ["identity", "exchange", "ticker", "company_name"],
+                          "source_adapters": seed_adapters})
         tasks.append({"seed": canonical, "task_type": "evidence_collection", "priority": 2,
-                      "topics": topics, "source_adapters": adapters})
+                      "identity": identity, "topics": topics, "source_adapters": seed_adapters})
     for index, item in enumerate(blueprint.get("source_requirements", []), start=1):
         tasks.append({"seed": None, "task_type": "question_evidence", "priority": 3,
                       "requirement_id": f"question:{index}", "question": item.get("question"),

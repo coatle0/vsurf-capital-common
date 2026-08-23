@@ -4,7 +4,9 @@
 
 Required input fields are `name`, `seed`, `frame`, and `thesis`. `questions` is recommended; `known_links`, `limitations`, and `references` are optional arrays. Unknown fields, missing or blank required values, an empty seed array, normalized duplicate seeds, non-string entries, and malformed field types are rejected with `IntakeValidationError`. The Blueprint retains `raw_input` alongside `normalized`.
 
-The Intake is always mixed-market and has no `market` field. US symbols remain plain (`NVDA`, `FORM`) while numeric Asian symbols use a short prefix: `KR:131290`, `JP:6855`, or `TW:6515`. They normalize to `KRX:131290`, `TSE:6855`, and `TWSE:6515`; the Korean TIKR provider ID is derived as `A131290`. A numeric seed without a prefix is rejected instead of being assigned to a country.
+The Intake is always mixed-market and has no `market` field. US symbols remain plain (`NVDA`, `FORM`) while numeric Asian symbols use a short prefix: `KR:131290`, `JP:6855`, or `TW:6515`. They normalize to `KRX:131290`, `TSE:6855`, and `TWSE:6515`; Korean identifiers route to DART as the six-digit code. A numeric seed without a prefix is rejected instead of being assigned to a country.
+
+For non-US numeric securities, retain the human-readable company name with `|`: `KR:131290|티에스이`, `JP:6855|Japan Electronic Materials`, `TW:6515|WinWay Technology`. Normalization preserves `canonical_id`, `ticker`, `company_name`, market/exchange, and provider routing. Korean seeds route to DART; US, Japanese, and Taiwanese listed-company seeds route to TIKR/market sources. The Neo4j writer keeps the legacy `Company.id` while adding `security_id`, country, exchange, local/English names, provider, and provider ID.
 
 Existing graph reads must use `neo4j-official.read_cypher`. Call `existing_graph_query()` with `params={"seeds": [...]}` and save the returned row array as JSON. The CLI deliberately accepts only this captured result; it does not fall back to an investment-kg API or write to Neo4j.
 

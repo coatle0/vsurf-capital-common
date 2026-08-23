@@ -143,7 +143,12 @@ def _canonical_seed(value: str) -> str:
 
 
 def _seed_identity(value: str) -> dict[str, Any]:
-    normalized = " ".join(value.strip().split())
+    parts = value.split("|", 1)
+    identifier = parts[0].strip()
+    company_name = parts[1].strip() if len(parts) == 2 else None
+    if len(parts) == 2 and not company_name:
+        raise IntakeValidationError(f"seed has an empty company name: {value}")
+    normalized = " ".join(identifier.split())
     upper = normalized.upper() if " " not in normalized else normalized
     if ":" in upper:
         prefix, ticker = upper.split(":", 1)
@@ -151,18 +156,24 @@ def _seed_identity(value: str) -> dict[str, Any]:
             raise IntakeValidationError(f"seed has an empty ticker: {value}")
         if prefix in US_EXCHANGES:
             return {"canonical_id": ticker, "market": "us", "exchange": prefix if prefix != "US" else None,
-                    "ticker": ticker, "provider_ids": {"tikr": ticker}}
+                    "ticker": ticker, "company_name": company_name, "provider": "tikr",
+                    "provider_ids": {"tikr": ticker}}
         if prefix not in PREFIX_MARKETS:
             raise IntakeValidationError(f"unsupported seed market prefix: {prefix}")
         market, exchange = PREFIX_MARKETS[prefix]
         provider = f"A{ticker}" if market == "kr" else ticker
+        source_provider = "dart" if market == "kr" else "tikr"
+        provider_ids = {source_provider: ticker if market == "kr" else provider}
         return {"canonical_id": f"{exchange}:{ticker}", "market": market, "exchange": exchange,
-                "ticker": ticker, "provider_ids": {"tikr": provider}}
+                "ticker": ticker, "company_name": company_name, "provider": source_provider,
+                "provider_ids": provider_ids}
     if " " in upper:
-        return {"canonical_id": upper, "market": None, "exchange": None, "ticker": None, "provider_ids": {}}
+        return {"canonical_id": upper, "market": None, "exchange": None, "ticker": None,
+                "company_name": company_name or upper, "provider": "resolver", "provider_ids": {}}
     if upper.isdigit():
         raise IntakeValidationError(f"numeric seed '{value}' requires KR:, JP:, or TW:")
     return {"canonical_id": upper, "market": "us", "exchange": None, "ticker": upper,
+            "company_name": company_name, "provider": "tikr",
             "provider_ids": {"tikr": upper}}
 
 

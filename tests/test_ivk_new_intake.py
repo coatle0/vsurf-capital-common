@@ -35,13 +35,16 @@ class IVKNewIntakeTests(unittest.TestCase):
 
     def test_mixed_market_normalizes_us_kr_jp_tw(self):
         raw = dict(self.raw)
-        raw["seed"] = ["NVDA", "FORM", "KR:131290", "JP:6855", "TW:6515"]
+        raw["seed"] = ["NVDA", "FORM", "KR:131290|티에스이", "JP:6855|Japan Electronic Materials", "TW:6515|WinWay Technology"]
         seeds = normalize_intake(raw)["validated_seeds"]
         self.assertEqual(
             ["NVDA", "FORM", "KRX:131290", "TSE:6855", "TWSE:6515"],
             [seed["canonical_id"] for seed in seeds],
         )
-        self.assertEqual("A131290", seeds[2]["provider_ids"]["tikr"])
+        self.assertEqual("131290", seeds[2]["provider_ids"]["dart"])
+        self.assertEqual("티에스이", seeds[2]["company_name"])
+        self.assertEqual("Japan Electronic Materials", seeds[3]["company_name"])
+        self.assertEqual("WinWay Technology", seeds[4]["company_name"])
 
     def test_mixed_market_rejects_unprefixed_numeric_seed(self):
         raw = dict(self.raw)

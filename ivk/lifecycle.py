@@ -119,11 +119,21 @@ def ke_stage(
             if ticker in seen:
                 continue
             seen.add(ticker)
+            country = doc.get("country")
+            security_id = doc.get("security_id") or (
+                f"{country}:{ticker}" if country in {"KR", "JP", "TW"} else ticker
+            )
             companies.append({
                 "id": f"company:{ticker}",
+                "security_id": security_id,
                 "ticker": ticker,
                 "name": doc["company_name"],
+                "name_local": doc.get("name_local"),
+                "name_en": doc.get("name_en"),
+                "country": country,
                 "exchange": doc["exchange"],
+                "provider": doc.get("provider") or ("dart" if country == "KR" else "tikr"),
+                "provider_id": str(doc.get("provider_id") or doc["company_id"]),
                 "tikr_cid": str(doc["company_id"]),
                 "evidence_id": doc["evidence_id"],
                 "status": "candidate",
@@ -284,8 +294,11 @@ def write_batches(manifest: dict[str, Any]) -> list[dict[str, Any]]:
             "name": "companies",
             "query": (
                 "UNWIND $rows AS row MERGE (c:Company {id:row.id}) "
-                "SET c.ticker=row.ticker, c.name=row.name, c.name_en=row.name, "
-                "c.exchange=row.exchange, c.tikr_cid=row.tikr_cid, c.status=row.status, "
+                "SET c.security_id=row.security_id, c.ticker=row.ticker, c.name=row.name, "
+                "c.name_en=coalesce(row.name_en,c.name_en), c.name_local=coalesce(row.name_local,c.name_local), "
+                "c.country=coalesce(row.country,c.country), c.exchange=row.exchange, "
+                "c.provider=row.provider, c.provider_id=row.provider_id, "
+                "c.tikr_cid=CASE WHEN row.provider='tikr' THEN row.tikr_cid ELSE c.tikr_cid END, c.status=row.status, "
                 "c.review_status=row.review_status, c.run_id=$run_id "
                 "WITH c, row MATCH (vc:ValueChain {id:$vc_id}) "
                 "MERGE (c)-[m:CANDIDATE_IN]->(vc) "

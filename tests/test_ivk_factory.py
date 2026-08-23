@@ -1,4 +1,5 @@
 import json
+from copy import deepcopy
 import sys
 import tempfile
 import unittest
@@ -39,6 +40,23 @@ class IVKFactoryPhaseATests(unittest.TestCase):
         self.assertFalse(plan["evidence_policy"]["auto_confirm"])
         self.assertEqual(50000, plan["token_budgets"]["evidence_extraction"])
         self.assertIn("earnings_call", plan["tasks"][0]["source_adapters"])
+
+    def test_korean_seed_routes_only_to_dart_and_keeps_name(self):
+        blueprint = deepcopy(self.blueprint)
+        blueprint["normalized"]["validated_seeds"] = [{
+            "canonical_id": "KRX:131290", "ticker": "131290", "company_name": "티에스이",
+            "market": "kr", "exchange": "KRX", "provider": "dart",
+            "provider_ids": {"dart": "131290"},
+        }]
+        blueprint["unresolved_seeds"] = [{"seed": "KRX:131290"}]
+        selection = self.registry.select(
+            frame=self.blueprint["normalized"]["primary_frame"], sector="semiconductor_optical", regions=["us"]
+        )
+        plan = build_source_plan(blueprint, selection)
+        seed_tasks = [item for item in plan["tasks"] if item.get("seed") == "KRX:131290"]
+        self.assertTrue(seed_tasks)
+        self.assertTrue(all(item["source_adapters"] == ["dart"] for item in seed_tasks))
+        self.assertTrue(all(item["identity"]["company_name"] == "티에스이" for item in seed_tasks))
 
     def test_evidence_store_deduplicates_and_reuses_extraction(self):
         with tempfile.TemporaryDirectory() as tmp:
