@@ -431,13 +431,27 @@ def extract_reported_periods(payload: dict[str, Any], *, ticker: str, limit: int
     return rows
 
 
-def benchmark_stage(axes: list[dict[str, Any]], *, run_id: str) -> dict[str, Any]:
+def benchmark_stage(
+    axes: list[dict[str, Any]],
+    *,
+    run_id: str,
+    score_kind: str,
+    scorer: str,
+    rubric_version: str,
+    evidence: str,
+) -> dict[str, Any]:
+    if score_kind not in {"self-score", "independent-score"}:
+        raise LifecycleError("benchmark score_kind must be self-score or independent-score")
     sti_total = sum(int(item["sti"]) for item in axes)
     ours = sum(int(item["score"]) for item in axes)
     return {
         "contract_version": "ivk-quality-benchmark-0.1",
         "run_id": run_id,
+        "score_kind": score_kind,
+        "scorer": scorer,
         "rubric": "order-142-six-axis-0-4",
+        "rubric_version": rubric_version,
+        "evidence": evidence,
         "axes": axes,
         "sti_total": sti_total,
         "score_total": ours,
@@ -445,30 +459,129 @@ def benchmark_stage(axes: list[dict[str, Any]], *, run_id: str) -> dict[str, Any
     }
 
 
-def persist_stage(runs_dir, run_id: str, stage: str, artifacts: dict[str, Any], *, next_command: str) -> dict[str, Any]:
+STAGE_STATUS = {
+    "ingest-sources": "COLLECTION_ARTIFACT_READY",
+    "collect": "COLLECTION_ARTIFACT_READY",
+    "normalize-evidence": "EVIDENCE_NORMALIZED",
+    "repair": "EVIDENCE_NORMALIZED",
+    "ke": "KE_READY",
+    "review": "REVIEW_READY",
+    "emit-write-batches": "BATCH_READY",
+    "write": "BATCH_READY",
+    "confirm-write": "WRITE_CONFIRMED",
+    "verify": "VERIFIED",
+    "enrich": "ARTIFACT_ENRICHED",
+}
+
+ALLOWED_FROM = {
+    "ingest-sources": {"PLANNED", "COLLECTION_ARTIFACT_READY", "EVIDENCE_NORMALIZED", "COLLECT", "REPAIR"},
+    "collect": {"PLANNED", "COLLECTION_ARTIFACT_READY", "EVIDENCE_NORMALIZED", "COLLECT", "REPAIR"},
+    "normalize-evidence": {"COLLECTION_ARTIFACT_READY", "COLLECT", "EVIDENCE_NORMALIZED", "REPAIR", "KE_READY", "KE"},
+    "repair": {"COLLECTION_ARTIFACT_READY", "COLLECT", "EVIDENCE_NORMALIZED", "REPAIR", "KE_READY", "KE"},
+    "ke": {
+        "COLLECTION_ARTIFACT_READY", "EVIDENCE_NORMALIZED", "ARTIFACT_ENRICHED",
+        "COLLECT", "REPAIR", "ENRICH", "KE", "KE_READY",
+    },
+    "review": {"KE_READY", "KE", "REVIEW_READY", "REVIEW"},
+    "emit-write-batches": {
+        "REVIEW_READY", "REVIEW", "KE_READY", "BATCH_READY", "WRITTEN", "VERIFIED",
+        "BENCHMARK", "ENRICH", "ARTIFACT_ENRICHED", "WRITE_CONFIRMED",
+    },
+    "write": {
+        "REVIEW_READY", "REVIEW", "KE_READY", "BATCH_READY", "WRITTEN", "VERIFIED",
+        "BENCHMARK", "ENRICH", "ARTIFACT_ENRICHED", "WRITE_CONFIRMED",
+    },
+    "confirm-write": {"BATCH_READY"},
+    "verify": {"WRITE_CONFIRMED"},
+    "enrich": {
+        "KE_READY", "KE", "REVIEW_READY", "BATCH_READY", "WRITE_CONFIRMED",
+        "ARTIFACT_ENRICHED", "ENRICH", "VERIFIED", "WRITTEN", "BENCHMARK",
+        "COLLECTION_ARTIFACT_READY",
+    },
+    "benchmark": None,
+}
+
+ARTIFACT_NAMES = {
+    "source_collection": "source_collection.json",
+    "evidence": "evidence_packet.json",
+    "ke": "ke_packet.json",
+    "write_manifest": "write_manifest.json",
+    "review": "review.json",
+    "write_batches": "write_batches.json",
+    "quality": "quality_benchmark.json",
+    "financials": "financial_enrichment.json",
+    "verify": "verify.json",
+    "write_receipt": "write_receipt.json",
+    "readback": "readback.json",
+}
+
+
+def require_status(manifest: dict[str, Any], command: str) -> None:
+    allowed = ALLOWED_FROM.get(command)
+    if allowed is None:
+        return
+    status = manifest.get("status")
+    if status not in allowed:
+        raise LifecycleError(
+            f"command {command} rejected: status {status} is not in {sorted(allowed)}"
+        )
+
+
+def validate_write_receipt(receipt: dict[str, Any], *, run_id: str, expected_batches: list[str]) -> None:
+    if receipt.get("contract_version") != "ivk-write-receipt-0.1":
+        raise LifecycleError("write receipt contract_version must be ivk-write-receipt-0.1")
+    if receipt.get("run_id") != run_id:
+        raise LifecycleError("write receipt run_id mismatch")
+    if not receipt.get("executed_at"):
+        raise LifecycleError("write receipt missing executed_at")
+    if not receipt.get("database") or not receipt.get("identity"):
+        raise LifecycleError("write receipt missing database identity")
+    if receipt.get("failed_batches"):
+        raise LifecycleError("write receipt contains failed batches")
+    names = [item.get("name") for item in receipt.get("batches") or [] if item.get("ok")]
+    missing = [name for name in expected_batches if name not in names]
+    if missing:
+        raise LifecycleError(f"write receipt missing ok batches: {', '.join(missing)}")
+
+
+def validate_readback(readback: dict[str, Any], *, run_id: str, vc_id: str) -> None:
+    if readback.get("contract_version") != "ivk-readback-0.1":
+        raise LifecycleError("readback contract_version must be ivk-readback-0.1")
+    if readback.get("run_id") != run_id:
+        raise LifecycleError("readback run_id mismatch")
+    if not readback.get("observed_at"):
+        raise LifecycleError("readback missing observed_at")
+    vc = readback.get("value_chain") or {}
+    if vc.get("id") != vc_id or int(vc.get("count") or 0) != 1:
+        raise LifecycleError("readback must show canonical ValueChain count=1")
+    if int(readback.get("confirmed_assertions") or 0) != 0:
+        raise LifecycleError("readback confirmed assertions must be 0")
+    if int(readback.get("evidence_complete") or 0) < 1:
+        raise LifecycleError("readback evidence_complete missing")
+    if readback.get("ok") is not True:
+        raise LifecycleError("readback ok must be true")
+
+
+def persist_stage(
+    runs_dir,
+    run_id: str,
+    stage: str,
+    artifacts: dict[str, Any],
+    *,
+    next_command: str,
+    status: str | None = None,
+) -> dict[str, Any]:
     root, manifest = load_manifest(runs_dir, run_id)
-    names = {
-        "source_collection": "source_collection.json",
-        "evidence": "evidence_packet.json",
-        "ke": "ke_packet.json",
-        "write_manifest": "write_manifest.json",
-        "review": "review.json",
-        "write_batches": "write_batches.json",
-        "quality": "quality_benchmark.json",
-        "financials": "financial_enrichment.json",
-        "verify": "verify.json",
-    }
     for key, value in artifacts.items():
-        write_json_atomic(root / names.get(key, f"{key}.json"), value)
-        manifest.setdefault("artifacts", {})[key] = names.get(key, f"{key}.json")
+        write_json_atomic(root / ARTIFACT_NAMES.get(key, f"{key}.json"), value)
+        manifest.setdefault("artifacts", {})[key] = ARTIFACT_NAMES.get(key, f"{key}.json")
     manifest["last_completed_stage"] = stage
     manifest["next_command"] = next_command
-    if stage == "write":
-        manifest["status"] = "WRITTEN"
-    elif stage == "verify":
-        manifest["status"] = "VERIFIED"
-    elif stage in {"collect", "ke", "review", "benchmark", "enrich", "repair"}:
-        manifest["status"] = stage.upper()
+    resolved = status if status is not None else STAGE_STATUS.get(stage)
+    if resolved:
+        if resolved in {"WRITTEN", "VERIFIED"} and stage in {"write", "emit-write-batches"}:
+            raise LifecycleError("batch emission cannot set WRITTEN or VERIFIED")
+        manifest["status"] = resolved
     save_manifest(root, manifest)
     return deepcopy(manifest)
 

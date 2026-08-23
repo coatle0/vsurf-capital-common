@@ -1,13 +1,15 @@
 import json
+import subprocess
 import sys
 import tempfile
 import unittest
+from datetime import datetime, timezone
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from ivk.kernel import initialize_run, plan_run
+from ivk.kernel import initialize_run, plan_run, read_json
 from ivk.lifecycle import LifecycleError, collect_stage, ke_stage, validate_packets, write_batches
 
 
@@ -60,6 +62,90 @@ class IVKLifecycleTests(unittest.TestCase):
         collection = collect_stage(plan, self.docs["documents"], run_id="RUN-FIXTURE-001")
         packets = ke_stage(plan, collection, structure=self.structure)
         self.assertIn(packets["ke"]["link_expansion"][0]["decision"], {"candidate_pending_source"})
+
+    def _cli(self, *args: str) -> subprocess.CompletedProcess[str]:
+        return subprocess.run(
+            [sys.executable, "-m", "ivk", *args],
+            cwd=ROOT, capture_output=True, text=True, encoding="utf-8",
+        )
+
+    def _fixture_to_batches(self) -> Path:
+        self._plan()
+        runs = str(self.runs)
+        for args in (
+            ["ingest-sources", "--run-id", "RUN-FIXTURE-001", "--runs-dir", runs,
+             "--documents", str(ROOT / "examples/ivk_lifecycle_fixture_documents.json")],
+            ["ke", "--run-id", "RUN-FIXTURE-001", "--runs-dir", runs,
+             "--structure", str(ROOT / "examples/ivk_lifecycle_fixture_structure.json")],
+            ["review", "--run-id", "RUN-FIXTURE-001", "--runs-dir", runs],
+            ["emit-write-batches", "--run-id", "RUN-FIXTURE-001", "--runs-dir", runs],
+        ):
+            result = self._cli(*args)
+            self.assertEqual(0, result.returncode, result.stderr + result.stdout)
+        return self.runs / "RUN-FIXTURE-001"
+
+    def test_cli_fixture_stops_at_batch_ready(self):
+        root = self._fixture_to_batches()
+        manifest = read_json(root / "manifest.json")
+        self.assertEqual("BATCH_READY", manifest["status"])
+        self.assertNotEqual("WRITTEN", manifest["status"])
+        self.assertNotEqual("VERIFIED", manifest["status"])
+        verify = self._cli("verify", "--run-id", "RUN-FIXTURE-001", "--runs-dir", str(self.runs))
+        self.assertNotEqual(0, verify.returncode)
+        text = (verify.stdout + verify.stderr).lower()
+        self.assertTrue("readback" in text or "write_confirmed" in text, text)
+        self.assertEqual("BATCH_READY", read_json(root / "manifest.json")["status"])
+
+    def test_write_without_receipt_is_not_written(self):
+        root = self._fixture_to_batches()
+        alias = self._cli("write", "--run-id", "RUN-FIXTURE-001", "--runs-dir", str(self.runs))
+        self.assertEqual(0, alias.returncode, alias.stdout)
+        self.assertEqual("BATCH_READY", read_json(root / "manifest.json")["status"])
+
+    def test_confirm_write_and_verify_require_proof(self):
+        root = self._fixture_to_batches()
+        bad_receipt = root / "bad_receipt.json"
+        bad_receipt.write_text(json.dumps({"contract_version": "nope", "run_id": "RUN-FIXTURE-001"}), encoding="utf-8")
+        denied = self._cli(
+            "confirm-write", "--run-id", "RUN-FIXTURE-001", "--runs-dir", str(self.runs),
+            "--receipt", str(bad_receipt),
+        )
+        self.assertNotEqual(0, denied.returncode)
+        self.assertEqual("BATCH_READY", read_json(root / "manifest.json")["status"])
+        batches = read_json(root / "write_batches.json")
+        receipt = {
+            "contract_version": "ivk-write-receipt-0.1",
+            "run_id": "RUN-FIXTURE-001",
+            "executed_at": datetime.now(timezone.utc).isoformat(),
+            "database": "neo4j",
+            "identity": "bolt://fixture-dry-run",
+            "batches": [{"name": item["name"], "ok": True, "result": []} for item in batches],
+            "failed_batches": [],
+        }
+        receipt_path = root / "write_receipt.json"
+        receipt_path.write_text(json.dumps(receipt), encoding="utf-8")
+        confirmed = self._cli(
+            "confirm-write", "--run-id", "RUN-FIXTURE-001", "--runs-dir", str(self.runs),
+            "--receipt", str(receipt_path),
+        )
+        self.assertEqual(0, confirmed.returncode, confirmed.stdout)
+        self.assertEqual("WRITE_CONFIRMED", read_json(root / "manifest.json")["status"])
+        missing_rb = self._cli("verify", "--run-id", "RUN-FIXTURE-001", "--runs-dir", str(self.runs))
+        self.assertNotEqual(0, missing_rb.returncode)
+        fake_rb = root / "fake_readback.json"
+        fake_rb.write_text(json.dumps({"ok": True}), encoding="utf-8")
+        fake = self._cli(
+            "verify", "--run-id", "RUN-FIXTURE-001", "--runs-dir", str(self.runs),
+            "--readback", str(fake_rb),
+        )
+        self.assertNotEqual(0, fake.returncode)
+        self.assertEqual("WRITE_CONFIRMED", read_json(root / "manifest.json")["status"])
+
+    def test_stage_order_violation_rejected(self):
+        initialize_run(self.intake, self.runs, "RUN-FIXTURE-001")
+        result = self._cli("ke", "--run-id", "RUN-FIXTURE-001", "--runs-dir", str(self.runs))
+        self.assertNotEqual(0, result.returncode)
+        self.assertIn("rejected", (result.stdout + result.stderr).lower())
 
 
 if __name__ == "__main__":

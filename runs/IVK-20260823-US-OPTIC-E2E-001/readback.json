@@ -1,0 +1,46 @@
+{
+  "contract_version": "ivk-readback-0.1",
+  "run_id": "IVK-20260823-US-OPTIC-E2E-001",
+  "ok": true,
+  "observed_at": "2026-08-23T04:20:30+00:00",
+  "database": "neo4j",
+  "identity": "bolt://127.0.0.1:7687",
+  "tool": "neo4j-official.read-cypher",
+  "value_chain": {
+    "id": "vc:us_optic",
+    "count": 1,
+    "nickname": "us_optic"
+  },
+  "members": 16,
+  "member_labels": [
+    "Company",
+    "Product",
+    "Process",
+    "EndMarket",
+    "DemandDriver"
+  ],
+  "evidence_complete": 12,
+  "evidence_fields": {
+    "source_url": 12,
+    "content_hash": 12,
+    "collected_at": 12,
+    "source_type": 12,
+    "publisher": 12
+  },
+  "confirmed_assertions": 0,
+  "us_optic_assertions": 3,
+  "sti_assertions": [
+    "133-winway-beneficiary",
+    "133-winway-capacity-bottleneck",
+    "133-winway-earnings-driver"
+  ],
+  "sti_counts": {
+    "FinancialPeriod": 55,
+    "InventorySnapshot": 56,
+    "SegmentResult": 148,
+    "BusinessSegment": 33,
+    "MonthlyRevenue": 18,
+    "ManagementCommentary": 6
+  },
+  "avgo_written": false
+}

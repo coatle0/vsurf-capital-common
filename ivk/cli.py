@@ -28,7 +28,10 @@ from .lifecycle import (
     ke_stage,
     normalize_document,
     persist_stage,
+    require_status,
     validate_packets,
+    validate_readback,
+    validate_write_receipt,
     write_batches,
 )
 
@@ -111,42 +114,58 @@ def build_parser() -> argparse.ArgumentParser:
     resume.add_argument("--run-id", required=True)
     add_execution_arguments(resume, input_required=False)
 
-    collect = sub.add_parser("collect")
-    collect.add_argument("--run-id", required=True)
-    collect.add_argument("--runs-dir", type=Path, default=DEFAULT_RUNS)
+    def add_run(parser_obj: argparse.ArgumentParser) -> None:
+        parser_obj.add_argument("--run-id", required=True)
+        parser_obj.add_argument("--runs-dir", type=Path, default=DEFAULT_RUNS)
+
+    ingest = sub.add_parser("ingest-sources", help="Ingest/normalize document JSON. Does not fetch sources.")
+    add_run(ingest)
+    ingest.add_argument("--documents", type=Path, required=True)
+    collect = sub.add_parser("collect", help="Alias of ingest-sources")
+    add_run(collect)
     collect.add_argument("--documents", type=Path, required=True)
 
     ke = sub.add_parser("ke")
-    ke.add_argument("--run-id", required=True)
-    ke.add_argument("--runs-dir", type=Path, default=DEFAULT_RUNS)
+    add_run(ke)
     ke.add_argument("--structure", type=Path)
 
-    review = sub.add_parser("review")
-    review.add_argument("--run-id", required=True)
-    review.add_argument("--runs-dir", type=Path, default=DEFAULT_RUNS)
+    review = sub.add_parser("review", help="Packet recheck only. Does not approve.")
+    add_run(review)
+    review.add_argument("--reviewed-by")
+    review.add_argument("--decision")
+    review.add_argument("--receipt", type=Path)
 
-    write = sub.add_parser("write")
-    write.add_argument("--run-id", required=True)
-    write.add_argument("--runs-dir", type=Path, default=DEFAULT_RUNS)
+    emit = sub.add_parser("emit-write-batches", help="Emit MERGE batches. Does not write Neo4j.")
+    add_run(emit)
+    write = sub.add_parser("write", help="Alias of emit-write-batches unless --receipt is passed")
+    add_run(write)
+    write.add_argument("--receipt", type=Path)
 
-    verify = sub.add_parser("verify")
-    verify.add_argument("--run-id", required=True)
-    verify.add_argument("--runs-dir", type=Path, default=DEFAULT_RUNS)
+    confirm = sub.add_parser("confirm-write", help="Confirm live Neo4j write from a receipt")
+    add_run(confirm)
+    confirm.add_argument("--receipt", type=Path, required=True)
+
+    verify = sub.add_parser("verify", help="VERIFIED only with live read-back JSON")
+    add_run(verify)
+    verify.add_argument("--readback", type=Path)
 
     bench = sub.add_parser("benchmark")
-    bench.add_argument("--run-id", required=True)
-    bench.add_argument("--runs-dir", type=Path, default=DEFAULT_RUNS)
+    add_run(bench)
     bench.add_argument("--scores", type=Path, required=True)
+    bench.add_argument("--score-kind", required=True, choices=["self-score", "independent-score"])
+    bench.add_argument("--scorer", required=True)
+    bench.add_argument("--rubric-version", default="order-142-v1")
+    bench.add_argument("--evidence", required=True)
 
-    enrich = sub.add_parser("enrich")
-    enrich.add_argument("--run-id", required=True)
-    enrich.add_argument("--runs-dir", type=Path, default=DEFAULT_RUNS)
+    enrich = sub.add_parser("enrich", help="Artifact-only financial enrichment; not graph write")
+    add_run(enrich)
     enrich.add_argument("--financials", type=Path, action="append", required=True)
     enrich.add_argument("--ticker", action="append", required=True)
 
-    repair = sub.add_parser("repair")
-    repair.add_argument("--run-id", required=True)
-    repair.add_argument("--runs-dir", type=Path, default=DEFAULT_RUNS)
+    normalize = sub.add_parser("normalize-evidence", help="Re-normalize collection documents")
+    add_run(normalize)
+    repair = sub.add_parser("repair", help="Alias of normalize-evidence")
+    add_run(repair)
     return parser
 
 
@@ -182,14 +201,26 @@ def dispatch(args: argparse.Namespace) -> dict[str, Any]:
             regions=args.region,
         )
     root, manifest = load_manifest(args.runs_dir, args.run_id)
+    command = args.command
+    if command == "collect":
+        command = "ingest-sources"
+    elif command == "repair":
+        command = "normalize-evidence"
+    elif command == "write" and getattr(args, "receipt", None):
+        command = "confirm-write"
+    elif command == "write":
+        command = "emit-write-batches"
+    require_status(manifest, command)
     plan = read_json(root / manifest["artifacts"]["source_plan"])
-    if args.command == "collect":
+    if command == "ingest-sources":
         raw = read_json(args.documents)
         documents = raw["documents"] if isinstance(raw, dict) and "documents" in raw else raw
         collection = collect_stage(plan, documents, run_id=args.run_id)
-        return persist_stage(args.runs_dir, args.run_id, "collect", {"source_collection": collection},
-                             next_command=f"python -m ivk ke --run-id {args.run_id}")
-    if args.command == "ke":
+        return persist_stage(
+            args.runs_dir, args.run_id, "ingest-sources", {"source_collection": collection},
+            next_command=f"python -m ivk ke --run-id {args.run_id}",
+        )
+    if command == "ke":
         collection = read_json(root / manifest["artifacts"].get("source_collection", "source_collection.json"))
         structure = read_json(args.structure) if args.structure else {}
         packets = ke_stage(plan, collection, structure=structure)
@@ -199,7 +230,7 @@ def dispatch(args: argparse.Namespace) -> dict[str, Any]:
             {**packets, "write_batches": packets["write_batches"]},
             next_command=f"python -m ivk review --run-id {args.run_id}",
         )
-    if args.command == "review":
+    if command == "review":
         packets = {
             "evidence": read_json(root / "evidence_packet.json"),
             "ke": read_json(root / "ke_packet.json"),
@@ -207,18 +238,47 @@ def dispatch(args: argparse.Namespace) -> dict[str, Any]:
             "review": read_json(root / "review.json"),
         }
         validate_packets(packets)
-        return persist_stage(args.runs_dir, args.run_id, "review", {"review": packets["review"]},
-                             next_command=f"python -m ivk write --run-id {args.run_id}")
-    if args.command == "write":
+        review = packets["review"]
+        review["path_status"] = "REVIEW_READY"
+        if args.reviewed_by and args.decision and args.receipt:
+            receipt = read_json(args.receipt)
+            review["approval"] = {
+                "reviewed_by": args.reviewed_by,
+                "decision": args.decision,
+                "receipt": receipt,
+            }
+        elif args.reviewed_by or args.decision or args.receipt:
+            raise LifecycleError("review approval requires --reviewed-by, --decision, and --receipt together")
+        return persist_stage(
+            args.runs_dir, args.run_id, "review", {"review": review},
+            next_command=f"python -m ivk emit-write-batches --run-id {args.run_id}",
+        )
+    if command == "emit-write-batches":
         manifest_json = read_json(root / "write_manifest.json")
         batches = write_batches(manifest_json)
-        manifest_json["neo4j_write_status"] = "batches_emitted_merge_only"
+        manifest_json["neo4j_write_status"] = "batches_emitted_not_written"
         return persist_stage(
-            args.runs_dir, args.run_id, "write",
+            args.runs_dir, args.run_id, "emit-write-batches",
             {"write_batches": batches, "write_manifest": manifest_json},
-            next_command=f"python -m ivk verify --run-id {args.run_id}",
+            next_command=f"python -m ivk confirm-write --run-id {args.run_id} --receipt <write_receipt.json>",
         )
-    if args.command == "verify":
+    if command == "confirm-write":
+        receipt = read_json(args.receipt)
+        batches = read_json(root / "write_batches.json")
+        validate_write_receipt(receipt, run_id=args.run_id, expected_batches=[item["name"] for item in batches])
+        write_manifest = read_json(root / "write_manifest.json")
+        write_manifest["neo4j_write_status"] = "write_confirmed"
+        write_manifest["write_receipt"] = receipt
+        return persist_stage(
+            args.runs_dir, args.run_id, "confirm-write",
+            {"write_receipt": receipt, "write_manifest": write_manifest},
+            next_command=f"python -m ivk verify --run-id {args.run_id} --readback <readback.json>",
+        )
+    if command == "verify":
+        if not args.readback:
+            raise LifecycleError("verify requires --readback live Neo4j JSON; local packets cannot set VERIFIED")
+        if manifest.get("status") != "WRITE_CONFIRMED":
+            raise LifecycleError("verify rejected: WRITE_CONFIRMED receipt is required")
         packets = {
             "evidence": read_json(root / "evidence_packet.json"),
             "ke": read_json(root / "ke_packet.json"),
@@ -226,24 +286,32 @@ def dispatch(args: argparse.Namespace) -> dict[str, Any]:
             "review": read_json(root / "review.json"),
         }
         validate_packets(packets)
+        readback = read_json(args.readback)
+        validate_readback(readback, run_id=args.run_id, vc_id=packets["ke"]["value_chain"]["id"])
         report = {
             "ok": True,
             "run_id": args.run_id,
-            "vc_id": packets["ke"]["value_chain"]["id"],
-            "companies": len(packets["ke"]["companies"]),
-            "evidence": len(packets["evidence"]["documents"]),
-            "confirmed_assertions": 0,
-            "expansion_decisions": [item["decision"] for item in packets["ke"]["link_expansion"]],
+            "proof": "live_readback",
+            "readback": readback,
+            "write_receipt": read_json(root / "write_receipt.json"),
         }
-        return persist_stage(args.runs_dir, args.run_id, "verify", {"verify": report},
-                             next_command="external neo4j-official.read_cypher read-back")
-    if args.command == "benchmark":
+        return persist_stage(
+            args.runs_dir, args.run_id, "verify", {"verify": report, "readback": readback},
+            next_command="done",
+        )
+    if command == "benchmark":
         scores = read_json(args.scores)
         axes = scores["axes"] if isinstance(scores, dict) else scores
-        quality = benchmark_stage(axes, run_id=args.run_id)
-        return persist_stage(args.runs_dir, args.run_id, "benchmark", {"quality": quality},
-                             next_command=f"python -m ivk verify --run-id {args.run_id}")
-    if args.command == "enrich":
+        quality = benchmark_stage(
+            axes, run_id=args.run_id, score_kind=args.score_kind,
+            scorer=args.scorer, rubric_version=args.rubric_version, evidence=args.evidence,
+        )
+        return persist_stage(
+            args.runs_dir, args.run_id, "benchmark", {"quality": quality},
+            next_command=manifest.get("next_command") or f"python -m ivk review --run-id {args.run_id}",
+            status=manifest.get("status"),
+        )
+    if command == "enrich":
         if len(args.financials) != len(args.ticker):
             raise LifecycleError("--financials and --ticker must be paired")
         rows = []
@@ -252,18 +320,23 @@ def dispatch(args: argparse.Namespace) -> dict[str, Any]:
         payload = {
             "contract_version": "ivk-financial-enrichment-0.1",
             "run_id": args.run_id,
+            "enrichment_kind": "ARTIFACT_ENRICHED",
             "periods": rows,
             "segment_status": "blocked-with-reason",
             "segment_reason": "TIKR asRptSegData payload was empty; no segment nodes written.",
-            "write_policy": "artifact_only_not_sti_financialperiod",
+            "write_policy": "artifact_only_not_graph_enriched",
         }
-        return persist_stage(args.runs_dir, args.run_id, "enrich", {"financials": payload},
-                             next_command=f"python -m ivk ke --run-id {args.run_id}")
-    if args.command == "repair":
+        return persist_stage(
+            args.runs_dir, args.run_id, "enrich", {"financials": payload},
+            next_command=f"python -m ivk ke --run-id {args.run_id}",
+        )
+    if command == "normalize-evidence":
         collection = read_json(root / "source_collection.json")
         collection["documents"] = [normalize_document(doc) for doc in collection["documents"]]
-        return persist_stage(args.runs_dir, args.run_id, "repair", {"source_collection": collection},
-                             next_command=f"python -m ivk ke --run-id {args.run_id}")
+        return persist_stage(
+            args.runs_dir, args.run_id, "normalize-evidence", {"source_collection": collection},
+            next_command=f"python -m ivk ke --run-id {args.run_id}",
+        )
     raise KernelError(f"unsupported command: {args.command}")
 
 

@@ -22,20 +22,21 @@ python -m ivk resume `
 
 `new`, `add`, `update`, and `expand` are operation-enforcing aliases of `run`. `init` validates and creates an immutable run snapshot. `plan` consumes captured `neo4j-official.read_cypher` rows. A run without those rows becomes `BLOCKED` with reason `MISSING_GRAPH_RESULTS`; `resume` continues from the stored pack selection.
 
-After `PLANNED`, VC-neutral lifecycle stages are:
+After `PLANNED`, VC-neutral lifecycle stages and their **actual side effects** are:
 
-```powershell
-python -m ivk collect --run-id <id> --documents <collection.json>
-python -m ivk ke --run-id <id> --structure <structure.json>
-python -m ivk review --run-id <id>
-python -m ivk write --run-id <id>
-python -m ivk verify --run-id <id>
-python -m ivk enrich --run-id <id> --financials <tikr.json> --ticker <TICKER>
-python -m ivk benchmark --run-id <id> --scores <axes.json>
-python -m ivk repair --run-id <id>
-```
+| Command | Side effect | Resulting status |
+|---|---|---|
+| `ingest-sources` (`collect` alias) | Normalize document JSON on disk. Does not fetch sources. | `COLLECTION_ARTIFACT_READY` |
+| `ke` | Build evidence/KE/write-manifest artifacts | `KE_READY` |
+| `review` | Re-validate packets. Not human approval unless `--reviewed-by/--decision/--receipt` | `REVIEW_READY` |
+| `emit-write-batches` (`write` without `--receipt`) | Write `write_batches.json`. Does **not** touch Neo4j | `BATCH_READY` |
+| `confirm-write --receipt` | Accept a live write receipt. Does not itself open Neo4j | `WRITE_CONFIRMED` |
+| `verify --readback` | Accept live Neo4j read-back JSON. Packet-only verify is rejected | `VERIFIED` |
+| `normalize-evidence` (`repair` alias) | Re-normalize collection documents. Not graph repair | `EVIDENCE_NORMALIZED` |
+| `enrich` | Artifact-only financials. Not `GRAPH_ENRICHED` | `ARTIFACT_ENRICHED` |
+| `benchmark --score-kind self-score\|independent-score` | Store scored axes with scorer/rubric/evidence. Does not change write status | unchanged |
 
-`write` emits MERGE-only batches. It does not call Neo4j. Tickers, sector terms, and VC nicknames belong in Intake/Blueprint/Pack/artifact JSON, not in `ivk/lifecycle.py`.
+`WRITTEN` is not used. `VERIFIED` requires `WRITE_CONFIRMED` plus a valid `ivk-readback-0.1` file. Fixture runs must stop at `BATCH_READY`. Tickers and VC nicknames belong in artifacts, not in `ivk/lifecycle.py`.
 
 ## Canonical run artifacts
 

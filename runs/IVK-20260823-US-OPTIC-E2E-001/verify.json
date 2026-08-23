@@ -1,13 +1,158 @@
 {
   "ok": true,
   "run_id": "IVK-20260823-US-OPTIC-E2E-001",
-  "vc_id": "vc:us_optic",
-  "companies": 4,
-  "evidence": 12,
-  "confirmed_assertions": 0,
-  "expansion_decisions": [
-    "candidate_pending_source",
-    "weaken",
-    "reject"
-  ]
+  "proof": "live_readback",
+  "readback": {
+    "contract_version": "ivk-readback-0.1",
+    "run_id": "IVK-20260823-US-OPTIC-E2E-001",
+    "ok": true,
+    "observed_at": "2026-08-23T04:20:30+00:00",
+    "database": "neo4j",
+    "identity": "bolt://127.0.0.1:7687",
+    "tool": "neo4j-official.read-cypher",
+    "value_chain": {
+      "id": "vc:us_optic",
+      "count": 1,
+      "nickname": "us_optic"
+    },
+    "members": 16,
+    "member_labels": [
+      "Company",
+      "Product",
+      "Process",
+      "EndMarket",
+      "DemandDriver"
+    ],
+    "evidence_complete": 12,
+    "evidence_fields": {
+      "source_url": 12,
+      "content_hash": 12,
+      "collected_at": 12,
+      "source_type": 12,
+      "publisher": 12
+    },
+    "confirmed_assertions": 0,
+    "us_optic_assertions": 3,
+    "sti_assertions": [
+      "133-winway-beneficiary",
+      "133-winway-capacity-bottleneck",
+      "133-winway-earnings-driver"
+    ],
+    "sti_counts": {
+      "FinancialPeriod": 55,
+      "InventorySnapshot": 56,
+      "SegmentResult": 148,
+      "BusinessSegment": 33,
+      "MonthlyRevenue": 18,
+      "ManagementCommentary": 6
+    },
+    "avgo_written": false
+  },
+  "write_receipt": {
+    "contract_version": "ivk-write-receipt-0.1",
+    "run_id": "IVK-20260823-US-OPTIC-E2E-001",
+    "executed_at": "2026-08-23T04:20:00+00:00",
+    "database": "neo4j",
+    "identity": "bolt://127.0.0.1:7687",
+    "tool": "neo4j-official.write-cypher",
+    "approved_manifest": "write_manifest.json",
+    "batches": [
+      {
+        "name": "value_chain",
+        "ok": true,
+        "result": [
+          {
+            "id": "vc:us_optic",
+            "nickname": "us_optic",
+            "status": "candidate"
+          }
+        ]
+      },
+      {
+        "name": "companies",
+        "ok": true,
+        "result": [
+          {
+            "ticker": "NVDA",
+            "membership_status": "candidate"
+          },
+          {
+            "ticker": "COHR",
+            "membership_status": "candidate"
+          },
+          {
+            "ticker": "LITE",
+            "membership_status": "candidate"
+          },
+          {
+            "ticker": "CRDO",
+            "membership_status": "candidate"
+          }
+        ]
+      },
+      {
+        "name": "evidence",
+        "ok": true,
+        "result": [
+          {
+            "n": 12,
+            "sample_type": "company_overview"
+          }
+        ]
+      },
+      {
+        "name": "products",
+        "ok": true,
+        "result": [
+          {
+            "n": 8
+          }
+        ]
+      },
+      {
+        "name": "processes",
+        "ok": true,
+        "result": [
+          {
+            "n": 2
+          }
+        ]
+      },
+      {
+        "name": "end_markets_drivers",
+        "ok": true,
+        "result": [
+          {
+            "id": "driver:us_optic:ai-optical-demand"
+          }
+        ]
+      },
+      {
+        "name": "assertions",
+        "ok": true,
+        "result": [
+          {
+            "id": "ca:us_optic:driver:ai-optical-demand",
+            "review_status": "pending",
+            "has_falsifier": true
+          },
+          {
+            "id": "ca:us_optic:bottleneck:inp-laser",
+            "review_status": "pending",
+            "has_falsifier": true
+          },
+          {
+            "id": "ca:us_optic:beneficiary:laser-suppliers",
+            "review_status": "pending",
+            "has_falsifier": true
+          }
+        ]
+      }
+    ],
+    "failed_batches": [],
+    "second_merge": {
+      "products": 8,
+      "idempotent": true
+    }
+  }
 }

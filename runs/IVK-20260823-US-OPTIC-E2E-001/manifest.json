@@ -9,7 +9,7 @@
   },
   "status": "VERIFIED",
   "last_completed_stage": "verify",
-  "next_command": "external neo4j-official.read_cypher read-back",
+  "next_command": "done",
   "blockers": [],
   "artifacts": {
     "submitted_input": "submitted_input.json",
@@ -28,7 +28,9 @@
     "write_batches": "write_batches.json",
     "quality": "quality_benchmark.json",
     "verify": "verify.json",
-    "financials": "financial_enrichment.json"
+    "financials": "financial_enrichment.json",
+    "write_receipt": "write_receipt.json",
+    "readback": "readback.json"
   },
   "pack_selection": {
     "sector": "semiconductor_optical",
@@ -45,5 +47,5 @@
     }
   },
   "created_at": "2026-08-23T02:51:08.706087+00:00",
-  "updated_at": "2026-08-23T04:08:15.748524+00:00"
+  "updated_at": "2026-08-23T04:50:30.127466+00:00"
 }
