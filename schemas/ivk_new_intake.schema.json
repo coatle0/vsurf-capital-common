@@ -5,7 +5,6 @@
   "additionalProperties": false,
   "required": ["name", "seed", "frame", "thesis"],
   "properties": {
-    "market": {"enum": ["mixed", "us", "kr", "jp", "tw"], "default": "mixed"},
     "name": {"type": "string", "minLength": 1},
     "seed": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
     "frame": {"type": "string", "minLength": 1},

@@ -35,7 +35,6 @@ class IVKNewIntakeTests(unittest.TestCase):
 
     def test_mixed_market_normalizes_us_kr_jp_tw(self):
         raw = dict(self.raw)
-        raw["market"] = "mixed"
         raw["seed"] = ["NVDA", "FORM", "KR:131290", "JP:6855", "TW:6515"]
         seeds = normalize_intake(raw)["validated_seeds"]
         self.assertEqual(
@@ -50,12 +49,11 @@ class IVKNewIntakeTests(unittest.TestCase):
         with self.assertRaisesRegex(IntakeValidationError, "requires KR:, JP:, or TW:"):
             normalize_intake(raw)
 
-    def test_single_market_applies_once_to_all_numeric_seeds(self):
+    def test_market_field_is_not_part_of_intake_contract(self):
         raw = dict(self.raw)
         raw["market"] = "jp"
-        raw["seed"] = ["6855", "6871"]
-        seeds = normalize_intake(raw)["validated_seeds"]
-        self.assertEqual(["TSE:6855", "TSE:6871"], [seed["canonical_id"] for seed in seeds])
+        with self.assertRaisesRegex(IntakeValidationError, "unknown field"):
+            normalize_intake(raw)
 
     def test_empty_seed(self):
         raw = dict(self.raw); raw["seed"] = []

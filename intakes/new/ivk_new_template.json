@@ -3,7 +3,6 @@
   "operation": "new",
   "target_vc": null,
   "name": "REPLACE_WITH_VALUE_CHAIN_NAME",
-  "market": "mixed",
   "seed": [
     "REPLACE_WITH_TICKER_OR_COMPANY_ID"
   ],
