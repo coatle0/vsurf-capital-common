@@ -1,7 +1,7 @@
 {
   "contract_version": "ivk-review-0.1",
   "run_id": "IVK-20260823-US-OPTIC-E2E-001",
-  "path_status": "governed_write_readback_pass",
+  "path_status": "ready_for_governed_write",
   "source_documents": 12,
   "companies": 4,
   "confirmed_assertions": 0,

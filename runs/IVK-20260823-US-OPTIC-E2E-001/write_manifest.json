@@ -2,7 +2,7 @@
   "contract_version": "ivk-neo4j-write-manifest-0.1",
   "run_id": "IVK-20260823-US-OPTIC-E2E-001",
   "approved_scope": "canonical candidate ValueChain vc:us_optic, candidate Company identities, Evidence, SUPPORTED_BY, CANDIDATE_IN membership, candidate Product/Process/EndMarket/DemandDriver structure, and pending CausalAssertion records only",
-  "neo4j_write_status": "executed_readback_pass",
+  "neo4j_write_status": "pending_execution",
   "idempotent": true,
   "auto_confirm": false,
   "value_chain": {
