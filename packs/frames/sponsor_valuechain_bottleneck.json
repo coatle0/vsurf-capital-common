@@ -6,5 +6,14 @@
   "aliases": ["Sponsor→Value Chain→Bottleneck", "Sponsor Value Chain Bottleneck"],
   "required_slots": ["demand_driver", "sponsor", "system", "process", "component", "bottleneck", "beneficiary"],
   "expansion_order": ["sponsor_to_system", "system_to_process", "process_to_component", "component_to_supplier"],
-  "stop_conditions": ["unsupported_bottleneck", "no_primary_source"]
+  "stop_conditions": ["unsupported_bottleneck", "no_primary_source"],
+  "investor_questions": {
+    "earning_mechanism": ["How does sponsor spending or demand reach the company's revenue and margin?", "Which required product, process, or qualification gives the company economic value?"],
+    "state_transition": ["Is the sponsor demand strengthening, weakening, or shifting?", "Will the bottleneck persist, be relieved, or move, and who captures the result?"],
+    "evidence_gap": ["Which sponsor plan, capacity limit, qualification, or timing assumption remains unverified?", "What would falsify the beneficiary thesis?"]
+  },
+  "universal_requirements": ["company_identity", "products_services", "processes_technologies", "five_quarter_financials", "capex_capacity", "customer_demand", "management_guidance", "source_evidence"],
+  "unique_outputs": ["sponsor", "demand_trigger", "transmission_path", "critical_process", "bottleneck", "beneficiary_candidates", "counter_evidence", "falsifiers", "evidence_gaps"],
+  "allowed_unique_relationships": ["INVESTS_IN", "TRIGGERED_BY", "DRIVES", "REQUIRES", "CONSTRAINS", "CAN_RELIEVE", "BENEFITS_FROM"],
+  "extension_points": ["sponsor_type", "bottleneck_taxonomy", "beneficiary_scoring", "scenario_model", "secondary_frame_view"]
 }

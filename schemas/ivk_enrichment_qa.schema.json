@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "ivk-enrichment-qa-0.1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["contract_version", "value_chain_id", "objective"],
+  "properties": {
+    "contract_version": {"const": "ivk-enrichment-qa-0.1"},
+    "value_chain_id": {"type": "string", "minLength": 1},
+    "objective": {"type": "string", "minLength": 1},
+    "secondary_frames": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+    "completion_gates": {
+      "type": "object",
+      "properties": {
+        "minimum_periods": {"type": "integer", "minimum": 1},
+        "question_coverage_pct": {"type": "number", "minimum": 0, "maximum": 100},
+        "require_primary_source": {"type": "boolean"},
+        "require_counter_evidence": {"type": "boolean"},
+        "allow_auto_confirm": {"const": false}
+      }
+    },
+    "extensions": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "universal_requirements": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+        "unique_outputs": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+        "questions": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+        "relationship_types": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}}
+      }
+    }
+  }
+}

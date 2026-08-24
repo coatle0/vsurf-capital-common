@@ -12,6 +12,8 @@ from typing import Any
 from scripts.ivk_factory import FactoryValidationError
 from scripts.ivk_new_intake import IntakeValidationError, normalize_intake, validate_intake
 
+from .enrichment import EnrichmentValidationError, prepare_enrichment, write_enrichment_bundle
+
 from .kernel import (
     KernelError,
     block_for_graph,
@@ -100,6 +102,15 @@ def build_parser() -> argparse.ArgumentParser:
 
     validate = sub.add_parser("validate")
     validate.add_argument("--input", type=Path, required=True)
+
+    prepare = sub.add_parser(
+        "prepare-enrichment",
+        help="Create Universal/Unique/Gap plans from Intake, Frame, and VC Q&A; no source fetch or graph write.",
+    )
+    prepare.add_argument("--input", type=Path, required=True)
+    prepare.add_argument("--qa", type=Path, required=True)
+    prepare.add_argument("--output-dir", type=Path, required=True)
+    prepare.add_argument("--registry", type=Path, default=DEFAULT_REGISTRY)
 
     init = sub.add_parser("init")
     init.add_argument("--input", type=Path, required=True)
@@ -210,6 +221,11 @@ def dispatch(args: argparse.Namespace) -> dict[str, Any]:
     if args.command == "validate":
         canonical = validate_intake(read_json(args.input))
         return {"ok": True, "canonical": canonical, "normalized": normalize_intake(canonical)}
+    if args.command == "prepare-enrichment":
+        bundle = prepare_enrichment(
+            read_json(args.input), read_json(args.qa), registry_path=args.registry,
+        )
+        return write_enrichment_bundle(bundle, args.output_dir)
     if args.command == "init":
         return initialize_run(args.input, args.runs_dir, args.run_id)
     if args.command == "plan":
@@ -528,7 +544,7 @@ def main() -> None:
         sys.stdout.reconfigure(encoding="utf-8")
     try:
         emit(dispatch(build_parser().parse_args()))
-    except (IntakeValidationError, FactoryValidationError, LifecycleError) as exc:
+    except (IntakeValidationError, FactoryValidationError, LifecycleError, EnrichmentValidationError) as exc:
         emit({"ok": False, "reason_code": "INPUT_VALIDATION", "message": str(exc)})
         raise SystemExit(EXIT_INPUT) from exc
     except KernelError as exc:

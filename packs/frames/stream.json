@@ -7,5 +7,14 @@
   "definition": "A frame that analyzes a value chain by upstream, midstream, and downstream positions.",
   "required_slots": ["upstream", "midstream", "downstream", "handoffs", "bottlenecks"],
   "expansion_order": ["upstream_to_midstream", "midstream_to_downstream", "position_to_evidence"],
-  "stop_conditions": ["stage_undefined", "handoff_undefined", "no_primary_source"]
+  "stop_conditions": ["stage_undefined", "handoff_undefined", "no_primary_source"],
+  "investor_questions": {
+    "earning_mechanism": ["At which stage does each company transform inputs into paid outputs?", "Where are price, volume, and margin captured across the stream?"],
+    "state_transition": ["Where are demand, inventory, capacity, lead time, and pricing changing?", "How will a shock propagate from upstream to downstream?"],
+    "evidence_gap": ["Which stage, handoff, or supply relationship remains unverified?", "What observation would confirm or reject the proposed propagation path?"]
+  },
+  "universal_requirements": ["company_identity", "products_services", "processes_technologies", "five_quarter_financials", "inventory", "capacity_lead_time", "customers_suppliers", "source_evidence"],
+  "unique_outputs": ["stage_positions", "input_output_handoffs", "supply_dependencies", "inventory_location", "shock_propagation", "value_capture", "evidence_gaps"],
+  "allowed_unique_relationships": ["PARTICIPATES_IN", "PRECEDES", "INPUT_TO", "OUTPUTS", "SUPPLIES_TO", "PROPAGATES_TO", "ACCUMULATES_AT"],
+  "extension_points": ["stage_taxonomy", "handoff_validator", "flow_metric", "shock_model", "secondary_frame_view"]
 }

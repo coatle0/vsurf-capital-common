@@ -1,0 +1,19 @@
+{
+  "contract_version": "ivk-enrichment-qa-0.1",
+  "value_chain_id": "vc:korea-backend-ecosystem",
+  "objective": "후공정 기업별 수익구조, 현재·미래 상태 전환, 다음 확인 항목을 동일 비교축으로 평가한다.",
+  "secondary_frames": ["stream"],
+  "completion_gates": {
+    "minimum_periods": 5,
+    "question_coverage_pct": 100,
+    "require_primary_source": true,
+    "require_counter_evidence": true,
+    "allow_auto_confirm": false
+  },
+  "extensions": {
+    "universal_requirements": ["order_backlog"],
+    "unique_outputs": ["expectation_gap"],
+    "questions": ["시장 기대와 실제 실적 사이의 차이는 어디에서 가장 큰가?"],
+    "relationship_types": ["HAS_EXPECTATION_GAP_IN"]
+  }
+}

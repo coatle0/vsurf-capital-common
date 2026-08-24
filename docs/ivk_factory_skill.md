@@ -1,5 +1,18 @@
 # IVK Factory 공용 Skill — 2026-08-24
 
+## Universal / Unique Enrichment
+
+IVK의 모든 분석은 세 질문에 답해야 한다: 기업이 어떻게 돈을 버는가, 현재와 미래 상태가 어떠한가, 이를 확인하려면 무엇을 더 봐야 하는가. 회사 공통 사실은 `UniversalFact`, VC·Frame별 해석은 `UniqueAssertion`, 부족한 근거는 `EvidenceGap`으로 분리한다.
+
+```powershell
+python -m ivk prepare-enrichment `
+  --input <intake.json> `
+  --qa <enrichment-qa.json> `
+  --output-dir <artifact-dir>
+```
+
+primary frame은 하나이며 secondary frame은 별도 view로 생성되어 primary 해석을 덮어쓰지 않는다. 자세한 계약, 출력물, 확장 규칙은 `docs/ivk_universal_unique_enrichment.md`를 따른다. `ENRICHMENT_PLANNED`는 수집·분석·Neo4j write 완료가 아니다.
+
 ## 목적
 
 IVK(Investment Value-chain Knowledge Factory)는 `name`, `seed`, `frame`, `thesis`, `questions` 중심의 Intake를 재현 가능한 Blueprint, Evidence/KE 산출물, Neo4j write/read-back 결과로 변환한다. Python은 계약 검증·정규화·멱등성·상태 관리를 담당하고, agent/MCP는 원문 수집과 근거 기반 구조화를 담당한다.
@@ -112,5 +125,6 @@ Company에는 `security_id`, ticker, country, 실제 exchange, local/English nam
 - `docs/ivk_build_cli.md`
 - `docs/ivk_new_intake_blueprint.md`
 - `docs/ivk_multi_market_build_verification.md`
+- `docs/ivk_universal_unique_enrichment.md`
 - `schemas/ivk_*.schema.json`
 - `registry/ivk_factory_packs.json`

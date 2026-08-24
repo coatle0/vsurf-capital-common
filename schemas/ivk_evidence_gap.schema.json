@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "ivk-evidence-gap-0.1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["contract_version", "id", "value_chain_id", "question_id", "claim_to_test", "missing_fact_types", "target_ids", "preferred_sources", "observation", "confirm_condition", "reject_condition", "due_trigger", "status", "revalidate_unique"],
+  "properties": {
+    "contract_version": {"const": "ivk-evidence-gap-0.1"},
+    "id": {"type": "string", "minLength": 1},
+    "value_chain_id": {"type": "string", "minLength": 1},
+    "question_id": {"type": "string", "minLength": 1},
+    "claim_to_test": {"type": "string", "minLength": 1},
+    "missing_fact_types": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
+    "target_ids": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
+    "preferred_sources": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
+    "observation": {"type": "string", "minLength": 1},
+    "confirm_condition": {"type": "string", "minLength": 1},
+    "reject_condition": {"type": "string", "minLength": 1},
+    "due_trigger": {"type": "string", "minLength": 1},
+    "status": {"enum": ["open", "collecting", "resolved", "rejected", "deferred"]},
+    "revalidate_unique": {"const": true}
+  }
+}

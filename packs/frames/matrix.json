@@ -7,5 +7,14 @@
   "definition": "A frame that analyzes a clustered set of companies as one comparable investment system.",
   "required_slots": ["cluster_members", "clustering_basis", "comparison_axes", "shared_driver", "differentiators"],
   "expansion_order": ["cluster_to_common_driver", "cluster_to_axes", "member_to_position", "member_to_evidence"],
-  "stop_conditions": ["cluster_members_undefined", "comparison_axis_undefined", "no_primary_source"]
+  "stop_conditions": ["cluster_members_undefined", "comparison_axis_undefined", "no_primary_source"],
+  "investor_questions": {
+    "earning_mechanism": ["Which products, services, customers, volumes, prices, and costs explain each member's profit model?", "Which earning mechanism differs materially across members?"],
+    "state_transition": ["Which members are improving or deteriorating on the same comparison axes?", "Whose demand, supply, inventory, capacity, and margin signals imply the strongest transition?"],
+    "evidence_gap": ["Which member or comparison axis lacks comparable primary-source evidence?", "What observation would change the relative ranking?"]
+  },
+  "universal_requirements": ["company_identity", "products_services", "business_segments", "five_quarter_financials", "inventory", "capex_capacity", "management_guidance", "source_evidence"],
+  "unique_outputs": ["comparison_axes", "vc_roles", "shared_driver_exposure", "differentiators", "relative_state_transition", "beneficiary_candidates", "evidence_gaps"],
+  "allowed_unique_relationships": ["HAS_ROLE_IN", "COMPARED_ON", "DIFFERS_BY", "MORE_EXPOSED_THAN", "CANDIDATE_BENEFICIARY_IN"],
+  "extension_points": ["comparison_axis_plugin", "ranking_method", "peer_normalization", "secondary_frame_view"]
 }

@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "ivk-unique-assertion-0.1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["contract_version", "id", "value_chain_id", "frame_id", "question_id", "assertion_type", "statement", "universal_fact_ids", "supporting_evidence_ids", "counter_evidence", "falsifier", "applicable_period", "epistemic_status", "review_status"],
+  "properties": {
+    "contract_version": {"const": "ivk-unique-assertion-0.1"},
+    "id": {"type": "string", "minLength": 1},
+    "value_chain_id": {"type": "string", "minLength": 1},
+    "frame_id": {"type": "string", "minLength": 1},
+    "question_id": {"type": "string", "minLength": 1},
+    "assertion_type": {"type": "string", "minLength": 1},
+    "statement": {"type": "string", "minLength": 1},
+    "subject_ids": {"type": "array", "items": {"type": "string", "minLength": 1}},
+    "universal_fact_ids": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+    "supporting_evidence_ids": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+    "counter_evidence": {"type": "string"},
+    "falsifier": {"type": "string", "minLength": 1},
+    "applicable_period": {"type": "string", "minLength": 1},
+    "confidence": {"type": "number", "minimum": 0, "maximum": 1},
+    "epistemic_status": {"enum": ["inference", "hypothesis"]},
+    "review_status": {"enum": ["pending", "accepted", "rejected", "deferred"]}
+  }
+}

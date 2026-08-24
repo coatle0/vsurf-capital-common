@@ -68,6 +68,22 @@ The CLI deliberately refuses to manufacture these artifacts. An MCP-capable agen
 
 `build` does not itself fetch the documents named by the Source Plan. Do not describe an Intake-only or company-overview-only run as “STI 70%.” That target requires source collection, evidence-linked structure, enrichment, and an STI-rubric benchmark artifact. Structural `VERIFIED` and investment-analysis coverage are independent dimensions.
 
+## Enrichment integration
+
+Before source collection, create the Universal/Unique contract with `python -m ivk prepare-enrichment`. The intended progression is:
+
+```text
+prepare-enrichment
+  -> shared Universal coverage check
+  -> missing-source tasks
+  -> UniversalFact write
+  -> frame-specific UniqueAssertion review
+  -> EvidenceGap closure and revalidation
+  -> build/write/read-back/benchmark
+```
+
+The command emits planning artifacts only. It never treats a frame inference as a confirmed fact and never implies Neo4j write completion. See `docs/ivk_universal_unique_enrichment.md`.
+
 ## Resume and safety
 
 Run directories are immutable by Run-ID. Reusing an existing Run-ID is rejected. All graph mutations use emitted `MERGE` batches, and unsupported causal candidates remain pending. Financial time-series labels used by STI are outside the generic structural write scope.
