@@ -66,6 +66,8 @@ The CLI deliberately refuses to manufacture these artifacts. An MCP-capable agen
 - `VERIFIED`: live write receipt and read-back both passed.
 - STI-grade: a separate quality gate requiring coverage targets for five-quarter financials, segments, inventory, provenance, and reviewed causal assertions. `VERIFIED` alone does not imply STI-grade.
 
+`build` does not itself fetch the documents named by the Source Plan. Do not describe an Intake-only or company-overview-only run as “STI 70%.” That target requires source collection, evidence-linked structure, enrichment, and an STI-rubric benchmark artifact. Structural `VERIFIED` and investment-analysis coverage are independent dimensions.
+
 ## Resume and safety
 
 Run directories are immutable by Run-ID. Reusing an existing Run-ID is rejected. All graph mutations use emitted `MERGE` batches, and unsupported causal candidates remain pending. Financial time-series labels used by STI are outside the generic structural write scope.
