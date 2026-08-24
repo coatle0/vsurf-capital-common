@@ -1,0 +1,31 @@
+{
+  "contract_version": "ivk-review-0.1",
+  "run_id": "IVK-20260824-KR-BACKEND-BUILD-001",
+  "path_status": "REVIEW_READY",
+  "source_documents": 5,
+  "companies": 5,
+  "confirmed_assertions": 0,
+  "pending_assertions": 0,
+  "question_closure": {
+    "각 seed 기업의 핵심 제품, 기능 및 Value Chain 역할은 무엇인가?": "blocked-with-reason",
+    "기업들이 공유하는 수요동인과 End Market은 무엇인가?": "blocked-with-reason",
+    "핵심 공정·제품·기술 병목은 어디에 있는가?": "blocked-with-reason",
+    "병목의 직접 및 간접 수혜기업은 누구인가?": "blocked-with-reason",
+    "최근 5분기 실적, 사업부, 재고, 마진 및 증설에서 가설이 확인되는가?": "blocked-with-reason",
+    "추가 조사하거나 제외해야 할 인접 기업과 연결은 무엇인가?": "blocked-with-reason"
+  },
+  "link_expansion": [],
+  "quality_gates": {
+    "all_nodes_have_provenance": true,
+    "auto_confirm": false,
+    "unsupported_assertions": 0,
+    "write_scope_limited": true,
+    "questions_closed": true,
+    "causal_record_present": false,
+    "counter_evidence_present": true,
+    "link_expansion_rechecked": false
+  },
+  "limitations": [
+    "이번 build는 DART 기업 식별과 Neo4j 후보 membership 적재까지만 승인한다. 제품·공정·수요동인·재무·인과관계는 후속 원문 수집 전 확정하지 않는다."
+  ]
+}

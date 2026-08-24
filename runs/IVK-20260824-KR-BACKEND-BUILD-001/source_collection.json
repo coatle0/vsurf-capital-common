@@ -1,0 +1,129 @@
+{
+  "contract_version": "ivk-source-collection-0.1",
+  "run_id": "IVK-20260824-KR-BACKEND-BUILD-001",
+  "collected_at": "2026-08-24",
+  "value_chain_id": "vc:Korea 후공정 Ecosystem",
+  "documents": [
+    {
+      "evidence_id": "ev:kr_backend:131970:dart_company",
+      "ticker": "131970",
+      "company_id": "00563545",
+      "company_name": "두산테스나",
+      "name_local": "두산테스나",
+      "name_en": "DOOSAN TESNA Inc.",
+      "country": "KR",
+      "exchange": "KOSDAQ",
+      "provider": "dart",
+      "provider_id": "00563545",
+      "security_id": "KR:131970",
+      "source_ref": "dart.company_overview:00563545",
+      "source_url": "https://opendart.fss.or.kr/api/company.json?corp_code=00563545",
+      "source_date": "2026-08-24",
+      "collected_at": "2026-08-24",
+      "source_type": "company_overview",
+      "publisher": "dart",
+      "facts": [
+        "DART identifies stock code 131970 as 두산테스나, corporate code 00563545, classified as a KOSDAQ-listed company."
+      ],
+      "content_hash": "bc9ffc1bf49132baaf4cd1df5149414f72f98aceeacf76a0b6177fa48ee7a782",
+      "status": "collected"
+    },
+    {
+      "evidence_id": "ev:kr_backend:183300:dart_company",
+      "ticker": "183300",
+      "company_id": "00997812",
+      "company_name": "코미코",
+      "name_local": "코미코",
+      "name_en": "KoMiCo Ltd.",
+      "country": "KR",
+      "exchange": "KOSDAQ",
+      "provider": "dart",
+      "provider_id": "00997812",
+      "security_id": "KR:183300",
+      "source_ref": "dart.company_overview:00997812",
+      "source_url": "https://opendart.fss.or.kr/api/company.json?corp_code=00997812",
+      "source_date": "2026-08-24",
+      "collected_at": "2026-08-24",
+      "source_type": "company_overview",
+      "publisher": "dart",
+      "facts": [
+        "DART identifies stock code 183300 as 코미코, corporate code 00997812, classified as a KOSDAQ-listed company."
+      ],
+      "content_hash": "1da637fb62cec7be70652ff6e9df267cf01d48d5fd368a754ab6b62511fe41dc",
+      "status": "collected"
+    },
+    {
+      "evidence_id": "ev:kr_backend:059090:dart_company",
+      "ticker": "059090",
+      "company_id": "00366942",
+      "company_name": "미코",
+      "name_local": "미코",
+      "name_en": "MiCo Ltd.",
+      "country": "KR",
+      "exchange": "KOSDAQ",
+      "provider": "dart",
+      "provider_id": "00366942",
+      "security_id": "KR:059090",
+      "source_ref": "dart.company_overview:00366942",
+      "source_url": "https://opendart.fss.or.kr/api/company.json?corp_code=00366942",
+      "source_date": "2026-08-24",
+      "collected_at": "2026-08-24",
+      "source_type": "company_overview",
+      "publisher": "dart",
+      "facts": [
+        "DART identifies stock code 059090 as 미코, corporate code 00366942, classified as a KOSDAQ-listed company."
+      ],
+      "content_hash": "1c928a0dd34a8b11689a786ff9cb37d409c2f066a648a7bd86f0b2856ff93347",
+      "status": "collected"
+    },
+    {
+      "evidence_id": "ev:kr_backend:330860:dart_company",
+      "ticker": "330860",
+      "company_id": "01368354",
+      "company_name": "네패스아크",
+      "name_local": "네패스아크",
+      "name_en": "Nepes Ark Corporation",
+      "country": "KR",
+      "exchange": "KOSDAQ",
+      "provider": "dart",
+      "provider_id": "01368354",
+      "security_id": "KR:330860",
+      "source_ref": "dart.company_overview:01368354",
+      "source_url": "https://opendart.fss.or.kr/api/company.json?corp_code=01368354",
+      "source_date": "2026-08-24",
+      "collected_at": "2026-08-24",
+      "source_type": "company_overview",
+      "publisher": "dart",
+      "facts": [
+        "DART identifies stock code 330860 as 네패스아크, corporate code 01368354, classified as a KOSDAQ-listed company."
+      ],
+      "content_hash": "ca747d157a9de3b29f9e1350aaee29f671af1a254e136137b6a01a238a3ed079",
+      "status": "collected"
+    },
+    {
+      "evidence_id": "ev:kr_backend:131290:dart_company",
+      "ticker": "131290",
+      "company_id": "00372226",
+      "company_name": "티에스이",
+      "name_local": "티에스이",
+      "name_en": "TSE CO.,Ltd",
+      "country": "KR",
+      "exchange": "KOSDAQ",
+      "provider": "dart",
+      "provider_id": "00372226",
+      "security_id": "KR:131290",
+      "source_ref": "dart.company_overview:00372226",
+      "source_url": "https://opendart.fss.or.kr/api/company.json?corp_code=00372226",
+      "source_date": "2026-08-24",
+      "collected_at": "2026-08-24",
+      "source_type": "company_overview",
+      "publisher": "dart",
+      "facts": [
+        "DART identifies stock code 131290 as 티에스이, corporate code 00372226, classified as a KOSDAQ-listed company."
+      ],
+      "content_hash": "048e794b1b520623bad48ee84de714bec608bc08b021373cb9b0f2b3e98c2e5b",
+      "status": "collected"
+    }
+  ],
+  "auto_confirm": false
+}

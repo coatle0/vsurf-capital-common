@@ -1,0 +1,113 @@
+{
+  "contract_version": "ivk-ke-packet-0.1",
+  "run_id": "IVK-20260824-KR-BACKEND-BUILD-001",
+  "value_chain": {
+    "id": "vc:korea-backend-ecosystem",
+    "nickname": "Korea 후공정 Ecosystem",
+    "name": "Korea 후공정 Ecosystem",
+    "status": "candidate",
+    "review_status": "pending"
+  },
+  "companies": [
+    {
+      "id": "company:kr:131970",
+      "security_id": "KR:131970",
+      "ticker": "131970",
+      "name": "두산테스나",
+      "name_local": "두산테스나",
+      "name_en": "DOOSAN TESNA Inc.",
+      "country": "KR",
+      "exchange": "KOSDAQ",
+      "provider": "dart",
+      "provider_id": "00563545",
+      "tikr_cid": "00563545",
+      "evidence_id": "ev:kr_backend:131970:dart_company",
+      "status": "candidate",
+      "review_status": "pending"
+    },
+    {
+      "id": "company:kr:183300",
+      "security_id": "KR:183300",
+      "ticker": "183300",
+      "name": "코미코",
+      "name_local": "코미코",
+      "name_en": "KoMiCo Ltd.",
+      "country": "KR",
+      "exchange": "KOSDAQ",
+      "provider": "dart",
+      "provider_id": "00997812",
+      "tikr_cid": "00997812",
+      "evidence_id": "ev:kr_backend:183300:dart_company",
+      "status": "candidate",
+      "review_status": "pending"
+    },
+    {
+      "id": "company:kr:059090",
+      "security_id": "KR:059090",
+      "ticker": "059090",
+      "name": "미코",
+      "name_local": "미코",
+      "name_en": "MiCo Ltd.",
+      "country": "KR",
+      "exchange": "KOSDAQ",
+      "provider": "dart",
+      "provider_id": "00366942",
+      "tikr_cid": "00366942",
+      "evidence_id": "ev:kr_backend:059090:dart_company",
+      "status": "candidate",
+      "review_status": "pending"
+    },
+    {
+      "id": "company:kr:330860",
+      "security_id": "KR:330860",
+      "ticker": "330860",
+      "name": "네패스아크",
+      "name_local": "네패스아크",
+      "name_en": "Nepes Ark Corporation",
+      "country": "KR",
+      "exchange": "KOSDAQ",
+      "provider": "dart",
+      "provider_id": "01368354",
+      "tikr_cid": "01368354",
+      "evidence_id": "ev:kr_backend:330860:dart_company",
+      "status": "candidate",
+      "review_status": "pending"
+    },
+    {
+      "id": "company:tse",
+      "security_id": "KR:131290",
+      "ticker": "131290",
+      "name": "티에스이",
+      "name_local": "티에스이",
+      "name_en": "TSE CO.,Ltd",
+      "country": "KR",
+      "exchange": "KOSDAQ",
+      "provider": "dart",
+      "provider_id": "00372226",
+      "tikr_cid": "00372226",
+      "evidence_id": "ev:kr_backend:131290:dart_company",
+      "status": "candidate",
+      "review_status": "pending"
+    }
+  ],
+  "products": [],
+  "processes": [],
+  "end_markets": [],
+  "demand_drivers": [],
+  "assertions": [],
+  "link_expansion": [],
+  "financial_periods": [],
+  "governance": {
+    "auto_confirm": false,
+    "requires_provenance": true,
+    "write_scope": "candidate_vc_structure_and_pending_causal",
+    "sti_protected_labels": [
+      "FinancialPeriod",
+      "InventorySnapshot",
+      "SegmentResult",
+      "BusinessSegment",
+      "MonthlyRevenue",
+      "ManagementCommentary"
+    ]
+  }
+}

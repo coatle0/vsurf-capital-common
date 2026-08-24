@@ -1,0 +1,360 @@
+{
+  "contract_version": "ivk-source-plan-1.0",
+  "created_at": "2026-08-24T11:22:17.089443+00:00",
+  "value_chain": {
+    "name": "Korea 후공정 Ecosystem",
+    "slug": "korea-후공정-ecosystem",
+    "operation": "new",
+    "target_vc": null
+  },
+  "blueprint_contract": "ivk-blueprint-1.0",
+  "pack_manifest": {
+    "frame": "matrix@1.0.0",
+    "sector": "bootstrap_semiconductor_backend@0.0.0",
+    "regions": [
+      "kr@1.0.0"
+    ]
+  },
+  "pack_policy": {
+    "mode": "bootstrap",
+    "requested_sector": "semiconductor_backend",
+    "reusable_sector_pack": false,
+    "core_revision_required": false,
+    "review_status": "bootstrap_pending"
+  },
+  "evidence_policy": {
+    "primary_source_first": true,
+    "reuse_by_content_hash": true,
+    "auto_confirm": false,
+    "canonical_graph_read": "neo4j-official.read_cypher"
+  },
+  "tasks": [
+    {
+      "seed": "KR:131970",
+      "task_type": "entity_resolution",
+      "priority": 1,
+      "identity": {
+        "canonical_id": "KR:131970",
+        "ticker": "131970",
+        "company_name": "두산테스나",
+        "market": "kr",
+        "exchange": null,
+        "provider": "dart",
+        "provider_ids": {
+          "dart": "131970"
+        },
+        "company_node_id": null
+      },
+      "topics": [
+        "identity",
+        "exchange",
+        "ticker",
+        "company_name"
+      ],
+      "source_adapters": [
+        "dart",
+        "company_ir"
+      ]
+    },
+    {
+      "seed": "KR:131970",
+      "task_type": "evidence_collection",
+      "priority": 2,
+      "identity": {
+        "canonical_id": "KR:131970",
+        "ticker": "131970",
+        "company_name": "두산테스나",
+        "market": "kr",
+        "exchange": null,
+        "provider": "dart",
+        "provider_ids": {
+          "dart": "131970"
+        },
+        "company_node_id": null
+      },
+      "topics": [
+        "cluster_members",
+        "clustering_basis",
+        "comparison_axes",
+        "shared_driver",
+        "differentiators"
+      ],
+      "source_adapters": [
+        "dart",
+        "company_ir"
+      ]
+    },
+    {
+      "seed": "KR:183300",
+      "task_type": "entity_resolution",
+      "priority": 1,
+      "identity": {
+        "canonical_id": "KR:183300",
+        "ticker": "183300",
+        "company_name": "코미코",
+        "market": "kr",
+        "exchange": null,
+        "provider": "dart",
+        "provider_ids": {
+          "dart": "183300"
+        },
+        "company_node_id": null
+      },
+      "topics": [
+        "identity",
+        "exchange",
+        "ticker",
+        "company_name"
+      ],
+      "source_adapters": [
+        "dart",
+        "company_ir"
+      ]
+    },
+    {
+      "seed": "KR:183300",
+      "task_type": "evidence_collection",
+      "priority": 2,
+      "identity": {
+        "canonical_id": "KR:183300",
+        "ticker": "183300",
+        "company_name": "코미코",
+        "market": "kr",
+        "exchange": null,
+        "provider": "dart",
+        "provider_ids": {
+          "dart": "183300"
+        },
+        "company_node_id": null
+      },
+      "topics": [
+        "cluster_members",
+        "clustering_basis",
+        "comparison_axes",
+        "shared_driver",
+        "differentiators"
+      ],
+      "source_adapters": [
+        "dart",
+        "company_ir"
+      ]
+    },
+    {
+      "seed": "KR:059090",
+      "task_type": "entity_resolution",
+      "priority": 1,
+      "identity": {
+        "canonical_id": "KR:059090",
+        "ticker": "059090",
+        "company_name": "미코",
+        "market": "kr",
+        "exchange": null,
+        "provider": "dart",
+        "provider_ids": {
+          "dart": "059090"
+        },
+        "company_node_id": null
+      },
+      "topics": [
+        "identity",
+        "exchange",
+        "ticker",
+        "company_name"
+      ],
+      "source_adapters": [
+        "dart",
+        "company_ir"
+      ]
+    },
+    {
+      "seed": "KR:059090",
+      "task_type": "evidence_collection",
+      "priority": 2,
+      "identity": {
+        "canonical_id": "KR:059090",
+        "ticker": "059090",
+        "company_name": "미코",
+        "market": "kr",
+        "exchange": null,
+        "provider": "dart",
+        "provider_ids": {
+          "dart": "059090"
+        },
+        "company_node_id": null
+      },
+      "topics": [
+        "cluster_members",
+        "clustering_basis",
+        "comparison_axes",
+        "shared_driver",
+        "differentiators"
+      ],
+      "source_adapters": [
+        "dart",
+        "company_ir"
+      ]
+    },
+    {
+      "seed": "KR:330860",
+      "task_type": "entity_resolution",
+      "priority": 1,
+      "identity": {
+        "canonical_id": "KR:330860",
+        "ticker": "330860",
+        "company_name": "네패스아크",
+        "market": "kr",
+        "exchange": null,
+        "provider": "dart",
+        "provider_ids": {
+          "dart": "330860"
+        },
+        "company_node_id": null
+      },
+      "topics": [
+        "identity",
+        "exchange",
+        "ticker",
+        "company_name"
+      ],
+      "source_adapters": [
+        "dart",
+        "company_ir"
+      ]
+    },
+    {
+      "seed": "KR:330860",
+      "task_type": "evidence_collection",
+      "priority": 2,
+      "identity": {
+        "canonical_id": "KR:330860",
+        "ticker": "330860",
+        "company_name": "네패스아크",
+        "market": "kr",
+        "exchange": null,
+        "provider": "dart",
+        "provider_ids": {
+          "dart": "330860"
+        },
+        "company_node_id": null
+      },
+      "topics": [
+        "cluster_members",
+        "clustering_basis",
+        "comparison_axes",
+        "shared_driver",
+        "differentiators"
+      ],
+      "source_adapters": [
+        "dart",
+        "company_ir"
+      ]
+    },
+    {
+      "seed": "KR:131290",
+      "task_type": "evidence_collection",
+      "priority": 2,
+      "identity": {
+        "canonical_id": "KR:131290",
+        "ticker": "131290",
+        "company_name": "티에스이",
+        "market": "kr",
+        "exchange": null,
+        "provider": "dart",
+        "provider_ids": {
+          "dart": "131290"
+        },
+        "company_node_id": "company:tse"
+      },
+      "topics": [
+        "cluster_members",
+        "clustering_basis",
+        "comparison_axes",
+        "shared_driver",
+        "differentiators"
+      ],
+      "source_adapters": [
+        "dart",
+        "company_ir"
+      ]
+    },
+    {
+      "seed": null,
+      "task_type": "question_evidence",
+      "priority": 3,
+      "requirement_id": "question:1",
+      "question": "각 seed 기업의 핵심 제품, 기능 및 Value Chain 역할은 무엇인가?",
+      "source_adapters": [
+        "dart",
+        "company_ir"
+      ]
+    },
+    {
+      "seed": null,
+      "task_type": "question_evidence",
+      "priority": 3,
+      "requirement_id": "question:2",
+      "question": "기업들이 공유하는 수요동인과 End Market은 무엇인가?",
+      "source_adapters": [
+        "dart",
+        "company_ir"
+      ]
+    },
+    {
+      "seed": null,
+      "task_type": "question_evidence",
+      "priority": 3,
+      "requirement_id": "question:3",
+      "question": "핵심 공정·제품·기술 병목은 어디에 있는가?",
+      "source_adapters": [
+        "dart",
+        "company_ir"
+      ]
+    },
+    {
+      "seed": null,
+      "task_type": "question_evidence",
+      "priority": 3,
+      "requirement_id": "question:4",
+      "question": "병목의 직접 및 간접 수혜기업은 누구인가?",
+      "source_adapters": [
+        "dart",
+        "company_ir"
+      ]
+    },
+    {
+      "seed": null,
+      "task_type": "question_evidence",
+      "priority": 3,
+      "requirement_id": "question:5",
+      "question": "최근 5분기 실적, 사업부, 재고, 마진 및 증설에서 가설이 확인되는가?",
+      "source_adapters": [
+        "dart",
+        "company_ir"
+      ]
+    },
+    {
+      "seed": null,
+      "task_type": "question_evidence",
+      "priority": 3,
+      "requirement_id": "question:6",
+      "question": "추가 조사하거나 제외해야 할 인접 기업과 연결은 무엇인가?",
+      "source_adapters": [
+        "dart",
+        "company_ir"
+      ]
+    }
+  ],
+  "token_budgets": {
+    "source_planning": 5000,
+    "evidence_extraction": 50000,
+    "synthesis": 15000,
+    "exception_review": 10000,
+    "final_report": 5000
+  },
+  "stop_conditions": [
+    "cluster_members_undefined",
+    "comparison_axis_undefined",
+    "no_primary_source"
+  ],
+  "status": "planned"
+}

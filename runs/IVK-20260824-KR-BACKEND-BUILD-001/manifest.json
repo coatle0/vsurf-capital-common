@@ -1,0 +1,55 @@
+{
+  "contract_version": "ivk-run-0.1",
+  "run_id": "IVK-20260824-KR-BACKEND-BUILD-001",
+  "operation": "new",
+  "target_vc": null,
+  "value_chain": {
+    "name": "Korea 후공정 Ecosystem",
+    "slug": "korea-후공정-ecosystem"
+  },
+  "status": "VERIFIED",
+  "last_completed_stage": "verify",
+  "next_command": "done",
+  "blockers": [],
+  "artifacts": {
+    "submitted_input": "submitted_input.json",
+    "intake": "intake.json",
+    "normalized": "normalized.json",
+    "intake_sha256": "a842826cb5449ef5e448243e07640f585aa37960ccc7e3a2b7cdd74edabc4a92",
+    "existing_graph": "existing_graph.json",
+    "blueprint": "blueprint.json",
+    "graph_snapshot_sha256": "3743712f73dc3d47ffb7ab8dfcb2fdb80001a9b176302e841d421d3d8ec192a6",
+    "source_plan": "source_plan.json",
+    "source_collection": "source_collection.json",
+    "evidence": "evidence_packet.json",
+    "ke": "ke_packet.json",
+    "write_manifest": "write_manifest.json",
+    "review": "review.json",
+    "write_batches": "write_batches.json",
+    "write_receipt": "write_receipt.json",
+    "verify": "verify.json",
+    "readback": "readback.json"
+  },
+  "pack_selection": {
+    "sector": "semiconductor_backend",
+    "regions": [
+      "kr"
+    ],
+    "registry": "registry\\ivk_factory_packs.json",
+    "manifest": {
+      "frame": "matrix@1.0.0",
+      "sector": "bootstrap_semiconductor_backend@0.0.0",
+      "regions": [
+        "kr@1.0.0"
+      ]
+    }
+  },
+  "created_at": "2026-08-24T11:22:16.991120+00:00",
+  "updated_at": "2026-08-24T11:22:24.609214+00:00",
+  "build_summary": {
+    "input_operation": "new",
+    "terminal_status": "VERIFIED",
+    "live_write_proven": true,
+    "live_readback_proven": true
+  }
+}

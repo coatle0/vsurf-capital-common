@@ -1,0 +1,68 @@
+{
+  "ok": true,
+  "run_id": "IVK-20260824-KR-BACKEND-BUILD-001",
+  "proof": "live_readback",
+  "readback": {
+    "contract_version": "ivk-readback-0.1",
+    "run_id": "IVK-20260824-KR-BACKEND-BUILD-001",
+    "ok": true,
+    "observed_at": "2026-08-24T11:22:24.191227+00:00",
+    "database": "neo4j",
+    "identity": "bolt://127.0.0.1:7687",
+    "tool": "ivk.neo4j-driver",
+    "value_chain": {
+      "id": "vc:korea-backend-ecosystem",
+      "count": 1,
+      "nickname": "Korea 후공정 Ecosystem"
+    },
+    "members": 5,
+    "evidence": 5,
+    "evidence_complete": 5,
+    "confirmed_assertions": 0,
+    "duplicate_ids": 0,
+    "idempotency_replay": "PASS"
+  },
+  "write_receipt": {
+    "contract_version": "ivk-write-receipt-0.1",
+    "run_id": "IVK-20260824-KR-BACKEND-BUILD-001",
+    "executed_at": "2026-08-24T11:22:24.191227+00:00",
+    "database": "neo4j",
+    "identity": "bolt://127.0.0.1:7687",
+    "tool": "ivk.neo4j-driver",
+    "batches": [
+      {
+        "name": "value_chain",
+        "ok": true,
+        "row_count": 1
+      },
+      {
+        "name": "companies",
+        "ok": true,
+        "row_count": 5
+      },
+      {
+        "name": "evidence",
+        "ok": true,
+        "row_count": 5
+      }
+    ],
+    "idempotency_replay": [
+      {
+        "name": "value_chain",
+        "ok": true,
+        "row_count": 1
+      },
+      {
+        "name": "companies",
+        "ok": true,
+        "row_count": 5
+      },
+      {
+        "name": "evidence",
+        "ok": true,
+        "row_count": 5
+      }
+    ],
+    "failed_batches": []
+  }
+}

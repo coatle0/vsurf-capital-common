@@ -1,0 +1,215 @@
+{
+  "contract_version": "ivk-neo4j-write-manifest-0.1",
+  "run_id": "IVK-20260824-KR-BACKEND-BUILD-001",
+  "approved_scope": "five DART-identified Companies, one candidate ValueChain, five Evidence nodes, and candidate membership",
+  "neo4j_write_status": "write_confirmed",
+  "idempotent": true,
+  "auto_confirm": false,
+  "value_chain": {
+    "id": "vc:korea-backend-ecosystem",
+    "nickname": "Korea 후공정 Ecosystem",
+    "name": "Korea 후공정 Ecosystem",
+    "status": "candidate",
+    "review_status": "pending"
+  },
+  "companies": [
+    {
+      "id": "company:kr:131970",
+      "security_id": "KR:131970",
+      "ticker": "131970",
+      "name": "두산테스나",
+      "name_local": "두산테스나",
+      "name_en": "DOOSAN TESNA Inc.",
+      "country": "KR",
+      "exchange": "KOSDAQ",
+      "provider": "dart",
+      "provider_id": "00563545",
+      "tikr_cid": "00563545",
+      "evidence_id": "ev:kr_backend:131970:dart_company",
+      "status": "candidate",
+      "review_status": "pending"
+    },
+    {
+      "id": "company:kr:183300",
+      "security_id": "KR:183300",
+      "ticker": "183300",
+      "name": "코미코",
+      "name_local": "코미코",
+      "name_en": "KoMiCo Ltd.",
+      "country": "KR",
+      "exchange": "KOSDAQ",
+      "provider": "dart",
+      "provider_id": "00997812",
+      "tikr_cid": "00997812",
+      "evidence_id": "ev:kr_backend:183300:dart_company",
+      "status": "candidate",
+      "review_status": "pending"
+    },
+    {
+      "id": "company:kr:059090",
+      "security_id": "KR:059090",
+      "ticker": "059090",
+      "name": "미코",
+      "name_local": "미코",
+      "name_en": "MiCo Ltd.",
+      "country": "KR",
+      "exchange": "KOSDAQ",
+      "provider": "dart",
+      "provider_id": "00366942",
+      "tikr_cid": "00366942",
+      "evidence_id": "ev:kr_backend:059090:dart_company",
+      "status": "candidate",
+      "review_status": "pending"
+    },
+    {
+      "id": "company:kr:330860",
+      "security_id": "KR:330860",
+      "ticker": "330860",
+      "name": "네패스아크",
+      "name_local": "네패스아크",
+      "name_en": "Nepes Ark Corporation",
+      "country": "KR",
+      "exchange": "KOSDAQ",
+      "provider": "dart",
+      "provider_id": "01368354",
+      "tikr_cid": "01368354",
+      "evidence_id": "ev:kr_backend:330860:dart_company",
+      "status": "candidate",
+      "review_status": "pending"
+    },
+    {
+      "id": "company:tse",
+      "security_id": "KR:131290",
+      "ticker": "131290",
+      "name": "티에스이",
+      "name_local": "티에스이",
+      "name_en": "TSE CO.,Ltd",
+      "country": "KR",
+      "exchange": "KOSDAQ",
+      "provider": "dart",
+      "provider_id": "00372226",
+      "tikr_cid": "00372226",
+      "evidence_id": "ev:kr_backend:131290:dart_company",
+      "status": "candidate",
+      "review_status": "pending"
+    }
+  ],
+  "products": [],
+  "processes": [],
+  "end_markets": [],
+  "demand_drivers": [],
+  "assertions": [],
+  "evidence": [
+    {
+      "id": "ev:kr_backend:131970:dart_company",
+      "ticker": "131970",
+      "company_node_id": "company:kr:131970",
+      "source_ref": "dart.company_overview:00563545",
+      "content_hash": "bc9ffc1bf49132baaf4cd1df5149414f72f98aceeacf76a0b6177fa48ee7a782",
+      "source_url": "https://opendart.fss.or.kr/api/company.json?corp_code=00563545",
+      "source_date": "2026-08-24",
+      "collected_at": "2026-08-24",
+      "source_type": "company_overview",
+      "publisher": "dart"
+    },
+    {
+      "id": "ev:kr_backend:183300:dart_company",
+      "ticker": "183300",
+      "company_node_id": "company:kr:183300",
+      "source_ref": "dart.company_overview:00997812",
+      "content_hash": "1da637fb62cec7be70652ff6e9df267cf01d48d5fd368a754ab6b62511fe41dc",
+      "source_url": "https://opendart.fss.or.kr/api/company.json?corp_code=00997812",
+      "source_date": "2026-08-24",
+      "collected_at": "2026-08-24",
+      "source_type": "company_overview",
+      "publisher": "dart"
+    },
+    {
+      "id": "ev:kr_backend:059090:dart_company",
+      "ticker": "059090",
+      "company_node_id": "company:kr:059090",
+      "source_ref": "dart.company_overview:00366942",
+      "content_hash": "1c928a0dd34a8b11689a786ff9cb37d409c2f066a648a7bd86f0b2856ff93347",
+      "source_url": "https://opendart.fss.or.kr/api/company.json?corp_code=00366942",
+      "source_date": "2026-08-24",
+      "collected_at": "2026-08-24",
+      "source_type": "company_overview",
+      "publisher": "dart"
+    },
+    {
+      "id": "ev:kr_backend:330860:dart_company",
+      "ticker": "330860",
+      "company_node_id": "company:kr:330860",
+      "source_ref": "dart.company_overview:01368354",
+      "content_hash": "ca747d157a9de3b29f9e1350aaee29f671af1a254e136137b6a01a238a3ed079",
+      "source_url": "https://opendart.fss.or.kr/api/company.json?corp_code=01368354",
+      "source_date": "2026-08-24",
+      "collected_at": "2026-08-24",
+      "source_type": "company_overview",
+      "publisher": "dart"
+    },
+    {
+      "id": "ev:kr_backend:131290:dart_company",
+      "ticker": "131290",
+      "company_node_id": "company:tse",
+      "source_ref": "dart.company_overview:00372226",
+      "content_hash": "048e794b1b520623bad48ee84de714bec608bc08b021373cb9b0f2b3e98c2e5b",
+      "source_url": "https://opendart.fss.or.kr/api/company.json?corp_code=00372226",
+      "source_date": "2026-08-24",
+      "collected_at": "2026-08-24",
+      "source_type": "company_overview",
+      "publisher": "dart"
+    }
+  ],
+  "sti_protected_labels": [
+    "FinancialPeriod",
+    "InventorySnapshot",
+    "SegmentResult",
+    "BusinessSegment",
+    "MonthlyRevenue",
+    "ManagementCommentary"
+  ],
+  "write_receipt": {
+    "contract_version": "ivk-write-receipt-0.1",
+    "run_id": "IVK-20260824-KR-BACKEND-BUILD-001",
+    "executed_at": "2026-08-24T11:22:24.191227+00:00",
+    "database": "neo4j",
+    "identity": "bolt://127.0.0.1:7687",
+    "tool": "ivk.neo4j-driver",
+    "batches": [
+      {
+        "name": "value_chain",
+        "ok": true,
+        "row_count": 1
+      },
+      {
+        "name": "companies",
+        "ok": true,
+        "row_count": 5
+      },
+      {
+        "name": "evidence",
+        "ok": true,
+        "row_count": 5
+      }
+    ],
+    "idempotency_replay": [
+      {
+        "name": "value_chain",
+        "ok": true,
+        "row_count": 1
+      },
+      {
+        "name": "companies",
+        "ok": true,
+        "row_count": 5
+      },
+      {
+        "name": "evidence",
+        "ok": true,
+        "row_count": 5
+      }
+    ],
+    "failed_batches": []
+  }
+}

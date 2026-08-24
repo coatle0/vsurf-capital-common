@@ -1,0 +1,7 @@
+[
+  {"seed":"KR:059090","company":null,"value_chain":[],"assertions":[]},
+  {"seed":"KR:131290","company":{"id":"company:tse","ticker":"131290","name":"티에스이"},"value_chain":[{"entity_type":"EndMarket","id":"market:dram","name":"DRAM / HBM","relationship":"EXPOSED_TO","status":"supplemental"},{"entity_type":"Process","id":"stage:wafer_test","name":"Wafer Test Cell","relationship":"OPERATES_IN","status":"reported"},{"entity_type":"Product","id":"product:test_socket","name":"Test Socket","relationship":"PRODUCES","status":"reported"},{"entity_type":"Product","id":"product:interface_board","name":"Interface Board","relationship":"PRODUCES","status":"reported"},{"entity_type":"Product","id":"product:probe_card","name":"Probe Card","relationship":"PRODUCES","status":"reported"}],"assertions":[]},
+  {"seed":"KR:131970","company":null,"value_chain":[],"assertions":[]},
+  {"seed":"KR:183300","company":null,"value_chain":[],"assertions":[]},
+  {"seed":"KR:330860","company":null,"value_chain":[],"assertions":[]}
+]
