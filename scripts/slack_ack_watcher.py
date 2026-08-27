@@ -104,6 +104,35 @@ def process_message(message: dict, token: str, bot_user_id: str, pc_id: str, cha
     )
 
 
+def enqueue_approved(message: dict, approved_text: str, token: str, pc_id: str, channel: str) -> str:
+    """Persist an explicitly approved proposal before ACKing it.
+
+    The approval event timestamp is the idempotency key; replies stay in the
+    originating Slack thread via ``thread_ts``.
+    """
+    event_ts = message["ts"]
+    reply_ts = message.get("thread_ts") or event_ts
+    tid = order_inbox.task_id(channel, event_ts)
+    record = {
+        "task_id": tid,
+        "channel": channel,
+        "ts": reply_ts,
+        "source_ts": event_ts,
+        "user": message.get("user"),
+        "text": approved_text,
+        "received_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "pc_id": pc_id,
+        "approval": "explicit",
+    }
+    order_inbox.write_pending(record)
+    api("chat.postMessage", token, {
+        "channel": channel,
+        "thread_ts": reply_ts,
+        "text": f"ACK [{pc_id}] APPROVED_AND_QUEUED task={tid}",
+    })
+    return tid
+
+
 def run() -> None:
     configure_logging()
     token = os.environ.get("OPENACP_SLACK_BOT_TOKEN")

@@ -129,3 +129,11 @@ def load_outbox(tid: str) -> dict[str, Any] | None:
     if not path.is_file():
         return None
     return load(path)
+
+
+def task_exists(tid: str) -> bool:
+    """Return whether a durable record for *tid* exists in any lifecycle state."""
+    filename = f"{tid}.json"
+    return any((directory / filename).is_file() for directory in (
+        PENDING_DIR, CLAIMED_DIR, OUTBOX_DIR, PROCESSED_DIR
+    ))

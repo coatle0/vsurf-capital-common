@@ -32,6 +32,8 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import slack_ack_watcher as ingress  # noqa: E402  (after sys.path.insert)
+import conversation_router  # noqa: E402
+from slack_api import api  # noqa: E402
 from slack_bolt import App  # noqa: E402
 from slack_bolt.adapter.socket_mode import SocketModeHandler  # noqa: E402
 
@@ -60,12 +62,26 @@ class Cursor:
             ingress.save_cursor(ts)
 
 
+def route_human_event(event: dict, token: str, bot_user_id: str, pc_id: str, channel: str) -> None:
+    if not ingress.is_human_message(event, bot_user_id):
+        return
+    root_ts = event.get("thread_ts") or event["ts"]
+    conversation_router.route_event(
+        event,
+        conversation_router.ConversationStore(),
+        lambda text: api("chat.postMessage", token, {"channel": channel, "thread_ts": root_ts, "text": text}),
+        lambda approval_event, proposal: ingress.enqueue_approved(
+            approval_event, proposal, token, pc_id, channel
+        ),
+    )
+
+
 def catch_up(token: str, channel: str, bot_user_id: str, pc_id: str, cursor: Cursor) -> None:
     for message in ingress.fetch_new_messages(token, channel, cursor.value):
         ts = float(message["ts"])
         if ts <= cursor.value:
             continue
-        ingress.process_message(message, token, bot_user_id, pc_id, channel)
+        route_human_event(message, token, bot_user_id, pc_id, channel)
         cursor.advance(ts)
 
 
@@ -75,7 +91,7 @@ def handle_live_event(event: dict, token: str, bot_user_id: str, pc_id: str, cha
     ts = float(event["ts"])
     if ts <= cursor.value:
         return
-    ingress.process_message(event, token, bot_user_id, pc_id, channel)
+    route_human_event(event, token, bot_user_id, pc_id, channel)
     cursor.advance(ts)
 
 

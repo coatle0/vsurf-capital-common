@@ -61,6 +61,18 @@ class ProcessMessageDurabilityTests(unittest.TestCase):
         mock_write.assert_not_called()
         mock_api.assert_not_called()
 
+    def test_approved_write_happens_before_ack_and_uses_approval_ts_for_id(self):
+        calls = []
+        message = {"user": "U1", "text": "approve", "ts": "2.0", "thread_ts": "1.0"}
+        with patch.object(MODULE.order_inbox, "write_pending", side_effect=lambda r: calls.append(("write", r)) or Path("x")), \
+             patch.object(MODULE, "api", side_effect=lambda *a: calls.append(("ack", a))):
+            tid = MODULE.enqueue_approved(message, "[EXECUTE ORDER 7]", "tok", "codex-pc2", "C1")
+        self.assertEqual(tid, "C1-2.0")
+        self.assertEqual(calls[0][0], "write")
+        self.assertEqual(calls[0][1]["ts"], "1.0")
+        self.assertEqual(calls[0][1]["approval"], "explicit")
+        self.assertEqual(calls[1][0], "ack")
+
 
 if __name__ == "__main__":
     unittest.main()

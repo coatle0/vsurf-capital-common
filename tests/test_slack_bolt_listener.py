@@ -34,7 +34,7 @@ class CatchUpTests(unittest.TestCase):
         messages = [{"ts": "1.0", "text": "old"}, {"ts": "2.0", "text": "new"}, {"ts": "3.0", "text": "newer"}]
         cursor = MODULE.Cursor(1.0)
         with patch.object(ingress, "fetch_new_messages", return_value=messages) as mock_fetch, \
-             patch.object(ingress, "process_message") as mock_process, \
+             patch.object(MODULE, "route_human_event") as mock_process, \
              patch.object(ingress, "save_cursor"):
             MODULE.catch_up("tok", "C1", "UBOT", "codex-pc2", cursor)
         mock_fetch.assert_called_once_with("tok", "C1", 1.0)
@@ -57,21 +57,21 @@ class CatchUpTests(unittest.TestCase):
 class HandleLiveEventTests(unittest.TestCase):
     def test_ignores_events_from_other_channels(self):
         cursor = MODULE.Cursor(0.0)
-        with patch.object(ingress, "process_message") as mock_process:
+        with patch.object(MODULE, "route_human_event") as mock_process:
             MODULE.handle_live_event({"channel": "OTHER", "ts": "1.0"}, "tok", "UBOT", "codex-pc2", "C1", cursor)
         mock_process.assert_not_called()
         self.assertEqual(cursor.value, 0.0)
 
     def test_ignores_stale_ts(self):
         cursor = MODULE.Cursor(10.0)
-        with patch.object(ingress, "process_message") as mock_process:
+        with patch.object(MODULE, "route_human_event") as mock_process:
             MODULE.handle_live_event({"channel": "C1", "ts": "1.0"}, "tok", "UBOT", "codex-pc2", "C1", cursor)
         mock_process.assert_not_called()
 
     def test_processes_and_advances_for_new_event_in_channel(self):
         cursor = MODULE.Cursor(1.0)
         event = {"channel": "C1", "ts": "2.0", "user": "U1", "text": "[EXECUTE ORDER 003]"}
-        with patch.object(ingress, "process_message") as mock_process, patch.object(ingress, "save_cursor"):
+        with patch.object(MODULE, "route_human_event") as mock_process, patch.object(ingress, "save_cursor"):
             MODULE.handle_live_event(event, "tok", "UBOT", "codex-pc2", "C1", cursor)
         mock_process.assert_called_once_with(event, "tok", "UBOT", "codex-pc2", "C1")
         self.assertEqual(cursor.value, 2.0)
