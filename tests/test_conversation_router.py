@@ -74,6 +74,11 @@ class RouterTests(unittest.TestCase):
         self.enqueue.assert_not_called()
         self.assertIn("rejected", self.posts[-1])
 
+    def test_slack_connector_signature_is_removed_before_command_classification(self):
+        self.route(self.event("help *다음을 사용하여 보냄* ChatGPT"))
+        self.assertIn("Commands:", self.posts[-1])
+        self.enqueue.assert_not_called()
+
     def test_result_reads_outbox_without_execution(self):
         self.route(self.event("run [EXECUTE ORDER 7]"))
         self.route(self.event("approve", ts="2.0", thread_ts="1.0"))

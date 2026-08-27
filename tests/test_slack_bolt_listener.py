@@ -1,4 +1,5 @@
 import importlib.util
+import tempfile
 import unittest
 from pathlib import Path
 from unittest.mock import patch
@@ -27,6 +28,18 @@ class CursorTests(unittest.TestCase):
             cursor.advance(1.0)
         self.assertEqual(cursor.value, 5.0)
         mock_save.assert_not_called()
+
+
+class ListenerLockTests(unittest.TestCase):
+    def test_second_listener_is_rejected_and_lock_releases(self):
+        with tempfile.TemporaryDirectory() as temp:
+            path = Path(temp) / "listener.lock"
+            with MODULE.ListenerLock(path):
+                with self.assertRaises(RuntimeError):
+                    with MODULE.ListenerLock(path):
+                        pass
+            with MODULE.ListenerLock(path):
+                pass
 
 
 class CatchUpTests(unittest.TestCase):

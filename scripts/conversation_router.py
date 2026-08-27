@@ -17,6 +17,7 @@ from typing import Callable, NamedTuple
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import order_inbox
+import order_dispatcher
 
 DB_PATH = Path(r"C:\lab\vsurf_capital\common\.runtime\conversation_router.sqlite3")
 MUTATION_PREFIXES = ("[execute order ", "run ", "continue ")
@@ -107,7 +108,7 @@ def route_event(
     enqueue: Callable[[dict, str], str],
 ) -> RouteResult:
     """Classify one human Slack event. Unknown/ambiguous text never executes."""
-    text = event.get("text", "").strip()
+    text = order_dispatcher.clean_field_value(event.get("text", "").strip())
     lowered = text.casefold()
     channel, root_ts = thread_key(event)
 

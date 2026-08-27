@@ -38,6 +38,7 @@ from slack_bolt import App  # noqa: E402
 from slack_bolt.adapter.socket_mode import SocketModeHandler  # noqa: E402
 
 LOG_PATH = Path(r"C:\lab\vsurf_capital\common\logs\slack_bolt_listener.log")
+LOCK_PATH = Path(r"C:\lab\vsurf_capital\common\.runtime\slack_bolt_listener.lock")
 logger = logging.getLogger("slack_bolt_listener")
 
 
@@ -60,6 +61,48 @@ class Cursor:
         if ts > self.value:
             self.value = ts
             ingress.save_cursor(ts)
+
+
+class ListenerLock:
+    """OS-held singleton lock; automatically released if the process dies."""
+
+    def __init__(self, path: Path = LOCK_PATH):
+        self.path = path
+        self.file = None
+
+    def __enter__(self) -> "ListenerLock":
+        self.path.parent.mkdir(parents=True, exist_ok=True)
+        self.file = self.path.open("a+b")
+        self.file.seek(0)
+        if self.file.tell() == 0:
+            self.file.write(b"0")
+            self.file.flush()
+        self.file.seek(0)
+        try:
+            if os.name == "nt":
+                import msvcrt
+                msvcrt.locking(self.file.fileno(), msvcrt.LK_NBLCK, 1)
+            else:
+                import fcntl
+                fcntl.flock(self.file.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except OSError as exc:
+            self.file.close()
+            self.file = None
+            raise RuntimeError("Another slack_bolt_listener instance is already running") from exc
+        return self
+
+    def __exit__(self, exc_type, exc, tb) -> None:
+        if self.file is None:
+            return
+        self.file.seek(0)
+        if os.name == "nt":
+            import msvcrt
+            msvcrt.locking(self.file.fileno(), msvcrt.LK_UNLCK, 1)
+        else:
+            import fcntl
+            fcntl.flock(self.file.fileno(), fcntl.LOCK_UN)
+        self.file.close()
+        self.file = None
 
 
 def route_human_event(event: dict, token: str, bot_user_id: str, pc_id: str, channel: str) -> None:
@@ -109,21 +152,22 @@ def run() -> None:
     bot_user_id = os.environ.get("VSURF_SLACK_BOT_USER_ID", "U0BPUB9ES8G")
     channel = ingress.CHANNEL_ID
 
-    cursor = Cursor(ingress.load_cursor())
-    logger.info("starting bounded catch-up from cursor=%s", cursor.value)
-    catch_up(token, channel, bot_user_id, pc_id, cursor)
+    with ListenerLock():
+        cursor = Cursor(ingress.load_cursor())
+        logger.info("starting bounded catch-up from cursor=%s", cursor.value)
+        catch_up(token, channel, bot_user_id, pc_id, cursor)
 
-    app = App(token=token)
+        app = App(token=token)
 
-    @app.event("message")
-    def _on_message(event: dict) -> None:
-        try:
-            handle_live_event(event, token, bot_user_id, pc_id, channel, cursor)
-        except Exception:
-            logger.exception("failed to handle live event ts=%s", event.get("ts"))
+        @app.event("message")
+        def _on_message(event: dict) -> None:
+            try:
+                handle_live_event(event, token, bot_user_id, pc_id, channel, cursor)
+            except Exception:
+                logger.exception("failed to handle live event ts=%s", event.get("ts"))
 
-    logger.info("catch-up done, starting Socket Mode handler")
-    SocketModeHandler(app, app_token).start()
+        logger.info("catch-up done, starting Socket Mode handler")
+        SocketModeHandler(app, app_token).start()
 
 
 if __name__ == "__main__":
