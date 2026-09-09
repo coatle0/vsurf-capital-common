@@ -32,6 +32,16 @@ DEFAULT_TYPES = "public_channel,private_channel"
 DEFAULT_HISTORY_LIMIT = 3
 MAX_LIMIT = 200
 _LAB_ROOT = pathlib.Path(r"C:\lab").resolve()
+# C:\vsurf_capital is the new canonical VSURF Capital root (2026-09-08 CTX
+# transfer), separate from C:\lab -- not a subpath of it. Read/write paths
+# below need to accept both roots, not just C:\lab.
+_ALLOWED_ROOTS = (_LAB_ROOT, pathlib.Path(r"C:\vsurf_capital").resolve())
+
+
+def _under_allowed_root(resolved: pathlib.Path) -> bool:
+    return any(
+        resolved == root or root in resolved.parents for root in _ALLOWED_ROOTS
+    )
 _API_HOST = "slack.com"
 _API_TIMEOUT = 20
 _MAX_READ_FILE_BYTES = 512 * 1024
@@ -259,10 +269,8 @@ def _read_md_path(path: str) -> tuple[str, str]:
     resolved = pathlib.Path(path).expanduser().resolve()
     if resolved.suffix.lower() != ".md":
         raise ValueError("path must end with .md")
-    try:
-        resolved.relative_to(_LAB_ROOT)
-    except ValueError as exc:
-        raise ValueError("markdown path must be under C:\\lab") from exc
+    if not _under_allowed_root(resolved):
+        raise ValueError("markdown path must be under C:\\lab or C:\\vsurf_capital")
     if not resolved.is_file():
         raise ValueError("markdown file not found")
     return resolved.read_text(encoding="utf-8"), resolved.name
@@ -528,10 +536,8 @@ def _read_file_body(file_id: str, save_path: str = "") -> dict:
     dest = (save_path or "").strip()
     if dest:
         resolved = pathlib.Path(dest).expanduser().resolve()
-        try:
-            resolved.relative_to(_LAB_ROOT)
-        except ValueError as exc:
-            raise ValueError("save_path must be under C:\\lab") from exc
+        if not _under_allowed_root(resolved):
+            raise ValueError("save_path must be under C:\\lab or C:\\vsurf_capital")
         resolved.parent.mkdir(parents=True, exist_ok=True)
         resolved.write_text(text, encoding="utf-8")
         saved = str(resolved)
@@ -625,7 +631,7 @@ def slack_read_channel(
 
 @mcp.tool()
 def slack_read_file(file_id: str, save_path: str = "") -> dict:
-    """Read a Slack file body in memory. Pass file_id from slack_read_channel.files. Default does not write disk. save_path is optional and must be under C:\\lab. Text/markdown only."""
+    """Read a Slack file body in memory. Pass file_id from slack_read_channel.files. Default does not write disk. save_path is optional and must be under C:\\lab or C:\\vsurf_capital. Text/markdown only."""
     return _wrap(_read_file_body, file_id, save_path)
 
 

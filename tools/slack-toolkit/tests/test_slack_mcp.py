@@ -332,6 +332,71 @@ class SlackMcpTests(unittest.TestCase):
         self.assertFalse(result["ok"])
         self.assertIn("text/markdown", result["error"])
 
+    def test_under_allowed_root_accepts_both_lab_and_vsurf_capital(self):
+        self.assertTrue(S._under_allowed_root(pathlib.Path(r"C:\lab\foo\bar.md")))
+        self.assertTrue(
+            S._under_allowed_root(pathlib.Path(r"C:\vsurf_capital\projects\x\STATUS.md"))
+        )
+        self.assertTrue(S._under_allowed_root(pathlib.Path(r"C:\lab")))
+        self.assertTrue(S._under_allowed_root(pathlib.Path(r"C:\vsurf_capital")))
+
+    def test_under_allowed_root_rejects_other_paths(self):
+        # C:\lab_other is a sibling, not a subpath -- must not match on a
+        # naive string prefix check.
+        self.assertFalse(S._under_allowed_root(pathlib.Path(r"C:\lab_other\x.md")))
+        self.assertFalse(S._under_allowed_root(pathlib.Path(r"C:\Windows\x.md")))
+
+    def test_read_file_save_path_under_vsurf_capital_now_allowed(self):
+        """save_path used to be rejected outside C:\\lab -- C:\\vsurf_capital
+        is the new canonical VSURF Capital root (2026-09-08 CTX transfer)
+        and must be accepted too."""
+        info = {
+            "ok": True,
+            "file": {
+                "id": "F10",
+                "name": "note.md",
+                "title": "Note",
+                "mimetype": "text/markdown",
+                "filetype": "markdown",
+                "url_private": "https://files.slack.com/files-pri/note.md",
+            },
+        }
+        dest = pathlib.Path(r"C:\vsurf_capital\_test_slack_mcp_save_path\note.md")
+        try:
+            with patch.dict("os.environ", {"SLACK_BOT_TOKEN": "xoxb-test"}, clear=False):
+                with patch.object(
+                    S, "_http_post", return_value=json.dumps(info).encode("utf-8")
+                ):
+                    with patch.object(S, "_http_get_authorized", return_value=b"# hi\n"):
+                        result = S.slack_read_file("F10", save_path=str(dest))
+            self.assertTrue(result["ok"])
+            self.assertEqual(result["saved"], str(dest.resolve()))
+            self.assertEqual(dest.read_text(encoding="utf-8"), "# hi\n")
+        finally:
+            if dest.exists():
+                dest.unlink()
+            if dest.parent.exists():
+                dest.parent.rmdir()
+
+    def test_read_file_save_path_outside_allowed_roots_still_rejected(self):
+        info = {
+            "ok": True,
+            "file": {
+                "id": "F11",
+                "name": "note.md",
+                "title": "Note",
+                "mimetype": "text/markdown",
+                "filetype": "markdown",
+                "url_private": "https://files.slack.com/files-pri/note.md",
+            },
+        }
+        with patch.dict("os.environ", {"SLACK_BOT_TOKEN": "xoxb-test"}, clear=False):
+            with patch.object(S, "_http_post", return_value=json.dumps(info).encode("utf-8")):
+                with patch.object(S, "_http_get_authorized", return_value=b"# hi\n"):
+                    result = S.slack_read_file("F11", save_path=r"C:\Windows\note.md")
+        self.assertFalse(result["ok"])
+        self.assertIn("must be under", result["error"])
+
 
 class PatchGrokConfigTests(unittest.TestCase):
     def test_appends_block_without_writing_token_value(self):
