@@ -289,7 +289,13 @@ class SlackMcpTests(unittest.TestCase):
         self.assertNotIn("url_private", msg["files"][0])
         self.assertNotIn("# hello", json.dumps(result))
 
-    def test_read_file_returns_text_without_saving(self):
+    def test_read_file_without_save_path_auto_saves_under_lab_downloads(self):
+        """save_path used to be optional with an in-memory-only default --
+        that silent default let a caller skip persisting and fall back to
+        a much slower path instead (observed live: ~6 minutes of
+        desktop-GUI automation to get a file onto disk). Omitting
+        save_path must now still write to disk, under a dedicated
+        auto-download folder."""
         info = {
             "ok": True,
             "file": {
@@ -306,14 +312,19 @@ class SlackMcpTests(unittest.TestCase):
             self.assertEqual(path, "/api/files.info")
             return json.dumps(info).encode("utf-8")
 
-        with patch.dict("os.environ", {"SLACK_BOT_TOKEN": "xoxb-test"}, clear=False):
-            with patch.object(S, "_http_post", side_effect=fake_http_post):
-                with patch.object(S, "_http_get_authorized", return_value=b"# hello\n") as get:
-                    result = S.slack_read_file("F9")
-        self.assertTrue(result["ok"])
-        self.assertEqual(result["text"], "# hello\n")
-        self.assertEqual(result["saved"], "")
-        get.assert_called_once()
+        expected = S._DEFAULT_DOWNLOAD_DIR / "F9_note.md"
+        try:
+            with patch.dict("os.environ", {"SLACK_BOT_TOKEN": "xoxb-test"}, clear=False):
+                with patch.object(S, "_http_post", side_effect=fake_http_post):
+                    with patch.object(S, "_http_get_authorized", return_value=b"# hello\n"):
+                        result = S.slack_read_file("F9")
+            self.assertTrue(result["ok"])
+            self.assertEqual(result["text"], "# hello\n")
+            self.assertEqual(result["saved"], str(expected.resolve()))
+            self.assertEqual(expected.read_text(encoding="utf-8"), "# hello\n")
+        finally:
+            if expected.exists():
+                expected.unlink()
 
     def test_read_file_rejects_binary(self):
         info = {

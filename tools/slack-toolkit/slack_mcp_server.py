@@ -42,6 +42,25 @@ def _under_allowed_root(resolved: pathlib.Path) -> bool:
     return any(
         resolved == root or root in resolved.parents for root in _ALLOWED_ROOTS
     )
+
+
+# slack_read_file used to only write to disk when a caller explicitly passed
+# save_path, defaulting to an in-memory-only text response otherwise. That
+# silent default let a caller skip persisting entirely and reach for a much
+# slower fallback instead -- observed live: Codexy, given no save_path,
+# fell back to ~6 minutes of desktop-GUI automation (the orca app clicking
+# through the Slack client) to get a file onto disk with byte-exact
+# fidelity, rather than just writing the MCP response to a file itself.
+# Auto-saving under this directory whenever save_path is omitted removes
+# that choice -- the file is always on disk after one call.
+_DEFAULT_DOWNLOAD_DIR = _LAB_ROOT / "_slack_downloads"
+
+
+def _sanitized_filename(file_id: str, name: str) -> str:
+    safe_name = (name or "file").strip()
+    for ch in ("\\", "/", ":", "*", "?", '"', "<", ">", "|"):
+        safe_name = safe_name.replace(ch, "_")
+    return f"{file_id}_{safe_name}" if safe_name else file_id
 _API_HOST = "slack.com"
 _API_TIMEOUT = 20
 _MAX_READ_FILE_BYTES = 512 * 1024
@@ -532,15 +551,18 @@ def _read_file_body(file_id: str, save_path: str = "") -> dict:
     if len(raw) > _MAX_READ_FILE_BYTES:
         raise ValueError(f"file exceeds {_MAX_READ_FILE_BYTES} bytes")
     text = raw.decode("utf-8")
-    saved = ""
     dest = (save_path or "").strip()
     if dest:
         resolved = pathlib.Path(dest).expanduser().resolve()
         if not _under_allowed_root(resolved):
             raise ValueError("save_path must be under C:\\lab or C:\\vsurf_capital")
-        resolved.parent.mkdir(parents=True, exist_ok=True)
-        resolved.write_text(text, encoding="utf-8")
-        saved = str(resolved)
+    else:
+        # No explicit save_path -- auto-save so the file always ends up on
+        # disk, rather than defaulting to an in-memory-only response.
+        resolved = (_DEFAULT_DOWNLOAD_DIR / _sanitized_filename(fid, name)).resolve()
+    resolved.parent.mkdir(parents=True, exist_ok=True)
+    resolved.write_text(text, encoding="utf-8")
+    saved = str(resolved)
     return {
         "file_id": item.get("id") or fid,
         "filename": name,
@@ -631,7 +653,7 @@ def slack_read_channel(
 
 @mcp.tool()
 def slack_read_file(file_id: str, save_path: str = "") -> dict:
-    """Read a Slack file body in memory. Pass file_id from slack_read_channel.files. Default does not write disk. save_path is optional and must be under C:\\lab or C:\\vsurf_capital. Text/markdown only."""
+    """Read a Slack file body and always save it to disk. Pass file_id from slack_read_channel.files. Without save_path, auto-saves under C:\\lab\\_slack_downloads\\<file_id>_<filename>. save_path, if given, must be under C:\\lab or C:\\vsurf_capital. Text/markdown only."""
     return _wrap(_read_file_body, file_id, save_path)
 
 
